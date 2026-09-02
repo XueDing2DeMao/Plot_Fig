@@ -61,6 +61,52 @@ describe('migrateV010ToV100', () => {
     expect(output.theme).not.toBe(input.theme);
   });
 
+  it.each([
+    [
+      'metadata',
+      {
+        metadata: {
+          name: 'LEAK-METADATA-NAME',
+          tags: ['current-tag'],
+        },
+      },
+    ],
+    ['templateId', { templateId: 'template-current-field' }],
+    [
+      'metadata and templateId',
+      {
+        metadata: {
+          name: 'LEAK-METADATA-NAME',
+          tags: ['current-tag'],
+        },
+        templateId: 'template-current-field',
+      },
+    ],
+  ])(
+    'rejects mixed-state legacy payloads containing %s',
+    async (_label, extraFields) => {
+      const input = Object.assign(await readLegacyTemplate(), extraFields);
+      let thrown: unknown;
+
+      expect(() => migrateV010ToV100(input)).toThrowError(
+        new TypeError('legacy figure-template@0.1.0 payload is invalid'),
+      );
+
+      try {
+        migrateV010ToV100(input);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(TypeError);
+      expect((thrown as Error).message).toBe(
+        'legacy figure-template@0.1.0 payload is invalid',
+      );
+      expect((thrown as Error).message).not.toContain('LEAK-METADATA-NAME');
+      expect((thrown as Error).message).not.toContain('template-current-field');
+    },
+  );
+
   it('throws stable TypeError results for unsafe inputs without invoking getters', () => {
     let idGetterCalls = 0;
     const accessorInput = Object.assign(Object.create(null), {

@@ -425,6 +425,10 @@ type V010 = Record<string, unknown> & {
   tags: string[];
 };
 
+function hasOwn(value: Record<string, unknown>, key: string): boolean {
+  return Object.hasOwn(value, key);
+}
+
 function cloneLegacyTemplate(input: unknown): V010 {
   const value = JSON.parse(canonicalizeFigurePayload(input)) as
     | Record<string, unknown>
@@ -434,8 +438,13 @@ function cloneLegacyTemplate(input: unknown): V010 {
     typeof value !== 'object' ||
     value === null ||
     Array.isArray(value) ||
+    hasOwn(value, 'metadata') ||
+    hasOwn(value, 'templateId') ||
     value.kind !== 'figure-template' ||
     value.schemaVersion !== '0.1.0' ||
+    !hasOwn(value, 'id') ||
+    !hasOwn(value, 'title') ||
+    !hasOwn(value, 'tags') ||
     typeof value.id !== 'string' ||
     typeof value.title !== 'string' ||
     !Array.isArray(value.tags) ||
@@ -473,6 +482,8 @@ git commit -m "feat(migrations): 迁移旧版模板信封"
 
 - RED: `pnpm vitest run packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.test.ts` exited 1 with `Cannot find module './v0.1.0-to-v1.0.0.js'`, proving the new Task 3 test failed before the migration existed.
 - GREEN: after implementing `packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.ts`, rerunning the same focused command exited 0 with `1` file passed and `4` tests passed, covering field rename, final `validateFigureTemplate` success, input immutability, deep-clone isolation, accessor-safe failure, non-JSON / dangerous-key `TypeError`, and canonical stability across repeated runs.
+- Mixed-state regression RED: after adding legacy payload cases that already contained `metadata`, `templateId`, and both together, `pnpm vitest run packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.test.ts` exited 1 with `expected function to throw an error, but it didn't`, proving the migration silently accepted and overwrote current-version fields.
+- Mixed-state regression GREEN: after rejecting own `metadata` / `templateId` fields during the post-canonical clone validation and tightening required legacy keys to own properties, rerunning the same focused command exited 0 with `1` file passed and `7` tests passed; the thrown message remained the stable `legacy figure-template@0.1.0 payload is invalid` and did not echo attacker-controlled input text.
 - Pack-boundary RED: `pnpm --filter @plot-fig/figure-migrations pack --dry-run` initially included `src/migrations/v0.1.0-to-v1.0.0.test.ts` and `src/version.test.ts`, proving validation assets could leak into the package tarball.
 - Pack-boundary GREEN: after adding `"files": ["dist"]` to `packages/figure-migrations/package.json`, rerunning `pnpm --filter @plot-fig/figure-migrations pack --dry-run` listed only `dist/**` plus `package.json`; the new root-level fixture under `tests/fixtures/migrations/` was not packaged.
 - Stable API boundary: after `pnpm build`, `node --input-type=module -e 'import("./dist/index.js") ...'` from `packages/figure-migrations` exited 0 with `migrations package entrypoint has no version-specific exports`, confirming Task 3 did not leak the version-specific migration step to the top-level runtime API.

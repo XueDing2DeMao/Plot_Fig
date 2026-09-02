@@ -14,6 +14,10 @@ function invalidLegacyTemplate(): TypeError {
   return new TypeError('legacy figure-template@0.1.0 payload is invalid');
 }
 
+function hasOwn(value: JsonRecord, key: string): boolean {
+  return Object.hasOwn(value, key);
+}
+
 function isStringArray(value: unknown): value is string[] {
   return (
     Array.isArray(value) && value.every((entry) => typeof entry === 'string')
@@ -32,10 +36,16 @@ function cloneLegacyTemplate(input: unknown): LegacyFigureTemplateV010 {
   const value = asJsonRecord(
     JSON.parse(canonicalizeFigurePayload(input)) as unknown,
   );
+  if (hasOwn(value, 'metadata') || hasOwn(value, 'templateId')) {
+    throw invalidLegacyTemplate();
+  }
 
   if (
     value.kind !== 'figure-template' ||
     value.schemaVersion !== '0.1.0' ||
+    !hasOwn(value, 'id') ||
+    !hasOwn(value, 'title') ||
+    !hasOwn(value, 'tags') ||
     typeof value.id !== 'string' ||
     typeof value.title !== 'string' ||
     !isStringArray(value.tags)
