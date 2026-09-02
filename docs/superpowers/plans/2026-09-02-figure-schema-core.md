@@ -275,7 +275,7 @@ git commit -m "chore(repo): 初始化 TypeScript 工作区"
 - Create: `packages/figure-schema/src/schema/common.ts`
 - Test: `packages/figure-schema/src/schema/common.test.ts`
 
-- [ ] **Step 1: Write the failing common-schema tests**
+- [x] **Step 1: Write the failing common-schema tests**
 
 ```ts
 import Schema from 'typebox/schema';
@@ -302,13 +302,13 @@ describe('common schemas', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and verify the missing module failure**
+- [x] **Step 2: Run the test and verify the missing module failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/common.test.ts`
 
 Expected: FAIL because `./common.js` does not exist.
 
-- [ ] **Step 3: Implement common schemas**
+- [x] **Step 3: Implement common schemas**
 
 ```ts
 import Type from 'typebox';
@@ -345,13 +345,13 @@ export type Length = Type.Static<typeof LengthSchema>;
 export type ExtensionBag = Type.Static<typeof ExtensionBagSchema>;
 ```
 
-- [ ] **Step 4: Run the common-schema tests**
+- [x] **Step 4: Run the common-schema tests**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/common.test.ts`
 
 Expected: PASS with 2 tests.
 
-- [ ] **Step 5: Commit common schemas**
+- [x] **Step 5: Commit common schemas**
 
 ```powershell
 git add packages/figure-schema/src/schema/common.ts packages/figure-schema/src/schema/common.test.ts
