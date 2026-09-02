@@ -1,10 +1,15 @@
 import { appendPath, readIsArray } from './snapshot-validation-helpers.js';
 import { SECURITY_LIMITS } from './security-config.js';
 import {
+  isScriptPayloadArray,
+  isScriptPayloadRecord,
+} from './security-script.js';
+import {
   invalidDiagnostic,
   isAccessorDescriptor,
   limitDiagnostic,
   noteAutomationRemoval,
+  noteScriptRemoval,
   stopWith,
   type PathContext,
   type VisitValue,
@@ -55,6 +60,22 @@ export function visitAutomation(
     );
     return;
   }
+  const keys = readDescriptorKeys(descriptors, context, state, 'array');
+  if (!keys || state.failed) {
+    return;
+  }
+  for (const key of keys) {
+    if (key !== 'length' && !/^(0|[1-9]\d*)$/u.test(key)) {
+      stopWith(
+        state,
+        invalidDiagnostic(
+          appendPath(context.path, key),
+          'Snapshot arrays must not include named properties',
+        ),
+      );
+      return;
+    }
+  }
   for (let index = 0; index < length; index += 1) {
     if (state.failed) {
       break;
@@ -94,7 +115,7 @@ export function visitAutomation(
       descriptor.value,
       {
         depth: context.depth + 1,
-        inExtension: false,
+        inExtension: context.inExtension,
         path: entryPath,
       },
       state,
@@ -188,15 +209,21 @@ export function visitArray(
         );
         break;
       }
-      const child = visitValue(
-        descriptor.value,
-        {
-          depth: context.depth + 1,
-          inExtension: context.inExtension,
-          path: itemPath,
-        },
-        state,
-      );
+      const childContext = {
+        depth: context.depth + 1,
+        inExtension: context.inExtension,
+        path: itemPath,
+      };
+      if (context.inExtension && isScriptPayloadRecord(descriptor.value)) {
+        noteScriptRemoval(state, itemPath);
+        visitValue(descriptor.value, childContext, state);
+        continue;
+      }
+      if (context.inExtension && isScriptPayloadArray(descriptor.value)) {
+        visitAutomation(descriptor.value, childContext, state, visitValue);
+        continue;
+      }
+      const child = visitValue(descriptor.value, childContext, state);
       if (state.failed) {
         break;
       }

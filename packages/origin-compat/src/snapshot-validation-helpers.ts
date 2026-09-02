@@ -256,7 +256,11 @@ function cloneObject(value: object, path: string): SafeCloneResult {
       };
     }
     if (!descriptor.enumerable) {
-      continue;
+      return {
+        ok: false,
+        sourcePath: appendPath(path, key),
+        message: 'Snapshot object properties must be enumerable',
+      };
     }
     if ('get' in descriptor || 'set' in descriptor) {
       return {

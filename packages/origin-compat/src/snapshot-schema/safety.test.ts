@@ -3,6 +3,7 @@ import {
   createValidSnapshot,
   expectInvalid,
 } from '../../../../tests/helpers/origin-snapshot.js';
+import { scrubOriginSnapshot } from '../security.js';
 import { validateOriginSnapshot } from '../snapshot-schema.js';
 
 describe('validateOriginSnapshot safety boundaries', () => {
@@ -64,6 +65,52 @@ describe('validateOriginSnapshot safety boundaries', () => {
       validateOriginSnapshot(proxy),
       'ORIGIN_SNAPSHOT_INVALID',
       '/',
+    );
+  });
+
+  it('rejects non-enumerable root fields instead of silently dropping them', () => {
+    const input = createValidSnapshot() as Record<string, unknown>;
+    Object.defineProperty(input, 'hidden', {
+      enumerable: false,
+      configurable: true,
+      value: 'secret',
+    });
+
+    expectInvalid(
+      validateOriginSnapshot(input),
+      'ORIGIN_SNAPSHOT_INVALID',
+      '/hidden',
+    );
+  });
+
+  it('fails closed before scrubbing and never executes hidden getters', () => {
+    let executed = false;
+    const input = createValidSnapshot() as Record<string, unknown>;
+    Object.defineProperty(input, 'shadow', {
+      enumerable: false,
+      configurable: true,
+      get() {
+        executed = true;
+        throw new Error('shadow getter should not run');
+      },
+    });
+
+    const validated = validateOriginSnapshot(input);
+    const scrubbed = scrubOriginSnapshot(input as never);
+
+    expect(executed).toBe(false);
+    expectInvalid(validated, 'ORIGIN_SNAPSHOT_INVALID', '/shadow');
+    expect(scrubbed.ok).toBe(false);
+    if (scrubbed.ok) {
+      throw new Error('expected scrubOriginSnapshot to fail closed');
+    }
+    expect(scrubbed.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'ORIGIN_SNAPSHOT_INVALID',
+          sourcePath: '/shadow',
+        }),
+      ]),
     );
   });
 });

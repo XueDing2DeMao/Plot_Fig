@@ -7,6 +7,10 @@ import {
 } from './security-config.js';
 import { visitAutomation } from './security-array.js';
 import {
+  isScriptPayloadArray,
+  isScriptPayloadRecord,
+} from './security-script.js';
+import {
   addBytes,
   dangerousDiagnostic,
   invalidDiagnostic,
@@ -116,6 +120,15 @@ export function visitObject(
       if (context.inExtension && isScriptLikeKey(key)) {
         noteScriptRemoval(state, propertyPath);
         visitValue(descriptor.value, childContext, state);
+        continue;
+      }
+      if (context.inExtension && isScriptPayloadRecord(descriptor.value)) {
+        noteScriptRemoval(state, propertyPath);
+        visitValue(descriptor.value, childContext, state);
+        continue;
+      }
+      if (context.inExtension && isScriptPayloadArray(descriptor.value)) {
+        visitAutomation(descriptor.value, childContext, state, visitValue);
         continue;
       }
       const child = visitValue(descriptor.value, childContext, state);

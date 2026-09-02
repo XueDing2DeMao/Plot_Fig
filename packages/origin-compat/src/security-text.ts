@@ -1,7 +1,45 @@
 import type { OriginTemplateSnapshotV1 } from './snapshot-schema.js';
 import type { CompatibilityItem, ImportDiagnostic } from './types.js';
 
-const HTML_TAG_PATTERN = /<\/?[A-Za-z][^>]*>/gu;
+function isTagLikeStart(text: string, index: number): boolean {
+  const next = text[index + 1];
+  if (!next) {
+    return false;
+  }
+  if (/[A-Za-z!?]/u.test(next)) {
+    return true;
+  }
+  return next === '/' && /[A-Za-z]/u.test(text[index + 2] ?? '');
+}
+
+function findTagLikeEnd(text: string, start: number): number {
+  const closedAt = text.indexOf('>', start + 1);
+  if (closedAt >= 0) {
+    return closedAt + 1;
+  }
+
+  let index = start + 1;
+  while (index < text.length && !/\s/u.test(text[index]!)) {
+    index += 1;
+  }
+  return index;
+}
+
+function stripHtmlLikeFragments(text: string): string {
+  let output = '';
+  let index = 0;
+
+  while (index < text.length) {
+    if (text[index] !== '<' || !isTagLikeStart(text, index)) {
+      output += text[index];
+      index += 1;
+      continue;
+    }
+    index = findTagLikeEnd(text, index);
+  }
+
+  return output;
+}
 
 function lossDiagnostic(sourcePath: string): ImportDiagnostic {
   return {
@@ -29,7 +67,7 @@ function scrubText(
   text: string,
   assign: (value: string) => void,
 ): void {
-  const cleaned = text.replace(HTML_TAG_PATTERN, '');
+  const cleaned = stripHtmlLikeFragments(text);
   if (cleaned === text) {
     return;
   }
