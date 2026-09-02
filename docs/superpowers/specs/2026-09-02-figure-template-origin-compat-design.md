@@ -505,3 +505,11 @@ Fixture 至少覆盖单 Panel Scatter、Line、Line + Marker、误差棒、多 P
 4. 原生 OTP/OTPU Reader：直接输出同一 Snapshot 契约。
 
 这些里程碑不得绕过本规格定义的 `FigureTemplate`、兼容层端口或 Plot/Data Slot 分离。
+
+## Implementation status
+
+- `@plot-fig/figure-schema`: implemented and verified; generated artifacts are `packages/figure-schema/schema/figure-template.schema.json` and `packages/figure-schema/schema/figure-document.schema.json`
+- Stable package exports: `FigureTemplateSchema`, `FigureDocumentSchema`, `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`, plus the public Figure template/document/validation TypeScript types
+- Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`
+- `@plot-fig/figure-migrations`: planned only; not yet implemented in this workspace
+- `@plot-fig/origin-compat`: planned only; not yet implemented in this workspace

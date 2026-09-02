@@ -2432,9 +2432,10 @@ git commit -m "feat(schema): 生成规范 JSON Schema 产物"
 **Files:**
 
 - Create: `packages/figure-schema/src/index.ts`
+- Test: `packages/figure-schema/src/index.test.ts`
 - Modify: `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`
 
-- [ ] **Step 1: Export only stable APIs**
+- [x] **Step 1: Export only stable APIs**
 
 `packages/figure-schema/src/index.ts`:
 
@@ -2455,21 +2456,21 @@ export {
 } from './validation/validate.js';
 ```
 
-- [ ] **Step 2: Add an implementation-status appendix to the spec**
+- [x] **Step 2: Add an implementation-status appendix to the spec**
 
-Append this exact block to `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`:
+Append this implementation-status block to `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`:
 
 ```markdown
 ## Implementation status
 
 - `@plot-fig/figure-schema`: implemented and verified; generated artifacts are `packages/figure-schema/schema/figure-template.schema.json` and `packages/figure-schema/schema/figure-document.schema.json`
-- Public API: `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`
+- Stable package exports: `FigureTemplateSchema`, `FigureDocumentSchema`, `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`, plus the public Figure template/document/validation TypeScript types
 - Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`
-- `@plot-fig/figure-migrations`: planned
-- `@plot-fig/origin-compat`: planned
+- `@plot-fig/figure-migrations`: planned only; not yet implemented in this workspace
+- `@plot-fig/origin-compat`: planned only; not yet implemented in this workspace
 ```
 
-- [ ] **Step 3: Run the complete verification gate**
+- [x] **Step 3: Run the complete verification gate**
 
 Run:
 
@@ -2484,15 +2485,24 @@ pnpm schema:check
 
 Expected: every command exits 0; coverage includes all domain branches named in Task 8.
 
-- [ ] **Step 4: Inspect dependency direction**
+- [x] **Step 4: Inspect dependency direction**
 
 Run: `rg -n "origin|react|plotly|echarts|canvas" packages/figure-schema/src`
 
 Expected: no matches other than the literal `origin` extension namespace in `schema/common.ts` and extension-validation tests.
 
-- [ ] **Step 5: Commit the completed figure-schema subsystem**
+- [x] **Step 5: Commit the completed figure-schema subsystem**
 
 ```powershell
 git add packages/figure-schema docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md
 git commit -m "feat(schema): 完成 Figure 模型领域内核"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/index.test.ts` exited 1 with 3 failed tests while `packages/figure-schema/src/index.ts` still contained only `export {}`; the root module exposed an empty runtime export set, `FigureTemplateSchema` resolved as `undefined`, and `validateFigureTemplate` was not callable.
+- GREEN: the same focused test command exited 0 with 1 file and 3 tests passed after exporting only the stable root API surface and public types from `packages/figure-schema/src/index.ts`.
+- Spec status: `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md` now records the implemented `@plot-fig/figure-schema` package, its stable root exports, and that `@plot-fig/figure-migrations` / `@plot-fig/origin-compat` remain planned and unimplemented.
+- Fresh gates: `pnpm format`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, and `pnpm schema:check` each exited 0 for the Task 10 state. Coverage summary from `pnpm test:coverage`: statements 96% (457/476), branches 88.97% (226/254), functions 99.09% (109/110), lines 95.88% (443/462).
+- Coupling audit: `rg -n "react|plotly|echarts|canvas" packages/figure-schema/src` exited 1 with no matches, confirming no renderer/UI coupling inside `figure-schema`.
+- Origin namespace audit: `rg -n "origin" packages/figure-schema/src` showed production-source matches only in the closed extension namespace definition and extension-path validation (`src/schema/common.ts`, `src/validation/domain-template-extensions.ts`, `src/validation/domain-document.ts`); remaining matches are targeted tests/fixtures exercising `extensions.origin` behavior and provenance samples, not runtime package dependencies.
