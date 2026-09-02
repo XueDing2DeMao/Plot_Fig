@@ -278,7 +278,7 @@ git commit -m "chore(repo): 初始化 TypeScript 工作区"
 - [x] **Step 1: Write the failing common-schema tests**
 
 ```ts
-import Schema from 'typebox/schema';
+import { Compile } from 'typebox/compile';
 import { describe, expect, it } from 'vitest';
 import {
   ExtensionBagSchema,
@@ -288,14 +288,14 @@ import {
 
 describe('common schemas', () => {
   it('accepts stable identifiers and explicit lengths', () => {
-    expect(Schema.Compile(IdentifierSchema).Check('panel-main')).toBe(true);
-    expect(Schema.Compile(LengthSchema).Check({ value: 89, unit: 'mm' })).toBe(
+    expect(Compile(IdentifierSchema).Check('panel-main')).toBe(true);
+    expect(Compile(LengthSchema).Check({ value: 89, unit: 'mm' })).toBe(
       true,
     );
   });
 
   it('rejects unknown extension namespaces', () => {
-    const validate = Schema.Compile(ExtensionBagSchema);
+    const validate = Compile(ExtensionBagSchema);
     expect(validate.Check({ origin: { layer: 1 } })).toBe(true);
     expect(validate.Check({ arbitrary: true })).toBe(false);
   });
@@ -358,6 +358,14 @@ git add packages/figure-schema/src/schema/common.ts packages/figure-schema/src/s
 git commit -m "feat(schema): 定义公共类型与扩展边界"
 ```
 
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/schema/common.test.ts` exited 1 with `Cannot find module './common.js'` before `common.ts` existed.
+- GREEN: the same command exited 0 with 1 file and 2 tests passed after the minimal schema implementation.
+- Gates: `pnpm typecheck` and `pnpm format:check` exited 0.
+- Commit: `ac6d1fe75c4aed6a21a525889a4dddaa0146bea3`.
+- TypeBox compiler convention: use the focused `Compile` export from `typebox/compile`; `typebox/schema` remains valid but is not used in this codebase.
+
 ### Task 3: Define Page, Panel and Axis schemas
 
 **Files:**
@@ -369,7 +377,7 @@ git commit -m "feat(schema): 定义公共类型与扩展边界"
 - [ ] **Step 1: Write failing layout and axis tests**
 
 ```ts
-import Schema from 'typebox/schema';
+import { Compile } from 'typebox/compile';
 import { describe, expect, it } from 'vitest';
 import { AxisSchema } from './axis.js';
 import { PageSchema, PanelFrameSchema } from './layout.js';
@@ -377,7 +385,7 @@ import { PageSchema, PanelFrameSchema } from './layout.js';
 describe('layout and axis schemas', () => {
   it('accepts publication page and normalized panel frames', () => {
     expect(
-      Schema.Compile(PageSchema).Check({
+      Compile(PageSchema).Check({
         size: {
           width: { value: 89, unit: 'mm' },
           height: { value: 65, unit: 'mm' },
@@ -387,7 +395,7 @@ describe('layout and axis schemas', () => {
       }),
     ).toBe(true);
     expect(
-      Schema.Compile(PanelFrameSchema).Check({
+      Compile(PanelFrameSchema).Check({
         x: 0.1,
         y: 0.1,
         width: 0.8,
@@ -398,7 +406,7 @@ describe('layout and axis schemas', () => {
 
   it('accepts a fixed logarithmic axis structurally', () => {
     expect(
-      Schema.Compile(AxisSchema).Check({
+      Compile(AxisSchema).Check({
         axisId: 'axis-x',
         dimension: 'x',
         position: 'bottom',
@@ -583,7 +591,7 @@ git commit -m "feat(schema): 定义页面面板与坐标轴"
 - [ ] **Step 1: Write failing slot tests**
 
 ```ts
-import Schema from 'typebox/schema';
+import { Compile } from 'typebox/compile';
 import { describe, expect, it } from 'vitest';
 import { DataSlotSchema } from './data-slot.js';
 import { PlotSlotSchema } from './plot-slot.js';
@@ -591,7 +599,7 @@ import { PlotSlotSchema } from './plot-slot.js';
 describe('slot schemas', () => {
   it('keeps data requirements separate from plot style', () => {
     expect(
-      Schema.Compile(DataSlotSchema).Check({
+      Compile(DataSlotSchema).Check({
         dataSlotId: 'x-temperature',
         name: 'Temperature',
         role: 'x',
@@ -600,7 +608,7 @@ describe('slot schemas', () => {
       }),
     ).toBe(true);
     expect(
-      Schema.Compile(PlotSlotSchema).Check({
+      Compile(PlotSlotSchema).Check({
         plotSlotId: 'series-1',
         kind: 'xy',
         mode: 'line-markers',
@@ -917,14 +925,14 @@ export const validTemplate = {
 `packages/figure-schema/src/schema/figure-template.test.ts`:
 
 ```ts
-import Schema from 'typebox/schema';
+import { Compile } from 'typebox/compile';
 import { describe, expect, it } from 'vitest';
 import { FigureTemplateSchema } from './figure-template.js';
 import { validTemplate } from './fixtures.js';
 
 describe('FigureTemplateSchema', () => {
   it('accepts the canonical fixture and rejects unknown root fields', () => {
-    const validator = Schema.Compile(FigureTemplateSchema);
+    const validator = Compile(FigureTemplateSchema);
     expect(validator.Check(validTemplate)).toBe(true);
     expect(validator.Check({ ...validTemplate, originLayer: 1 })).toBe(false);
   });
@@ -978,7 +986,7 @@ describe('FigureTemplateSchema', () => {
         value: 5,
       },
     ];
-    const validator = Schema.Compile(FigureTemplateSchema);
+    const validator = Compile(FigureTemplateSchema);
     expect(validator.Check(input)).toBe(true);
     (input.annotations as Array<Record<string, unknown>>)[0]!.kind = 'image';
     expect(validator.Check(input)).toBe(false);
@@ -1215,7 +1223,7 @@ git commit -m "feat(schema): 组装 FigureTemplate 模型"
 `packages/figure-schema/src/schema/figure-document.test.ts`:
 
 ```ts
-import Schema from 'typebox/schema';
+import { Compile } from 'typebox/compile';
 import { describe, expect, it } from 'vitest';
 import { FigureDocumentSchema } from './figure-document.js';
 import { validTemplate } from './fixtures.js';
@@ -1246,7 +1254,7 @@ const validDocument = {
 
 describe('FigureDocumentSchema', () => {
   it('accepts a document with an explicit binding set', () => {
-    expect(Schema.Compile(FigureDocumentSchema).Check(validDocument)).toBe(
+    expect(Compile(FigureDocumentSchema).Check(validDocument)).toBe(
       true,
     );
   });
@@ -1258,7 +1266,7 @@ describe('FigureDocumentSchema', () => {
     >;
     const source = (input.dataSources as Array<Record<string, unknown>>)[0]!;
     source.filePath = 'C:/private/data.csv';
-    expect(Schema.Compile(FigureDocumentSchema).Check(input)).toBe(false);
+    expect(Compile(FigureDocumentSchema).Check(input)).toBe(false);
   });
 });
 ```
