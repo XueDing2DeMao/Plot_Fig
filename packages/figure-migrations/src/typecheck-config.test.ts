@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 
 type PackageJson = {
@@ -23,6 +23,19 @@ type TsConfig = {
 
 const readJson = async <T>(path: string): Promise<T> =>
   JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8')) as T;
+
+const readText = async (path: string): Promise<string> =>
+  readFile(new URL(path, import.meta.url), 'utf8');
+
+function countLines(content: string): number {
+  const normalized = content.replaceAll('\r\n', '\n');
+  if (normalized.length === 0) {
+    return 0;
+  }
+
+  const lines = normalized.split('\n');
+  return normalized.endsWith('\n') ? lines.length - 1 : lines.length;
+}
 
 describe('workspace typecheck configuration', () => {
   it('keeps build output declarations published while typecheck resolves workspace sources', async () => {
@@ -49,5 +62,25 @@ describe('workspace typecheck configuration', () => {
     });
     expect(typecheckConfig.include).toEqual(['src/**/*.ts']);
     expect(typecheckConfig.exclude).toEqual(['src/**/*.test.ts']);
+    const files = (await readdir(new URL('./', import.meta.url)))
+      .filter((file) => file.endsWith('.ts'))
+      .sort();
+
+    const counts = await Promise.all(
+      files.map(async (file) => ({
+        file,
+        lines: countLines(await readText(`./${file}`)),
+      })),
+    );
+
+    expect(counts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          file: 'load-internals.ts',
+          lines: expect.any(Number),
+        }),
+      ]),
+    );
+    expect(counts.filter(({ lines }) => lines > 300)).toEqual([]);
   });
 });

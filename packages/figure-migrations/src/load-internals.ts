@@ -1,9 +1,15 @@
 import {
-  canonicalizeFigurePayload,
   validateFigureDocument,
   validateFigureTemplate,
 } from '@plot-fig/figure-schema';
-import type { LoadResult, MigrationDiagnostic } from './types.js';
+import {
+  cloneCanonical,
+  diagnostic,
+  fail,
+  migrationFailed,
+  reflect,
+} from './load-support.js';
+import type { LoadResult } from './types.js';
 import {
   parseSchemaVersion,
   readEnvelope,
@@ -29,18 +35,6 @@ type SupportedEnvelope = {
   schemaVersion: string;
 };
 
-type SafeCloneResult =
-  | {
-      ok: true;
-      value: unknown;
-    }
-  | {
-      ok: false;
-      path: string;
-    };
-
-type ReflectionResult<T> = { ok: true; value: T } | { ok: false };
-
 function compareVersions(left: SchemaVersion, right: SchemaVersion): number {
   if (left.major !== right.major) {
     return left.major - right.major;
@@ -49,65 +43,6 @@ function compareVersions(left: SchemaVersion, right: SchemaVersion): number {
     return left.minor - right.minor;
   }
   return left.patch - right.patch;
-}
-
-function diagnostic(
-  code: MigrationDiagnostic['code'],
-  path: string,
-  message: string,
-): MigrationDiagnostic {
-  return {
-    code,
-    severity: 'error',
-    path,
-    message,
-  };
-}
-
-function fail(
-  code: MigrationDiagnostic['code'],
-  path: string,
-  message: string,
-): LoadResult {
-  return {
-    ok: false,
-    diagnostics: [diagnostic(code, path, message)],
-  };
-}
-
-function migrationFailed(): LoadResult {
-  return fail('FIGURE_MIGRATION_FAILED', '/', 'migration pipeline failed');
-}
-
-function getCanonicalErrorPath(error: unknown): string {
-  if (!(error instanceof Error)) {
-    return '/';
-  }
-
-  const match = / at (\/.*)$/u.exec(error.message);
-  return match?.[1] ?? '/';
-}
-
-function cloneCanonical(value: unknown): SafeCloneResult {
-  try {
-    return {
-      ok: true,
-      value: JSON.parse(canonicalizeFigurePayload(value)) as unknown,
-    };
-  } catch (error) {
-    return {
-      ok: false,
-      path: getCanonicalErrorPath(error),
-    };
-  }
-}
-
-function reflect<T>(read: () => T): ReflectionResult<T> {
-  try {
-    return { ok: true, value: read() };
-  } catch {
-    return { ok: false };
-  }
 }
 
 function readSupportedEnvelope(input: unknown): SupportedEnvelope | LoadResult {
