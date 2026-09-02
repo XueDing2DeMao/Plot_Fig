@@ -90,7 +90,7 @@ packages/figure-schema/
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "schema:generate": "pnpm --filter @plot-fig/figure-schema schema:generate",
-    "schema:check": "pnpm schema:generate && tsx packages/figure-schema/scripts/check-json-schema.ts"
+    "schema:check": "tsx packages/figure-schema/scripts/check-json-schema.ts"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "4.1.11",
@@ -2267,9 +2267,12 @@ git commit -m "feat(schema): 校验跨对象领域不变量"
 
 **Files:**
 
+- Modify: `.gitattributes`
 - Modify: `package.json`
 - Create: `packages/figure-schema/scripts/check-json-schema.ts`
 - Create: `packages/figure-schema/scripts/generate-json-schema.ts`
+- Create: `packages/figure-schema/scripts/schema-artifacts.ts`
+- Create: `packages/figure-schema/scripts/schema-artifacts.test.ts`
 - Create: `packages/figure-schema/src/canonicalize.ts`
 - Create: `packages/figure-schema/src/canonicalize.test.ts`
 - Create: `packages/figure-schema/schema/figure-template.schema.json`
@@ -2349,6 +2352,8 @@ export function canonicalizeFigurePayload(value: unknown): string {
 
 实际实现进一步覆盖并通过测试确认了：`-0 -> 0` 语义、sparse arrays、object/array symbol keys、对象和数组 accessor getter 不执行、非 plain objects、循环引用、危险 keys，以及不突变输入。
 
+本轮审查修正进一步确认：所有不可避免的 reflection（`Reflect.ownKeys`、`Object.getPrototypeOf`、`Object.getOwnPropertyDescriptor`）都包在稳定异常边界内；throwing proxy trap 不再泄露原始 `Error` 或任意 thrown value，对外统一抛出可控 `TypeError`。
+
 - [x] **Step 4: Implement deterministic schema generation**
 
 `packages/figure-schema/scripts/generate-json-schema.ts`:
@@ -2385,7 +2390,7 @@ for (const [file, id, schema] of roots) {
 }
 ```
 
-实际实现先对 TypeBox schema 做 `JSON.stringify` / `JSON.parse` 归一化，再经 `canonicalizeFigurePayload` 输出稳定的 draft 2020-12 文档；另外补了 `packages/figure-schema/scripts/check-json-schema.ts`，让根脚本在 clean repo 下检测已跟踪与未跟踪的 schema 漂移，不依赖预先 staged。
+实际实现重构为纯内容渲染模块 `packages/figure-schema/scripts/schema-artifacts.ts`：它在内存中渲染预期 schema 字节串，`generate-json-schema.ts` 仅负责调用该模块写文件，`check-json-schema.ts` 只读取现有 artifacts 并逐字节比较，不会写 schema、不会调用 `git status`、也不会依赖预先 staged。
 
 - [x] **Step 5: Generate and inspect artifacts**
 
@@ -2399,7 +2404,7 @@ Expected: both schema files are byte-identical across repeated generation.
 
 Run: `pnpm schema:check`
 
-Expected: before the artifacts are tracked it fails with `Schema artifacts are out of date` and `?? packages/figure-schema/schema/...`; after committing the generated artifacts, the same command passes on a clean repo without any staging trick.
+Expected: on a clean checkout it exits 0 without writing files; if an artifact is modified or missing it exits non-zero and preserves the existing staged/unstaged/missing state.
 
 - [x] **Step 6: Commit canonicalization and schema artifacts**
 
@@ -2414,9 +2419,12 @@ git commit -m "feat(schema): 生成规范 JSON Schema 产物"
 - GREEN: the same focused test command exited 0 with 1 file and 19 tests passed after implementing the deterministic serializer.
 - Generator RED: `pnpm schema:generate` exited 1 with `Cannot find module ... packages/figure-schema/scripts/generate-json-schema.ts` before the generator script existed.
 - Generator GREEN: `pnpm schema:generate` exited 0 and wrote both `packages/figure-schema/schema/figure-template.schema.json` and `packages/figure-schema/schema/figure-document.schema.json`, each with draft `https://json-schema.org/draft/2020-12/schema` and stable `$id`.
-- Clean-repo guard RED: the original root `schema:check` shape would false-green on untracked artifacts, so Task 9 replaced it with `tsx packages/figure-schema/scripts/check-json-schema.ts`; the updated `pnpm schema:check` then exited 1 with `Schema artifacts are out of date` and two `?? packages/figure-schema/schema/...` lines until the artifacts were tracked.
+- Review-fix RED: `pnpm vitest run packages/figure-schema/src/canonicalize.test.ts packages/figure-schema/scripts/schema-artifacts.test.ts` exited 1 with 1 failed suite and 3 failed tests, proving `schema-artifacts.ts` was missing and proxy trap failures were leaking raw `Error` / raw thrown values instead of controlled `TypeError`.
+- Review-fix GREEN: the same focused command exited 0 with 2 files and 25 tests passed after introducing the pure render/check module and wrapping all reflection boundaries.
 - Determinism: two fresh `pnpm schema:generate` runs produced identical SHA-256 hashes — `figure-template.schema.json = F06B45F3F57AD20F33E7A4E235220D4388E7CC13E558E5202A1E9858026368AE`, `figure-document.schema.json = 3DD441AF915F605A14AA01A33FAD8AD050EB5B8D320533DC75A96CB00D3595B4`.
-- Fresh gates: `pnpm vitest run packages/figure-schema/src/canonicalize.test.ts`, `pnpm test`, `pnpm typecheck`, and `pnpm build` each exited 0; `pnpm format:check` initially failed on `packages/figure-schema/scripts/check-json-schema.ts`, `packages/figure-schema/src/canonicalize.test.ts`, and `packages/figure-schema/src/canonicalize.ts`, then exited 0 after a targeted Prettier run.
+- Read-only check semantics: after the refactor, `pnpm schema:check` exited 0 on the clean repo without running `schema:generate`, and `pnpm schema:generate` followed by `git diff --exit-code -- packages/figure-schema/schema` still exited 0, proving the render module remained byte-stable.
+- Fresh gates: `pnpm vitest run packages/figure-schema/src/canonicalize.test.ts packages/figure-schema/scripts/schema-artifacts.test.ts`, `pnpm test`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`, and `pnpm schema:check` each exited 0 after the review fix.
+- Fresh-checkout guard: because this machine has `core.autocrlf=true`, Task 9 added `.gitattributes` with `packages/figure-schema/schema/*.json text eol=lf` so the read-only byte comparison stays clean on Windows fresh checkouts.
 
 ### Task 10: Publish the stable package API and verify the subsystem
 

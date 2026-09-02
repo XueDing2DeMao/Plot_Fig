@@ -14,7 +14,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "schema:generate": "pnpm --filter @plot-fig/figure-schema schema:generate",
-    "schema:check": "pnpm schema:generate && tsx packages/figure-schema/scripts/check-json-schema.ts"
+    "schema:check": "tsx packages/figure-schema/scripts/check-json-schema.ts"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "4.1.11",

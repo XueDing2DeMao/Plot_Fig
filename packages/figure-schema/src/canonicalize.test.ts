@@ -120,4 +120,48 @@ describe('canonicalizeFigurePayload', () => {
   ])('rejects dangerous key %s', (_label, input) => {
     expect(() => canonicalizeFigurePayload(input)).toThrow(TypeError);
   });
+
+  it.each([
+    [
+      'getPrototypeOf',
+      new Proxy(
+        {},
+        {
+          getPrototypeOf() {
+            throw new Error('proxy prototype leak');
+          },
+        },
+      ),
+    ],
+    [
+      'ownKeys',
+      new Proxy(
+        {},
+        {
+          ownKeys() {
+            throw new Error('proxy ownKeys leak');
+          },
+        },
+      ),
+    ],
+    [
+      'getOwnPropertyDescriptor',
+      new Proxy(
+        {},
+        {
+          ownKeys() {
+            return ['value'];
+          },
+          getOwnPropertyDescriptor() {
+            throw 'proxy descriptor leak';
+          },
+        },
+      ),
+    ],
+  ])('wraps throwing proxy %s traps as TypeError', (_label, input) => {
+    expect(() => canonicalizeFigurePayload(input)).toThrow(TypeError);
+    expect(() => canonicalizeFigurePayload(input)).not.toThrow(
+      /proxy .* leak/u,
+    );
+  });
 });

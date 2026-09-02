@@ -8,12 +8,22 @@ function typeError(path: string, reason: string): TypeError {
   return new TypeError(`canonical JSON ${reason} at ${path}`);
 }
 
+function reflect<T>(path: string, reason: string, read: () => T): T {
+  try {
+    return read();
+  } catch {
+    throw typeError(path, reason);
+  }
+}
+
 function isAccessorDescriptor(descriptor: PropertyDescriptor): boolean {
   return 'get' in descriptor || 'set' in descriptor;
 }
 
-function isPlainObject(value: object): boolean {
-  const prototype = Object.getPrototypeOf(value);
+function isPlainObject(value: object, path: string): boolean {
+  const prototype = reflect(path, 'could not inspect object prototype', () =>
+    Object.getPrototypeOf(value),
+  );
   return prototype === Object.prototype || prototype === null;
 }
 
@@ -39,14 +49,29 @@ function serializeArray(
   path: string,
   stack: WeakSet<object>,
 ): string {
-  const ownKeys = Reflect.ownKeys(value);
+  const ownKeys = reflect(path, 'could not inspect array keys', () =>
+    Reflect.ownKeys(value),
+  );
   if (ownKeys.some((key) => typeof key === 'symbol')) {
     throw typeError(path, 'does not allow symbol keys');
   }
 
+  const lengthDescriptor = reflect(path, 'could not inspect array length', () =>
+    Object.getOwnPropertyDescriptor(value, 'length'),
+  );
+  if (
+    !lengthDescriptor ||
+    isAccessorDescriptor(lengthDescriptor) ||
+    typeof lengthDescriptor.value !== 'number' ||
+    !Number.isSafeInteger(lengthDescriptor.value)
+  ) {
+    throw typeError(path, 'does not allow inaccessible array length');
+  }
+  const length = lengthDescriptor.value;
+
   const extraKey = ownKeys
     .filter((key): key is string => typeof key === 'string')
-    .filter((key) => key !== 'length' && !isArrayIndexKey(key, value.length))
+    .filter((key) => key !== 'length' && !isArrayIndexKey(key, length))
     .sort()[0];
   if (extraKey) {
     throw typeError(
@@ -62,10 +87,14 @@ function serializeArray(
 
   try {
     const parts: string[] = [];
-    for (let index = 0; index < value.length; index += 1) {
+    for (let index = 0; index < length; index += 1) {
       const key = `${index}`;
       const itemPath = appendPath(path, key);
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      const descriptor = reflect(
+        itemPath,
+        'could not inspect array entry',
+        () => Object.getOwnPropertyDescriptor(value, key),
+      );
       if (!descriptor) {
         throw typeError(itemPath, 'does not allow sparse arrays');
       }
@@ -85,11 +114,13 @@ function serializeObject(
   path: string,
   stack: WeakSet<object>,
 ): string {
-  if (!isPlainObject(value)) {
+  if (!isPlainObject(value, path)) {
     throw typeError(path, 'requires plain objects');
   }
 
-  const ownKeys = Reflect.ownKeys(value);
+  const ownKeys = reflect(path, 'could not inspect object keys', () =>
+    Reflect.ownKeys(value),
+  );
   if (ownKeys.some((key) => typeof key === 'symbol')) {
     throw typeError(path, 'does not allow symbol keys');
   }
@@ -109,7 +140,11 @@ function serializeObject(
         throw typeError(propertyPath, 'does not allow dangerous keys');
       }
 
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      const descriptor = reflect(
+        propertyPath,
+        'could not inspect object property',
+        () => Object.getOwnPropertyDescriptor(value, key),
+      );
       if (!descriptor || !descriptor.enumerable) {
         throw typeError(propertyPath, 'does not allow hidden properties');
       }
