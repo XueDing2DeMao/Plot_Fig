@@ -453,97 +453,71 @@ Observed:
 - Create: `packages/origin-compat/src/normalize.ts`
 - Test: `packages/origin-compat/src/normalize.test.ts`
 
-- [ ] **Step 1: Write the failing normalization test**
+- [x] **Step 1: Write the failing normalization test**
 
-`packages/origin-compat/src/normalize.test.ts`:
+`packages/origin-compat/src/normalize.test.ts` now covers:
 
-```ts
-import { describe, expect, it } from 'vitest';
-import { createOriginSnapshot } from '../../../tests/origin/fixture-factory.js';
-import { normalizeOriginSnapshot } from './normalize.js';
+- `mm` / `cm` unit pass-through and `inch -> in` aliasing without numeric conversion
+- bottom / top / middle layer frame conversion from Origin bottom-left percentages to top-origin panel coordinates
+- multi-layer coverage, out-of-range percentage preservation, and `-0 -> 0` canonicalization
+- input immutability, no shared object/array references with the input tree, and repeated canonical stability
+- stable `TypeError` failure when normalization would otherwise require touching an accessor-bearing input
 
-it('maps inches and bottom-left percentages without mutation', () => {
-  const input = createOriginSnapshot({
-    page: { width: 3.5, height: 2.5, unit: 'inch', background: '#ffffff' },
-  });
-  const before = structuredClone(input);
-  const output = normalizeOriginSnapshot(input);
-  expect(output.page.width).toEqual({ value: 3.5, unit: 'in' });
-  expect(output.layers[0]!.frame).toEqual({
-    x: 0.1,
-    y: 0.1,
-    width: 0.8,
-    height: 0.8,
-  });
-  expect(input).toEqual(before);
-});
-```
-
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/origin-compat/src/normalize.test.ts`
 
-Expected: FAIL because `normalize.js` does not exist.
+Observed on 2026-09-02: exited `1` with `Cannot find module './normalize.js'`, proving Task 4 implementation was still missing before any production code landed.
 
-- [ ] **Step 3: Implement pure normalization**
+- [x] **Step 3: Implement pure normalization**
 
-`packages/origin-compat/src/normalize.ts`:
+`packages/origin-compat/src/normalize.ts` now:
 
-```ts
-import type {
-  OriginLayer,
-  OriginTemplateSnapshotV1,
-} from './snapshot-schema.js';
+- reuses `cloneForValidation` instead of `structuredClone`, so accessors are rejected by descriptor inspection and never executed
+- exports a complete normalized type family: `NormalizedOriginLengthUnit`, `NormalizedOriginLength`, `NormalizedOriginFrame`, `NormalizedOriginPage`, `NormalizedOriginLayer`, and `NormalizedOriginSnapshot`
+- keeps `mm` / `cm` untouched, rewrites only `inch` to `in`, and does not convert the numeric page dimensions
+- maps `leftPct`, `widthPct`, and `heightPct` by dividing by `100`
+- computes top-origin `y` with the equivalent formula `(100 - bottomPct - heightPct) / 100`, preserving out-of-range values for later Figure domain diagnostics while avoiding `1 - 1.05` floating-tail noise
+- canonicalizes computed negative zero values back to plain `0`
+- throws a stable `TypeError` with message `Origin Snapshot normalization requires JSON-safe own data properties` when safe cloning fails
 
-type NormalizedLayer = Omit<OriginLayer, 'frame'> & {
-  frame: { x: number; y: number; width: number; height: number };
-};
-export type NormalizedOriginSnapshot = Omit<
-  OriginTemplateSnapshotV1,
-  'page' | 'layers'
-> & {
-  page: {
-    width: { value: number; unit: 'mm' | 'cm' | 'in' };
-    height: { value: number; unit: 'mm' | 'cm' | 'in' };
-    background: string;
-  };
-  layers: NormalizedLayer[];
-};
+- [x] **Step 4: Run tests and commit**
 
-export function normalizeOriginSnapshot(
-  input: OriginTemplateSnapshotV1,
-): NormalizedOriginSnapshot {
-  const unit = input.page.unit === 'inch' ? 'in' : input.page.unit;
-  return {
-    ...structuredClone(input),
-    page: {
-      width: { value: input.page.width, unit },
-      height: { value: input.page.height, unit },
-      background: input.page.background,
-    },
-    layers: input.layers.map((layer) => ({
-      ...structuredClone(layer),
-      frame: {
-        x: layer.frame.leftPct / 100,
-        y: 1 - (layer.frame.bottomPct + layer.frame.heightPct) / 100,
-        width: layer.frame.widthPct / 100,
-        height: layer.frame.heightPct / 100,
-      },
-    })),
-  };
-}
-```
-
-- [ ] **Step 4: Run tests and commit**
-
-Run: `pnpm vitest run packages/origin-compat/src/normalize.test.ts`
-
-Expected: PASS.
+Run:
 
 ```powershell
-git add packages/origin-compat/src/normalize.ts packages/origin-compat/src/normalize.test.ts
+pnpm format
+pnpm vitest run packages/origin-compat/src/normalize.test.ts packages/origin-compat/src/typecheck-config.test.ts
+pnpm test
+pnpm --filter @plot-fig/origin-compat typecheck
+pnpm typecheck
+pnpm format:check
+pnpm build
+pnpm --filter @plot-fig/origin-compat pack --dry-run
+git add docs/superpowers/plans/2026-09-02-origin-compat-layer.md packages/origin-compat/src/normalize.ts packages/origin-compat/src/normalize.test.ts
 git commit -m "feat(origin): 归一化单位与图层坐标"
 ```
+
+**Task 4 completion checklist:**
+
+- [x] `normalizeOriginSnapshot` only normalizes units and layer/page coordinates; it does not clamp, repair, or domain-validate percentages
+- [x] `mm` / `cm` page sizes are preserved; `inch` only changes the normalized unit label to `in`
+- [x] frame normalization uses `leftPct / 100`, `widthPct / 100`, `heightPct / 100`, and top-origin `y = (100 - bottomPct - heightPct) / 100`
+- [x] bottom, top, middle, multi-layer, out-of-range, and negative-zero frame cases are all covered by tests
+- [x] the input snapshot remains unchanged, the output tree shares no object/array references with the input tree, and repeated normalization stays canonically stable
+- [x] normalization never uses `structuredClone` on user-controlled inputs; safe-clone failure raises a stable `TypeError` without executing getters
+- [x] every `packages/origin-compat/src/**/*.ts` file remains within the `<= 300` line cap after final formatting
+
+**Execution evidence (2026-09-02):**
+
+- RED proof: `pnpm vitest run packages/origin-compat/src/normalize.test.ts` exited `1` with `Cannot find module './normalize.js'`.
+- First GREEN attempt exposed a real precision issue: the out-of-range frame case produced `y = -0.050000000000000044` from `1 - (...) / 100`. The final implementation switched to the equivalent `(100 - bottomPct - heightPct) / 100` formula and re-ran the suite.
+- Focused GREEN gate: `pnpm vitest run packages/origin-compat/src/normalize.test.ts packages/origin-compat/src/typecheck-config.test.ts` exited `0` with `2 passed` files and `8 passed` tests.
+- Full regression gate: `pnpm test` exited `0` with `29 passed` files and `232 passed` tests.
+- Package and workspace type gates: `pnpm --filter @plot-fig/origin-compat typecheck` and `pnpm typecheck` both exited `0`.
+- Formatting and build gates: `pnpm format`, `pnpm format:check`, and `pnpm build` all exited `0`.
+- Pack gate: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0`.
+- Final recursive line-count snapshot after formatting: `normalize.ts = 106`, `normalize.test.ts = 228`, `snapshot-contract.ts = 284`, `snapshot-validation-helpers.ts = 279`, and no `packages/origin-compat/src/**/*.ts` file exceeded `300` lines.
 
 ### Task 5: Map Snapshot semantics and compatibility items
 
