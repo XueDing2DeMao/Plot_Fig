@@ -22,6 +22,12 @@ function reflect<T>(read: () => T): ReflectionResult<T> {
   }
 }
 
+function readIsArray(value: unknown): boolean | undefined {
+  const result = reflect(() => Array.isArray(value));
+
+  return result.ok ? result.value : undefined;
+}
+
 function isPlainRecord(value: object): boolean {
   const prototype = reflect(() => Object.getPrototypeOf(value));
 
@@ -86,7 +92,12 @@ export function parseSchemaVersion(value: string): SchemaVersion | undefined {
 }
 
 export function readEnvelope(input: unknown): EnvelopeReadResult {
-  if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+  if (typeof input !== 'object' || input === null) {
+    return { ok: false };
+  }
+
+  const isArray = readIsArray(input);
+  if (isArray === undefined || isArray) {
     return { ok: false };
   }
   if (!isPlainRecord(input)) {

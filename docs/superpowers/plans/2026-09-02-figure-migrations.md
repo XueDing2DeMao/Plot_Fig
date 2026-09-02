@@ -225,6 +225,8 @@ git commit -m "feat(migrations): 识别版本信封"
 
 - RED: `pnpm vitest run packages/figure-migrations/src/version.test.ts` exited 1 because `./version.js` did not exist yet.
 - GREEN: after implementing `types.ts` and `version.ts`, rerunning `pnpm vitest run packages/figure-migrations/src/version.test.ts` exited 0 with `1` file passed and `24` tests passed.
+- Regression RED: after adding the revoked-proxy case, `pnpm vitest run packages/figure-migrations/src/version.test.ts` exited 1 with `TypeError: Cannot perform 'IsArray' on a proxy that has been revoked`, proving the top-level `Array.isArray(input)` check was outside the reflection safety boundary.
+- Regression GREEN: after moving `Array.isArray` under the same `reflect` guard, rerunning `pnpm vitest run packages/figure-migrations/src/version.test.ts` exited 0 with `1` file passed and `25` tests passed; the ordinary array rejection case remained covered in the invalid-input table.
 
 ### Task 3: Add a real synthetic v0.1.0 → v1.0.0 migration
 

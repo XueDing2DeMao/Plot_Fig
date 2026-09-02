@@ -89,6 +89,18 @@ describe('readEnvelope', () => {
   ])('returns { ok: false } when %s reflection throws', (_label, input) => {
     expect(readEnvelope(input)).toEqual({ ok: false });
   });
+
+  it('returns { ok: false } for a revoked proxy instead of throwing', () => {
+    const { proxy, revoke } = Proxy.revocable([], {});
+    let result: ReturnType<typeof readEnvelope> | undefined;
+
+    revoke();
+
+    expect(() => {
+      result = readEnvelope(proxy);
+    }).not.toThrow();
+    expect(result).toEqual({ ok: false });
+  });
 });
 
 describe('parseSchemaVersion', () => {
