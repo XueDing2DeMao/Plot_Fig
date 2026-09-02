@@ -23,7 +23,9 @@ packages/origin-compat/
 ├── tsconfig.typecheck.json
 └── src/
     ├── types.ts
+    ├── snapshot-contract.ts
     ├── snapshot-schema.ts
+    ├── snapshot-validation-helpers.ts
     ├── security.ts
     ├── normalize.ts
     ├── report.ts
@@ -193,452 +195,98 @@ git commit -m "chore(origin): 初始化兼容层包"
 **Files:**
 
 - Create: `packages/origin-compat/src/types.ts`
+- Create: `packages/origin-compat/src/snapshot-contract.ts`
+- Create: `packages/origin-compat/src/snapshot-validation-helpers.ts`
 - Create: `packages/origin-compat/src/snapshot-schema.ts`
 - Test: `packages/origin-compat/src/snapshot-schema.test.ts`
+- Modify: `docs/superpowers/plans/2026-09-02-origin-compat-layer.md`
 
-- [ ] **Step 1: Define stable result types**
+- [x] **Step 1: Define stable result types**
 
-`packages/origin-compat/src/types.ts`:
+`packages/origin-compat/src/types.ts` now defines the stable `ImportDiagnosticCode`, `ImportDiagnostic`, `CompatibilityDisposition`, `CompatibilityItem`, `CompatibilityCounts`, `CompatibilityReport`, `ImportProvenance`, `ImportResult<T>`, and `ImportOriginOptions` contracts. `CompatibilityReport['counts']` is now an explicit object with all five required keys instead of a loose `Record`.
 
-```ts
-export type ImportDiagnosticCode =
-  | 'ORIGIN_SNAPSHOT_INVALID'
-  | 'ORIGIN_UNSUPPORTED_PROPERTY'
-  | 'ORIGIN_LOSSY_CONVERSION'
-  | 'ORIGIN_SCRIPT_IGNORED'
-  | 'ORIGIN_DANGEROUS_KEY_REJECTED'
-  | 'ORIGIN_INPUT_LIMIT_EXCEEDED'
-  | 'ORIGIN_INVALID_REFERENCE'
-  | 'FIGURE_SCHEMA_INVALID'
-  | 'FIGURE_DOMAIN_INVARIANT_FAILED'
-  | 'FIGURE_FUTURE_VERSION_UNSUPPORTED';
+- [x] **Step 2: Write failing contract tests**
 
-export type ImportDiagnostic = {
-  code: ImportDiagnosticCode;
-  severity: 'info' | 'warning' | 'error';
-  message: string;
-  sourcePath: string;
-  targetPath?: string;
-  recoverable: boolean;
-  securityCategory?: 'script' | 'dangerous-key' | 'input-limit' | 'html';
-};
-export type CompatibilityDisposition =
-  | 'mapped'
-  | 'preservedInExtensions'
-  | 'lossy'
-  | 'dropped'
-  | 'ignoredForSecurity';
-export type CompatibilityItem = {
-  sourcePath: string;
-  targetPath?: string;
-  disposition: CompatibilityDisposition;
-  message: string;
-};
-export type CompatibilityReport = {
-  items: CompatibilityItem[];
-  counts: Record<CompatibilityDisposition, number>;
-};
-export type ImportProvenance = {
-  importerVersion: string;
-  originVersion?: string;
-  sourceHash?: string;
-};
-type ImportBase = {
-  diagnostics: ImportDiagnostic[];
-  compatibilityReport: CompatibilityReport;
-  provenance: ImportProvenance;
-};
-export type ImportResult<T> =
-  | (ImportBase & { status: 'success' | 'partial'; value: T })
-  | (ImportBase & { status: 'failure'; value?: never });
-export type ImportOriginOptions = { importerVersion?: string };
-```
+`packages/origin-compat/src/snapshot-schema.test.ts` now covers:
 
-- [ ] **Step 2: Write failing contract tests**
+- complete legal Snapshot acceptance
+- future `1.0.1` / `1.1.0` / `2.0.0` returning `FIGURE_FUTURE_VERSION_UNSUPPORTED`
+- loose and older `snapshotVersion` values returning `ORIGIN_SNAPSHOT_INVALID`
+- missing fields, bad enums, unknown root fields, and multiple nested closed-schema failures with `allErrors`
+- automation allowed as the only script-bearing root field
+- null, array, revoked proxy, root getter, and nested throwing getter inputs returning diagnostics instead of throwing
+- compile-time use of `ImportResult` / `CompatibilityReport` / `OriginTemplateSnapshotV1` to keep the Task 2 contract explicit
 
-`packages/origin-compat/src/snapshot-schema.test.ts`:
+- [x] **Step 3: Run and verify RED**
 
-```ts
-import { describe, expect, it } from 'vitest';
-import { validateOriginSnapshot } from './snapshot-schema.js';
-
-describe('OriginTemplateSnapshotV1', () => {
-  it('rejects a future Snapshot contract', () => {
-    const result = validateOriginSnapshot({
-      kind: 'origin-template-snapshot',
-      snapshotVersion: '2.0.0',
-    });
-    expect(result.ok).toBe(false);
-    if (!result.ok)
-      expect(result.diagnostics[0]?.code).toBe(
-        'FIGURE_FUTURE_VERSION_UNSUPPORTED',
-      );
-  });
-  it('rejects an incomplete current Snapshot without throwing', () => {
-    expect(
-      validateOriginSnapshot({
-        kind: 'origin-template-snapshot',
-        snapshotVersion: '1.0.0',
-      }).ok,
-    ).toBe(false);
-  });
-});
-```
-
-- [ ] **Step 3: Run and verify failure**
-
-Run: `pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts`
-
-Expected: FAIL because `snapshot-schema.js` does not exist.
-
-- [ ] **Step 4: Define reusable Snapshot schemas**
-
-Start `packages/origin-compat/src/snapshot-schema.ts` with:
-
-```ts
-import Ajv2020 from 'ajv/dist/2020.js';
-import Type from 'typebox';
-import type { ImportDiagnostic } from './types.js';
-
-const Id = Type.String({
-  minLength: 1,
-  maxLength: 128,
-  pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$',
-});
-const JsonObject = Type.Record(Type.String(), Type.Unknown());
-const Point = Type.Object(
-  { x: Type.Number(), y: Type.Number() },
-  { additionalProperties: false },
-);
-const Slot = Type.Object(
-  {
-    slotId: Id,
-    name: Type.String({ minLength: 1, maxLength: 256 }),
-    valueType: Type.Union([
-      Type.Literal('number'),
-      Type.Literal('category'),
-      Type.Literal('string'),
-    ]),
-  },
-  { additionalProperties: false },
-);
-const Bindings = Type.Object(
-  {
-    x: Slot,
-    y: Slot,
-    xError: Type.Optional(Slot),
-    xErrorLower: Type.Optional(Slot),
-    xErrorUpper: Type.Optional(Slot),
-    yError: Type.Optional(Slot),
-    yErrorLower: Type.Optional(Slot),
-    yErrorUpper: Type.Optional(Slot),
-    group: Type.Optional(Slot),
-    label: Type.Optional(Slot),
-    color: Type.Optional(Slot),
-    size: Type.Optional(Slot),
-  },
-  { additionalProperties: false },
-);
-const Axis = Type.Object(
-  {
-    scale: Type.Union([
-      Type.Literal('linear'),
-      Type.Literal('log10'),
-      Type.Literal('ln'),
-    ]),
-    range: Type.Union([
-      Type.Object(
-        { mode: Type.Literal('auto') },
-        { additionalProperties: false },
-      ),
-      Type.Object(
-        { mode: Type.Literal('fixed'), from: Type.Number(), to: Type.Number() },
-        { additionalProperties: false },
-      ),
-    ]),
-    reverse: Type.Boolean(),
-    visible: Type.Boolean(),
-    title: Type.Optional(
-      Type.Object(
-        {
-          text: Type.String({ maxLength: 16_384 }),
-          format: Type.Union([Type.Literal('plain'), Type.Literal('latex')]),
-        },
-        { additionalProperties: false },
-      ),
-    ),
-    lineColor: Type.String({ minLength: 1 }),
-    lineWidthPt: Type.Number({ minimum: 0 }),
-    majorTickLengthPt: Type.Number({ minimum: 0 }),
-    minorTickCount: Type.Integer({ minimum: 0 }),
-    tickLabelFont: Type.String({ minLength: 1 }),
-    tickLabelSizePt: Type.Number({ exclusiveMinimum: 0 }),
-    unknownProperties: Type.Optional(JsonObject),
-  },
-  { additionalProperties: false },
-);
-const Plot = Type.Object(
-  {
-    plotId: Id,
-    mode: Type.Union([
-      Type.Literal('scatter'),
-      Type.Literal('line'),
-      Type.Literal('line-symbol'),
-    ]),
-    bindings: Bindings,
-    line: Type.Optional(
-      Type.Object(
-        {
-          visible: Type.Boolean(),
-          color: Type.String(),
-          widthPt: Type.Number({ minimum: 0 }),
-          dash: Type.Union([
-            Type.Literal('solid'),
-            Type.Literal('dashed'),
-            Type.Literal('dotted'),
-            Type.Literal('dash-dot'),
-          ]),
-        },
-        { additionalProperties: false },
-      ),
-    ),
-    symbol: Type.Optional(
-      Type.Object(
-        {
-          visible: Type.Boolean(),
-          shape: Type.Union([
-            Type.Literal('circle'),
-            Type.Literal('square'),
-            Type.Literal('triangle'),
-            Type.Literal('diamond'),
-            Type.Literal('plus'),
-            Type.Literal('cross'),
-          ]),
-          sizePt: Type.Number({ minimum: 0 }),
-          fill: Type.String(),
-          stroke: Type.String(),
-          strokeWidthPt: Type.Number({ minimum: 0 }),
-        },
-        { additionalProperties: false },
-      ),
-    ),
-    errorBar: Type.Optional(
-      Type.Object(
-        {
-          visible: Type.Boolean(),
-          color: Type.String(),
-          widthPt: Type.Number({ minimum: 0 }),
-          capWidthPt: Type.Number({ minimum: 0 }),
-        },
-        { additionalProperties: false },
-      ),
-    ),
-    legendText: Type.String({ maxLength: 1024 }),
-    unknownProperties: Type.Optional(JsonObject),
-  },
-  { additionalProperties: false },
-);
-```
-
-- [ ] **Step 5: Complete the closed root contract and validator**
-
-Append to `packages/origin-compat/src/snapshot-schema.ts`:
-
-```ts
-const AnnotationBase = {
-  annotationId: Id,
-  coordinateSpace: Type.Union([
-    Type.Literal('page'),
-    Type.Literal('layer'),
-    Type.Literal('data'),
-  ]),
-  unknownProperties: Type.Optional(JsonObject),
-};
-const Annotation = Type.Union([
-  Type.Object(
-    {
-      ...AnnotationBase,
-      kind: Type.Literal('legend'),
-      position: Point,
-      visible: Type.Boolean(),
-    },
-    { additionalProperties: false },
-  ),
-  Type.Object(
-    {
-      ...AnnotationBase,
-      kind: Type.Literal('text'),
-      position: Point,
-      text: Type.String({ maxLength: 16_384 }),
-      format: Type.Union([Type.Literal('plain'), Type.Literal('latex')]),
-    },
-    { additionalProperties: false },
-  ),
-  Type.Object(
-    {
-      ...AnnotationBase,
-      kind: Type.Literal('arrow'),
-      start: Point,
-      end: Point,
-    },
-    { additionalProperties: false },
-  ),
-  Type.Object(
-    {
-      ...AnnotationBase,
-      kind: Type.Literal('rectangle'),
-      start: Point,
-      end: Point,
-    },
-    { additionalProperties: false },
-  ),
-  Type.Object(
-    {
-      ...AnnotationBase,
-      kind: Type.Literal('reference-line'),
-      orientation: Type.Union([Type.Literal('x'), Type.Literal('y')]),
-      value: Type.Number(),
-    },
-    { additionalProperties: false },
-  ),
-]);
-const Layer = Type.Object(
-  {
-    layerId: Id,
-    frame: Type.Object(
-      {
-        leftPct: Type.Number(),
-        bottomPct: Type.Number(),
-        widthPct: Type.Number(),
-        heightPct: Type.Number(),
-      },
-      { additionalProperties: false },
-    ),
-    xAxis: Axis,
-    yAxis: Axis,
-    plots: Type.Array(Plot),
-    annotations: Type.Array(Annotation),
-    unknownProperties: Type.Optional(JsonObject),
-  },
-  { additionalProperties: false },
-);
-
-export const OriginTemplateSnapshotV1Schema = Type.Object(
-  {
-    kind: Type.Literal('origin-template-snapshot'),
-    snapshotVersion: Type.Literal('1.0.0'),
-    originVersion: Type.String({ minLength: 1 }),
-    sourceHash: Type.String({ minLength: 1 }),
-    templateId: Id,
-    name: Type.String({ minLength: 1 }),
-    page: Type.Object(
-      {
-        width: Type.Number({ exclusiveMinimum: 0 }),
-        height: Type.Number({ exclusiveMinimum: 0 }),
-        unit: Type.Union([
-          Type.Literal('mm'),
-          Type.Literal('cm'),
-          Type.Literal('inch'),
-        ]),
-        background: Type.String(),
-      },
-      { additionalProperties: false },
-    ),
-    layers: Type.Array(Layer, { minItems: 1 }),
-    theme: Type.Object(
-      {
-        fontFamily: Type.String(),
-        fontSizePt: Type.Number({ exclusiveMinimum: 0 }),
-        foreground: Type.String(),
-        background: Type.String(),
-        palette: Type.Array(Type.String(), { minItems: 1 }),
-      },
-      { additionalProperties: false },
-    ),
-    unknownProperties: Type.Optional(JsonObject),
-    automation: Type.Optional(
-      Type.Array(
-        Type.Object(
-          {
-            kind: Type.Union([
-              Type.Literal('labtalk'),
-              Type.Literal('origin-c'),
-              Type.Literal('python'),
-              Type.Literal('macro'),
-            ]),
-            text: Type.String(),
-          },
-          { additionalProperties: false },
-        ),
-      ),
-    ),
-  },
-  { additionalProperties: false },
-);
-
-export type OriginTemplateSnapshotV1 = Type.Static<
-  typeof OriginTemplateSnapshotV1Schema
->;
-export type OriginLayer = Type.Static<typeof Layer>;
-const ajv = new Ajv2020({ allErrors: true, strict: true });
-const validator = ajv.compile(OriginTemplateSnapshotV1Schema);
-const error = (
-  code: ImportDiagnostic['code'],
-  sourcePath: string,
-  message: string,
-): ImportDiagnostic => ({
-  code,
-  severity: 'error',
-  sourcePath,
-  message,
-  recoverable: false,
-});
-
-export function validateOriginSnapshot(
-  input: unknown,
-):
-  | { ok: true; value: OriginTemplateSnapshotV1 }
-  | { ok: false; diagnostics: ImportDiagnostic[] } {
-  if (typeof input === 'object' && input !== null && !Array.isArray(input)) {
-    const version = (input as Record<string, unknown>).snapshotVersion;
-    if (typeof version === 'string' && /^([2-9]|[1-9]\d+)\./.test(version)) {
-      return {
-        ok: false,
-        diagnostics: [
-          error(
-            'FIGURE_FUTURE_VERSION_UNSUPPORTED',
-            '/snapshotVersion',
-            `unsupported Snapshot version ${version}`,
-          ),
-        ],
-      };
-    }
-  }
-  if (validator(input))
-    return { ok: true, value: input as OriginTemplateSnapshotV1 };
-  return {
-    ok: false,
-    diagnostics: (validator.errors ?? []).map((entry) =>
-      error(
-        'ORIGIN_SNAPSHOT_INVALID',
-        entry.instancePath || '/',
-        entry.message ?? 'invalid Origin Snapshot',
-      ),
-    ),
-  };
-}
-```
-
-- [ ] **Step 6: Run tests and commit**
-
-Run: `pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts && pnpm --filter @plot-fig/origin-compat typecheck`
-
-Expected: PASS and exit 0.
+Run:
 
 ```powershell
-git add packages/origin-compat/src/types.ts packages/origin-compat/src/snapshot-schema.ts packages/origin-compat/src/snapshot-schema.test.ts
+pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts
+```
+
+Observed on 2026-09-02: the suite failed before running tests because `./snapshot-schema.js` did not exist, which proved the contract test was genuinely red before implementation.
+
+- [x] **Step 4: Define reusable Snapshot schema modules**
+
+To keep every source file within the repository line budget, the Snapshot contract is split across two private modules:
+
+- `packages/origin-compat/src/snapshot-contract.ts`: TypeBox schemas and `OriginTemplateSnapshotV1` static type
+- `packages/origin-compat/src/snapshot-validation-helpers.ts`: strict SemVer parsing/comparison plus safe reflection and clone helpers that never intentionally execute getters
+
+`packages/origin-compat/src/snapshot-schema.ts` remains the internal facade that re-exports `OriginTemplateSnapshotV1Schema` / `OriginTemplateSnapshotV1` and owns the Ajv validator.
+
+- [x] **Step 5: Complete the closed root contract and validator**
+
+`packages/origin-compat/src/snapshot-schema.ts` now:
+
+- uses Ajv Draft 2020 with `strict: true` and `allErrors: true`
+- rejects future Snapshot versions by full SemVer ordering before schema validation
+- treats loose, malformed, or older versions as `ORIGIN_SNAPSHOT_INVALID`
+- maps `required` and `additionalProperties` failures to stable JSON Pointer `sourcePath` values
+- safe-clones plain JSON-compatible inputs through own data descriptors so root `snapshotVersion` getters are never executed
+- catches revoked proxies, nested accessors, reflection failures, and unexpected Ajv exceptions without throwing to callers
+
+- [x] **Step 6: Run GREEN checks and prepare the commit**
+
+Run:
+
+```powershell
+pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts
+pnpm --filter @plot-fig/origin-compat typecheck
+```
+
+Expected: both commands exit `0`.
+
+Commit:
+
+```powershell
+git add docs/superpowers/plans/2026-09-02-origin-compat-layer.md packages/origin-compat/src/types.ts packages/origin-compat/src/snapshot-contract.ts packages/origin-compat/src/snapshot-validation-helpers.ts packages/origin-compat/src/snapshot-schema.ts packages/origin-compat/src/snapshot-schema.test.ts
 git commit -m "feat(origin): 定义 Snapshot 输入契约"
 ```
+
+**Task 2 completion checklist:**
+
+- [x] `OriginTemplateSnapshotV1Schema` is closed at the root and across nested structural objects.
+- [x] `ImportResult` and `ImportDiagnostic` match the approved Snapshot spec naming, and `CompatibilityCounts` exposes all required keys explicitly.
+- [x] Future versions `1.0.1`, `1.1.0`, and `2.0.0` return `FIGURE_FUTURE_VERSION_UNSUPPORTED`.
+- [x] Loose, malformed, and older `snapshotVersion` values return `ORIGIN_SNAPSHOT_INVALID`.
+- [x] Missing fields, bad enums, unknown root fields, and nested closed-schema violations aggregate through Ajv `allErrors`.
+- [x] `validateOriginSnapshot` does not throw for `null`, arrays, revoked proxies, root accessors, nested accessors, or unexpected validator failures.
+- [x] Root `snapshotVersion` is inspected as an own data property and never read through a getter.
+- [x] Root `index.ts` remains empty, and Task 2 does not publish `snapshot-v1` or any other public subpath.
+
+**Execution evidence (2026-09-02):**
+
+- RED proof: `pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts` exited `1` with `Cannot find module './snapshot-schema.js'`, confirming the test suite failed before any production implementation existed.
+- GREEN proof: after implementing `types.ts`, `snapshot-contract.ts`, `snapshot-validation-helpers.ts`, and `snapshot-schema.ts`, the same focused command exited `0` with `15 passed (15)`.
+- Package type gate: `pnpm --filter @plot-fig/origin-compat typecheck` exited `0`.
+- File-size gate: `types.ts` is 59 lines, `snapshot-contract.ts` 269 lines, `snapshot-validation-helpers.ts` 209 lines, `snapshot-schema.ts` 156 lines, and `snapshot-schema.test.ts` 294 lines.
+- Public-surface gate: `packages/origin-compat/src/index.ts` is still an empty root export stub, so Task 2 does not leak internal Snapshot modules before Task 6.
+- Fresh verification on final Task 2 state: `pnpm format` exited `0`, then `pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts` exited `0` with `15 passed (15)`.
+- Fresh workspace regression gate: `pnpm test` exited `0` with `22 passed (22)` test files and `191 passed (191)` tests.
+- Fresh workspace type/build gate: `pnpm typecheck`, `pnpm format:check`, and `pnpm build` all exited `0`.
+- Fresh package boundary gate: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0`; the tarball contained `package.json` plus `dist/**` only, and no test fixtures or unpublished source tests were packed.
 
 ### Task 3: Enforce the security boundary
 
