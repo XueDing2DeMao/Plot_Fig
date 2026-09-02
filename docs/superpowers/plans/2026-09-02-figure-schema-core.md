@@ -837,7 +837,7 @@ git commit -m "feat(schema): 分离绘图槽与数据槽"
 - Create: `packages/figure-schema/src/schema/fixtures.ts`
 - Test: `packages/figure-schema/src/schema/figure-template.test.ts`
 
-- [ ] **Step 1: Write the canonical FigureTemplate fixture**
+- [x] **Step 1: Write the canonical FigureTemplate fixture**
 
 `packages/figure-schema/src/schema/fixtures.ts`:
 
@@ -957,7 +957,7 @@ export const validTemplate = {
 } as const;
 ```
 
-- [ ] **Step 2: Write the failing FigureTemplate test**
+- [x] **Step 2: Write the failing FigureTemplate test**
 
 `packages/figure-schema/src/schema/figure-template.test.ts`:
 
@@ -1031,13 +1031,13 @@ describe('FigureTemplateSchema', () => {
 });
 ```
 
-- [ ] **Step 3: Run and verify failure**
+- [x] **Step 3: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/figure-template.test.ts`
 
 Expected: FAIL because `FigureTemplateSchema` does not exist.
 
-- [ ] **Step 4: Implement annotation discriminated unions**
+- [x] **Step 4: Implement annotation discriminated unions**
 
 `packages/figure-schema/src/schema/annotation.ts`:
 
@@ -1121,7 +1121,7 @@ export const AnnotationSchema = Type.Union([
 export type Annotation = Type.Static<typeof AnnotationSchema>;
 ```
 
-- [ ] **Step 5: Implement the closed Theme schema**
+- [x] **Step 5: Implement the closed Theme schema**
 
 `packages/figure-schema/src/schema/theme.ts`:
 
@@ -1170,7 +1170,7 @@ export const ThemeSchema = Type.Object(
 export type Theme = Type.Static<typeof ThemeSchema>;
 ```
 
-- [ ] **Step 6: Assemble Panel and FigureTemplate schemas**
+- [x] **Step 6: Assemble Panel and FigureTemplate schemas**
 
 ```ts
 import Type from 'typebox';
@@ -1235,18 +1235,26 @@ export const FigureTemplateSchema = Type.Object(
 export type FigureTemplate = Type.Static<typeof FigureTemplateSchema>;
 ```
 
-- [ ] **Step 7: Run FigureTemplate tests**
+- [x] **Step 7: Run FigureTemplate tests**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/figure-template.test.ts`
 
 Expected: PASS; the extra root field is rejected.
 
-- [ ] **Step 8: Commit FigureTemplate schema**
+- [x] **Step 8: Commit FigureTemplate schema**
 
 ```powershell
 git add packages/figure-schema/src/schema/annotation.ts packages/figure-schema/src/schema/theme.ts packages/figure-schema/src/schema/figure-template.ts packages/figure-schema/src/schema/figure-template.test.ts packages/figure-schema/src/schema/fixtures.ts
 git commit -m "feat(schema): 组装 FigureTemplate 模型"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/schema/figure-template.test.ts` exited 1 with `Cannot find module './figure-template.js'`, proving the new test suite failed before the schema existed.
+- GREEN: the same focused test command exited 0 with 1 file and 2 tests passed after adding `annotation.ts`, `theme.ts`, `figure-template.ts`, and the canonical fixture.
+- Gates: fresh `pnpm format:check`, `pnpm typecheck`, `pnpm test`, and `pnpm build` each exited 0 after Task 5 implementation.
+- Spec-alignment fix: `TextAnnotationSchema.text` was tightened to the same non-HTML text rule already used by `AxisSchema.title.text`, which is a minimal correction to align Task 5 structure with approved spec 5.7.
+- Size gate: `annotation.ts` 80 lines, `theme.ts` 40 lines, `figure-template.ts` 58 lines, `figure-template.test.ts` 62 lines, `fixtures.ts` 118 lines; all remain below the 300-line cap.
 
 ### Task 6: Define FigureDocument and binding contracts
 
