@@ -76,7 +76,37 @@ describe('slot schemas', () => {
     ).toBe(false);
   });
 
-  it('supports the planned binding roles and keeps binding and style objects closed', () => {
+  it.each([
+    ['xError', 'slot-x-error'],
+    ['xErrorLower', 'slot-x-error-lower'],
+    ['xErrorUpper', 'slot-x-error-upper'],
+    ['yError', 'slot-y-error'],
+    ['yErrorLower', 'slot-y-error-lower'],
+    ['yErrorUpper', 'slot-y-error-upper'],
+  ] as const)(
+    'structurally accepts optional error binding key %s',
+    (bindingKey, slotId) => {
+      const validatePlotSlot = Compile(PlotSlotSchema);
+
+      expect(
+        validatePlotSlot.Check({
+          plotSlotId: `series-${bindingKey}`,
+          kind: 'xy',
+          mode: 'line',
+          xAxisId: 'axis-x',
+          yAxisId: 'axis-y',
+          bindings: {
+            x: 'slot-x',
+            y: 'slot-y',
+            [bindingKey]: slotId,
+          },
+          legendEntry: { visible: true, text: 'Series' },
+        }),
+      ).toBe(true);
+    },
+  );
+
+  it('supports the planned non-error binding roles and keeps binding and style objects closed', () => {
     const validatePlotSlot = Compile(PlotSlotSchema);
 
     expect(

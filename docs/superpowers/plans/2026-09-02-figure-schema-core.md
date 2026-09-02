@@ -824,6 +824,7 @@ git commit -m "feat(schema): 分离绘图槽与数据槽"
 - RED: `pnpm vitest run packages/figure-schema/src/schema/slot.test.ts` exited 1 with `Cannot find module './data-slot.js'` before `data-slot.ts` and `plot-slot.ts` existed.
 - GREEN: the same focused test command exited 0 with 1 file and 3 tests passed after adding the minimal slot schemas.
 - Scope checks: `slot.test.ts` verifies `DataSlotSchema` does not accept plot styling, `PlotSlotSchema` keeps style and binding objects closed, and planned binding roles such as `xErrorLower`/`xErrorUpper`/`group`/`label`/`color`/`size` remain available.
+- Defer: `role`/`valueType` compatibility and symmetric-vs-asymmetric error exclusivity stay in Task 8 domain validation; Task 4 intentionally remains structural-only.
 - Gates: fresh `pnpm typecheck`, `pnpm format:check`, and `pnpm build` each exited 0.
 
 ### Task 5: Assemble annotations, theme and FigureTemplate
@@ -1566,6 +1567,19 @@ describe('FigureTemplate domain invariants', () => {
       },
     ],
     [
+      'non-number size',
+      '/dataSlots/2/valueType',
+      (value: FigureTemplate) => {
+        value.dataSlots.push({
+          dataSlotId: 'slot-size',
+          name: 'Size',
+          role: 'size',
+          valueType: 'string',
+          required: false,
+        });
+      },
+    ],
+    [
       'overflowing frame',
       '/panels/0/frame',
       (value: FigureTemplate) => {
@@ -1587,6 +1601,38 @@ describe('FigureTemplate domain invariants', () => {
       '/panels/0/plotSlots/0/bindings/yErrorLower',
       (value: FigureTemplate) => {
         value.panels[0]!.plotSlots[0]!.bindings.yErrorLower = 'slot-y';
+      },
+    ],
+    [
+      'simultaneous symmetric and asymmetric x error',
+      '/panels/0/plotSlots/0/bindings/xError',
+      (value: FigureTemplate) => {
+        value.dataSlots.push(
+          {
+            dataSlotId: 'slot-x-error',
+            name: 'X Error',
+            role: 'xError',
+            valueType: 'number',
+            required: false,
+          },
+          {
+            dataSlotId: 'slot-x-lower',
+            name: 'X Error Lower',
+            role: 'xErrorLower',
+            valueType: 'number',
+            required: false,
+          },
+          {
+            dataSlotId: 'slot-x-upper',
+            name: 'X Error Upper',
+            role: 'xErrorUpper',
+            valueType: 'number',
+            required: false,
+          },
+        );
+        value.panels[0]!.plotSlots[0]!.bindings.xError = 'slot-x-error';
+        value.panels[0]!.plotSlots[0]!.bindings.xErrorLower = 'slot-x-lower';
+        value.panels[0]!.plotSlots[0]!.bindings.xErrorUpper = 'slot-x-upper';
       },
     ],
   ] as const)('rejects %s', (_name, path, mutate) => {

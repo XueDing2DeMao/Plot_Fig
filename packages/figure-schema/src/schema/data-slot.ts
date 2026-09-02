@@ -22,6 +22,7 @@ export const DataValueTypeSchema = Type.Union([
   Type.Literal('string'),
 ]);
 
+// 结构层只声明字段；role 与 valueType 的兼容性留给 Task 8 的 domain validator。
 export const DataSlotSchema = Type.Object(
   {
     dataSlotId: IdentifierSchema,

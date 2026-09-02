@@ -3,6 +3,7 @@ import { ExtensionBagSchema, IdentifierSchema } from './common.js';
 
 const OptionalBindingSchema = Type.Optional(IdentifierSchema);
 
+// 结构层接受对称与非对称误差键；互斥与成对要求留给 Task 8 的 domain validator。
 export const PlotBindingsSchema = Type.Object(
   {
     x: IdentifierSchema,
