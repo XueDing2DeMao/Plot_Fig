@@ -63,10 +63,6 @@ docs/origin-compatibility-matrix.md
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./snapshot-v1": {
-      "types": "./dist/snapshot-v1.d.ts",
-      "import": "./dist/snapshot-v1.js"
     }
   },
   "files": ["dist"],
@@ -118,7 +114,7 @@ docs/origin-compatibility-matrix.md
 export {};
 ```
 
-The `./snapshot-v1` subpath export is reserved in Task 1 so downstream bridge/reader code can target the final public surface immediately; `src/snapshot-v1.ts` is still created in Task 6, and `tsc -p tsconfig.json` does not require that future export target to exist yet.
+Task 1 only publishes the working root export. The versioned Snapshot subpath is deferred until Task 6 creates `src/snapshot-v1.ts` and updates `package.json` in the same step.
 
 - [x] **Step 2: Refresh workspace links and verify no-dist typecheck behavior**
 
@@ -178,7 +174,7 @@ git commit -m "chore(origin): 初始化兼容层包"
 **Task 1 completion checklist:**
 
 - [x] `@plot-fig/origin-compat` now publishes only `dist/**` via `"files": ["dist"]`.
-- [x] Root and `./snapshot-v1` `exports` are fixed to `dist` paths even before Task 6 adds `src/snapshot-v1.ts`.
+- [x] Task 1 publishes only the working root `exports["."]`; no missing subpath is advertised before Task 6.
 - [x] `packages/origin-compat/tsconfig.typecheck.json` resolves `@plot-fig/figure-schema` to `../figure-schema/src/index.ts`.
 - [x] `pnpm install`, `pnpm install --frozen-lockfile`, `pnpm --filter @plot-fig/origin-compat typecheck`, and root `pnpm typecheck` succeeded without relying on prebuilt sibling `dist` output.
 - [x] Final `pnpm format`, `pnpm format:check`, `pnpm build`, and `pnpm --filter @plot-fig/origin-compat pack --dry-run` gates have succeeded on the Task 1 state.
@@ -186,9 +182,11 @@ git commit -m "chore(origin): 初始化兼容层包"
 **Execution evidence (2026-09-02):**
 
 - Lockfile refresh: `pnpm install` exited `0` and added the `packages/origin-compat` importer with `@plot-fig/figure-schema`, `ajv`, and `typebox` pinned exactly as planned.
+- RED smoke before this fix on 2026-09-02: after `pnpm --filter @plot-fig/origin-compat build`, `node --input-type=module -e "import('@plot-fig/origin-compat/snapshot-v1')..."` from `packages/origin-compat` exited `1` with `ERR_MODULE_NOT_FOUND` because `dist/snapshot-v1.js` did not exist even though Task 1 had advertised the subpath in `package.json#exports`.
 - No-dist type gate: after temporarily moving `packages/figure-schema/dist` and `packages/figure-migrations/dist` aside, `pnpm install --frozen-lockfile`, `pnpm --filter @plot-fig/origin-compat typecheck`, and root `pnpm typecheck` all exited `0`; both backup directories were restored afterward, proving Task 1 does not depend on sibling prebuild artifacts.
+- GREEN smoke after this fix on 2026-09-02: after fresh `pnpm format`, `pnpm typecheck`, and `pnpm build`, a package-local `node --input-type=module` smoke check confirmed `package.json#exports` no longer contains `./snapshot-v1`, and `await import('@plot-fig/origin-compat')` exited `0` with `origin-compat root self-import ok`.
 - Final workspace gates: `pnpm format`, `pnpm format:check`, and `pnpm build` all exited `0` on the Task 1 state; the new `packages/origin-compat` build emitted only `dist/index.{js,d.ts}` plus source maps because `src/index.ts` is intentionally empty until Task 6.
-- Pack boundary proof: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0` and listed only `dist/index.d.ts`, `dist/index.d.ts.map`, `dist/index.js`, `dist/index.js.map`, and `package.json`; the reserved `./snapshot-v1` export target is intentionally absent from the tarball until Task 6 creates `src/snapshot-v1.ts`.
+- Pack boundary proof: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0` and listed only `dist/index.d.ts`, `dist/index.d.ts.map`, `dist/index.js`, `dist/index.js.map`, and `package.json`; Task 1 no longer advertises any missing `snapshot-v1` entry.
 
 ### Task 2: Define import results and Snapshot types
 
@@ -2141,6 +2139,7 @@ Expected: exit 0; mapper has no filesystem, process, browser or Origin runtime i
 - Create: `packages/origin-compat/src/import.ts`
 - Create: `packages/origin-compat/src/snapshot-v1.ts`
 - Modify: `packages/origin-compat/src/index.ts`
+- Modify: `packages/origin-compat/package.json`
 
 - [ ] **Step 1: Implement the orchestration entry point**
 
@@ -2257,7 +2256,7 @@ export type {
 } from './types.js';
 ```
 
-- [ ] **Step 3: Publish the versioned Snapshot port on a subpath**
+- [ ] **Step 3: Create the versioned Snapshot port and then publish the subpath export**
 
 `packages/origin-compat/src/snapshot-v1.ts`:
 
@@ -2266,7 +2265,24 @@ export { OriginTemplateSnapshotV1Schema } from './snapshot-schema.js';
 export type { OriginTemplateSnapshotV1 } from './snapshot-schema.js';
 ```
 
-The root export remains limited to the importer and result contracts; Bridge/Reader implementations opt into `@plot-fig/origin-compat/snapshot-v1` explicitly.
+Then update `packages/origin-compat/package.json`:
+
+```json
+{
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./snapshot-v1": {
+      "types": "./dist/snapshot-v1.d.ts",
+      "import": "./dist/snapshot-v1.js"
+    }
+  }
+}
+```
+
+The root export remains limited to the importer and result contracts until this Task 6 step lands. Bridge/Reader implementations opt into `@plot-fig/origin-compat/snapshot-v1` only after the file and subpath export are introduced together.
 
 - [ ] **Step 4: Run Golden tests and commit**
 
