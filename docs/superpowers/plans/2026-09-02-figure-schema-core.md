@@ -1267,7 +1267,7 @@ git commit -m "feat(schema): 组装 FigureTemplate 模型"
 - Create: `packages/figure-schema/src/schema/figure-document.ts`
 - Test: `packages/figure-schema/src/schema/figure-document.test.ts`
 
-- [ ] **Step 1: Write failing document tests**
+- [x] **Step 1: Write failing document tests**
 
 `packages/figure-schema/src/schema/figure-document.test.ts`:
 
@@ -1320,13 +1320,13 @@ describe('FigureDocumentSchema', () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/figure-document.test.ts`
 
 Expected: FAIL because `FigureDocumentSchema` does not exist.
 
-- [ ] **Step 3: Implement the document schema**
+- [x] **Step 3: Implement the document schema**
 
 ```ts
 import Type from 'typebox';
@@ -1394,18 +1394,25 @@ export type DataSourceDescriptor = Type.Static<
 export type DataBinding = Type.Static<typeof DataBindingSchema>;
 ```
 
-- [ ] **Step 4: Run document tests**
+- [x] **Step 4: Run document tests**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/figure-document.test.ts`
 
 Expected: PASS; unknown source fields are rejected.
 
-- [ ] **Step 5: Commit FigureDocument schema**
+- [x] **Step 5: Commit FigureDocument schema**
 
 ```powershell
 git add packages/figure-schema/src/schema/figure-document.ts packages/figure-schema/src/schema/figure-document.test.ts
 git commit -m "feat(schema): 定义文档与数据绑定"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/schema/figure-document.test.ts` exited 1 with `Cannot find module './figure-document.js'` before `figure-document.ts` existed.
+- GREEN: the same focused test command exited 0 with 1 file and 2 tests passed after adding the closed `FigureDocument` schemas and types.
+- Gates: fresh `pnpm test` exited 0 with 5 files and 26 tests passed; fresh `pnpm typecheck` exited 0; `pnpm format:check` initially failed on `packages/figure-schema/src/schema/figure-document.ts`, then passed after Prettier normalization; fresh `pnpm build` exited 0.
+- Scope: `DataSourceDescriptorSchema` remains descriptor-only and stores `sourceId`, source metadata, and `columns[{ columnId, valueType }]`; raw `filePath` and `payload` fields are rejected structurally via closed schemas.
 
 ### Task 7: Add Ajv structural validators
 
