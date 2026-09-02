@@ -4,6 +4,8 @@ import { validateFigureTemplateDomain } from './domain-template.js';
 import type { ValidationIssue } from './types.js';
 
 type BindingContext = {
+  ambiguousColumnIdsBySourceId: Map<string, Set<string>>;
+  ambiguousSourceIds: Set<string>;
   requiredSlots: Set<string>;
   seenSlots: Set<string>;
   slots: Map<string, FigureDocument['templateSnapshot']['dataSlots'][number]>;
@@ -41,6 +43,23 @@ function validateDataSourceColumns(
   return issues;
 }
 
+function collectAmbiguousColumnIds(
+  source: FigureDocument['dataSources'][number],
+): Set<string> {
+  const seenColumns = new Set<string>();
+  const duplicateColumns = new Set<string>();
+
+  source.columns.forEach((column) => {
+    if (seenColumns.has(column.columnId)) {
+      duplicateColumns.add(column.columnId);
+      return;
+    }
+    seenColumns.add(column.columnId);
+  });
+
+  return duplicateColumns;
+}
+
 function validateDataSources(value: FigureDocument): ValidationIssue[] {
   const seenSources = new Set<string>();
   const issues: ValidationIssue[] = [];
@@ -63,11 +82,13 @@ function validateDataSources(value: FigureDocument): ValidationIssue[] {
 }
 
 function createBindingContext(value: FigureDocument): BindingContext {
+  const ambiguousSourceIds = new Set<string>();
   const requiredSlots = new Set(
     value.templateSnapshot.dataSlots
       .filter((slot) => slot.required)
       .map((slot) => slot.dataSlotId),
   );
+  const ambiguousColumnIdsBySourceId = new Map<string, Set<string>>();
   const slots = new Map<
     string,
     FigureDocument['templateSnapshot']['dataSlots'][number]
@@ -80,12 +101,27 @@ function createBindingContext(value: FigureDocument): BindingContext {
     }
   });
   value.dataSources.forEach((source) => {
+    ambiguousColumnIdsBySourceId.set(
+      source.sourceId,
+      collectAmbiguousColumnIds(source),
+    );
+    if (sources.has(source.sourceId)) {
+      ambiguousSourceIds.add(source.sourceId);
+      return;
+    }
     if (!sources.has(source.sourceId)) {
       sources.set(source.sourceId, source);
     }
   });
 
-  return { requiredSlots, seenSlots: new Set<string>(), slots, sources };
+  return {
+    ambiguousColumnIdsBySourceId,
+    ambiguousSourceIds,
+    requiredSlots,
+    seenSlots: new Set<string>(),
+    slots,
+    sources,
+  };
 }
 
 function validateBindingSlot(
@@ -128,6 +164,10 @@ function validateBindingSourceColumn(args: {
   slot: FigureDocument['templateSnapshot']['dataSlots'][number];
   context: BindingContext;
 }): ValidationIssue[] {
+  if (args.context.ambiguousSourceIds.has(args.binding.sourceId)) {
+    return [];
+  }
+
   const source = args.context.sources.get(args.binding.sourceId);
   if (!source) {
     return [
@@ -136,6 +176,13 @@ function validateBindingSourceColumn(args: {
         `unknown source "${args.binding.sourceId}"`,
       ),
     ];
+  }
+  if (
+    args.context.ambiguousColumnIdsBySourceId
+      .get(args.binding.sourceId)
+      ?.has(args.binding.columnId)
+  ) {
+    return [];
   }
 
   const column = source.columns.find(

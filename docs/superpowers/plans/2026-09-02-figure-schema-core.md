@@ -2259,6 +2259,9 @@ git commit -m "feat(schema): 校验跨对象领域不变量"
 - Review GREEN: the same review-focused command exited 0 with 4 files and 46 tests passed after hardening descriptor-based extension validation, adding source/column uniqueness checks, and tightening slot role/valueType constraints.
 - Fresh review gates: `pnpm vitest run packages/figure-schema/src/validation` exited 0 with 5 files and 51 tests passed; `pnpm test`, `pnpm typecheck`, `pnpm format:check`, and `pnpm build` were rerun fresh after the review fixes and each exited 0.
 - Hard-gate audit: source validation files remain within 300 lines, and a post-format static scan over function declarations confirmed every production function in `packages/figure-schema/src/validation/*.ts` stays within 50 lines and at most 3 positional parameters.
+- Second review RED: `pnpm vitest run packages/figure-schema/src/validation/domain-document.test.ts` exited 1 with 2 failed tests, proving duplicate `sourceId` and duplicate `columnId` still cascaded into `/bindingSet/*/columnId` diagnostics (`unknown column` / `incompatible`) instead of stopping at the duplicate-root cause.
+- Second review GREEN: the same focused document-domain test command exited 0 with 1 file and 11 tests passed after `BindingContext` started tracking ambiguous source ids and per-source ambiguous column ids, and binding resolution short-circuited on those ambiguities.
+- Second fresh gates: after the ambiguity fix and evidence update, `pnpm vitest run packages/figure-schema/src/validation`, `pnpm test`, `pnpm typecheck`, `pnpm format:check`, and `pnpm build` were rerun fresh and each exited 0.
 
 ### Task 9: Generate JSON Schema and canonical serialization
 

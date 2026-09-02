@@ -36,6 +36,8 @@ const createDocument = (
 
 const documentIssuePaths = (value: FigureDocument) =>
   validateFigureDocumentDomain(value).map((issue) => issue.path);
+const documentIssues = (value: FigureDocument) =>
+  validateFigureDocumentDomain(value);
 
 describe('FigureDocument domain invariants', () => {
   it('accepts a document with complete bindings', () => {
@@ -61,6 +63,49 @@ describe('FigureDocument domain invariants', () => {
     expect(documentIssuePaths(value)).toEqual([
       '/dataSources/0/columns/2/columnId',
       '/dataSources/1/sourceId',
+    ]);
+  });
+
+  it('stops at duplicate source roots instead of cascading into binding diagnostics', () => {
+    const value = createDocument();
+
+    value.dataSources[0]!.columns = [
+      { columnId: 'temperature', valueType: 'number' },
+    ];
+    value.dataSources.push({
+      sourceId: 'source-1',
+      name: 'Duplicate source',
+      sourceKind: 'external',
+      mediaType: 'text/csv',
+      contentHash: 'sha256:def456',
+      columns: [{ columnId: 'conductivity-second', valueType: 'number' }],
+    });
+    value.bindingSet[1] = {
+      dataSlotId: 'slot-y',
+      sourceId: 'source-1',
+      columnId: 'conductivity-second',
+    };
+
+    expect(documentIssues(value)).toEqual([
+      expect.objectContaining({
+        path: '/dataSources/1/sourceId',
+      }),
+    ]);
+  });
+
+  it('stops at duplicate column roots instead of inferring incompatible bindings', () => {
+    const value = createDocument();
+
+    value.dataSources[0]!.columns = [
+      { columnId: 'temperature', valueType: 'string' },
+      { columnId: 'temperature', valueType: 'number' },
+      { columnId: 'conductivity', valueType: 'number' },
+    ];
+
+    expect(documentIssues(value)).toEqual([
+      expect.objectContaining({
+        path: '/dataSources/0/columns/1/columnId',
+      }),
     ]);
   });
 
