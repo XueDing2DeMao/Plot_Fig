@@ -350,7 +350,8 @@ git commit -m "feat(origin): 定义 Snapshot 输入契约"
 
 - automation stripping for all four kinds without leaking script text into diagnostics, items or output
 - normalized script-like `unknownProperties` keys (`script`, `lab-talk`, `origin-c`, `python`, `macro`) removed while ordinary declarative keys remain
-- nested `unknownProperties.automation` containers and benign nested paths that still carry `{ kind, text }` script payloads or payload arrays
+- nested `unknownProperties.automation` containers and benign nested paths that still carry exact automation `{ kind, text }` payloads or payload arrays
+- negative coverage proving benign extension records such as `{ kind: 'script', text: 'ordinary-caption' }` and `{ kind: 'Origin C', text: 'ordinary-caption' }` remain intact without `ORIGIN_SCRIPT_IGNORED`
 - dangerous keys, JSON Pointer escaping, accessor getters, revoked / throwing proxies, symbol keys, named arrays, sparse arrays, array accessors, non-plain objects, non-enumerable properties, `undefined`, `bigint`, `function`, non-finite numbers and cycles
 - exact pass/fail boundaries for depth, array length, object keys, node count, UTF-16 string length, total UTF-8 bytes and extension UTF-8 bytes
 - malformed HTML-like fragments (`<b`, `</script`, tags with attributes, comments, `<?...?>`) while preserving ordinary comparisons such as `x < 5`
@@ -374,7 +375,7 @@ The final implementation intentionally avoids the earlier unsafe `slice` / `Obje
 - `security-runtime.ts`: shared walk state plus stable diagnostic / compatibility item helpers
 - `security-reflection.ts`: guarded descriptor and own-key readers that never execute getters
 - `snapshot-validation-helpers.ts`: fail-closed validation cloning that now rejects non-enumerable own properties instead of silently dropping them
-- `security-script.ts`: descriptor-safe detection for `{ kind, text }` script payload objects and all-script payload arrays inside extension data
+- `security-script.ts`: descriptor-safe detection for exact automation `{ kind, text }` payload objects and arrays, intentionally separated from normalized key-name scrubbing
 - `security-array.ts`: array validation plus per-item script payload removal for mixed extension arrays without materializing script text in the output
 - `security-object.ts`: object traversal with explicit `unknownProperties` context, dangerous-key rejection, nested script payload stripping and whole-container removal for script payload arrays
 - `security-walk.ts`: primitive handling, cycle detection, depth / node / byte enforcement and recursive bounded clone dispatch
@@ -411,8 +412,9 @@ Observed:
 - [x] symbol keys, dangerous keys, named / sparse / accessor arrays, non-plain objects, non-enumerable properties, `undefined`, `bigint`, `function`, non-finite numbers, cycles and revoked / throwing proxies are rejected
 - [x] limits are deterministic and exact for depth, array length, object keys, node count, string length, total bytes and extension bytes
 - [x] once a fatal limit is hit, traversal stops before visiting later sibling payloads
-- [x] automation entries, `unknownProperties.automation` containers, normalized script-like extension keys, and nested `{ kind, text }` script payloads are removed and recorded without copying script text into diagnostics or compatibility items
+- [x] automation entries, `unknownProperties.automation` containers, normalized script-like extension keys, and nested exact automation `{ kind, text }` payloads are removed and recorded without copying script text into diagnostics or compatibility items
 - [x] ordinary declarative `unknownProperties` remain intact; dangerous keys are fatal
+- [x] benign `{ kind, text }` extension records whose `kind` is not one of `labtalk|origin-c|python|macro` remain intact and do not emit `ORIGIN_SCRIPT_IGNORED`
 - [x] malformed and complete HTML-like fragments are removed from axis titles and text annotations as lossy conversions while ordinary comparisons such as `x < 5` and the input snapshot remain unchanged
 - [x] successful scrubbed output passes `validateOriginSnapshot`, shares no mutable references with the input, and remains canonically stable across repeated scrub passes
 - [x] public exports remain unchanged (`packages/origin-compat/src/index.ts` is still `export {}`)
@@ -424,6 +426,8 @@ Observed:
 - GREEN proof after the closeout fixes: `pnpm vitest run tests/origin/security.test.ts tests/origin/security-regressions.test.ts packages/origin-compat/src/snapshot-schema/safety.test.ts` exited `0` with `3` files and `32` tests green.
 - Fresh full verification on `2026-09-03`: `pnpm format`, `pnpm test`, `pnpm typecheck`, `pnpm --filter @plot-fig/origin-compat typecheck`, `pnpm format:check`, `pnpm build`, and `pnpm --filter @plot-fig/origin-compat pack --dry-run` all exited `0`; the full workspace test run reported `28` passing files and `224` passing tests.
 - `pnpm --filter @plot-fig/origin-compat pack --dry-run` and `rg --files packages/origin-compat/dist` both confirmed that the built package now emits `dist/security-script.*` alongside the other private `security*` modules, while the tarball still excludes `tests/origin/**`.
+- Important closeout RED on `2026-09-03`: `pnpm vitest run tests/origin/security-regressions.test.ts` exited `1` because the new benign negative case still scrubbed `{ kind: 'script', text: 'ordinary-caption' }` and `{ kind: 'Origin C', text: 'ordinary-caption' }`, proving `security-script.ts` was still incorrectly reusing normalized key matching for payload `kind`.
+- Important closeout GREEN on `2026-09-03`: `pnpm format`, `pnpm vitest run tests/origin/security-regressions.test.ts tests/origin/security.test.ts`, `pnpm test`, `pnpm typecheck`, and `pnpm build` all exited `0`; the focused run reported `2` passing files and `26` passing tests, and the full workspace run reported `28` passing files and `225` passing tests.
 
 **Current Task 3 line-count evidence (`packages/origin-compat/src/**/*.ts`):**
 
@@ -433,14 +437,14 @@ Observed:
 - `security-order.ts = 60`
 - `security-reflection.ts = 89`
 - `security-runtime.ts = 170`
-- `security-script.ts = 62`
+- `security-script.ts = 59`
 - `security-text.ts = 125`
 - `security-walk.ts = 123`
 - `security.ts = 56`
 - `snapshot-schema/safety.test.ts = 116`
 - `snapshot-validation-helpers.ts = 279`
 - `tests/origin/fixture-factory.ts = 127`
-- `tests/origin/security-regressions.test.ts = 196`
+- `tests/origin/security-regressions.test.ts = 241`
 
 ### Task 4: Normalize units and coordinates
 

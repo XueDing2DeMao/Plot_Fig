@@ -129,6 +129,53 @@ describe('Origin Snapshot security regressions', () => {
     });
   });
 
+  it('keeps benign extension records whose kind is not an exact automation enum', () => {
+    const input = createOriginSnapshot((snapshot) => {
+      snapshot.unknownProperties = {
+        caption: {
+          kind: 'script',
+          text: 'ordinary-caption',
+        },
+        originAlias: {
+          kind: 'Origin C',
+          text: 'ordinary-caption',
+        },
+      };
+    });
+    const before = createSnapshotClone(input);
+    const result = scrubOriginSnapshot(input);
+
+    expectScrubSuccess(result);
+    expect(result.value.unknownProperties).toEqual({
+      caption: {
+        kind: 'script',
+        text: 'ordinary-caption',
+      },
+      originAlias: {
+        kind: 'Origin C',
+        text: 'ordinary-caption',
+      },
+    });
+    expect(
+      result.diagnostics.filter(
+        (entry) => entry.code === 'ORIGIN_SCRIPT_IGNORED',
+      ),
+    ).toEqual([]);
+    expect(
+      result.items.filter(
+        (entry) => entry.disposition === 'ignoredForSecurity',
+      ),
+    ).toEqual([]);
+    expect(result.value.layers[0]!.annotations[0]).toEqual(
+      before.layers[0]!.annotations[0],
+    );
+    expect(input).toEqual(before);
+    expect(validateOriginSnapshot(result.value)).toEqual({
+      ok: true,
+      value: result.value,
+    });
+  });
+
   it('removes tag-like fragments but keeps ordinary comparisons in declarative text', () => {
     const input = createOriginSnapshot((snapshot) => {
       snapshot.layers[0]!.xAxis.title = {

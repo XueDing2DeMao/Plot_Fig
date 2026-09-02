@@ -4,8 +4,13 @@ import {
   readIsArray,
   readOwnDataProperty,
 } from './snapshot-validation-helpers.js';
-import { isScriptLikeKey } from './security-config.js';
 import { isAccessorDescriptor } from './security-runtime.js';
+
+const AUTOMATION_KINDS = new Set(['labtalk', 'origin-c', 'python', 'macro']);
+
+function isAutomationPayloadKind(value: string): boolean {
+  return AUTOMATION_KINDS.has(value);
+}
 
 export function isScriptPayloadRecord(value: unknown): boolean {
   if (typeof value !== 'object' || value === null) {
@@ -20,7 +25,7 @@ export function isScriptPayloadRecord(value: unknown): boolean {
   return (
     kind.ok &&
     typeof kind.value === 'string' &&
-    isScriptLikeKey(kind.value) &&
+    isAutomationPayloadKind(kind.value) &&
     text.ok &&
     typeof text.value === 'string'
   );
