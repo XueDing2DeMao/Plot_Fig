@@ -1,0 +1,27 @@
+{
+  "name": "plot-fig",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.13.0"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "schema:generate": "pnpm --filter @plot-fig/figure-schema schema:generate",
+    "schema:check": "pnpm schema:generate && git diff --exit-code -- packages/figure-schema/schema"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "4.1.11",
+    "fast-check": "4.9.0",
+    "prettier": "3.9.6",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
+  }
+}
