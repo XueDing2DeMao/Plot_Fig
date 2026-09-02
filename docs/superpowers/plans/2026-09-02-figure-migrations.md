@@ -727,30 +727,128 @@ git commit -m "feat(migrations): 实现版本加载流水线"
 **Files:**
 
 - Modify: `packages/figure-migrations/src/index.ts`
+- Create: `packages/figure-migrations/src/index.test.ts`
 - Modify: `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`
 
-- [ ] **Step 1: Export stable symbols only**
+- [x] **Step 1: Write the failing root entrypoint test**
+
+```ts
+import { readFile } from 'node:fs/promises';
+import { canonicalizeFigurePayload } from '@plot-fig/figure-schema';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import * as figureMigrations from '@plot-fig/figure-migrations';
+import {
+  loadFigurePayload,
+  type LoadResult,
+  type MigrationDiagnostic,
+} from '@plot-fig/figure-migrations';
+import { createCurrentTemplate } from '../../../tests/helpers/figure-payloads.js';
+import { loadFigurePayload as internalLoadFigurePayload } from './load.js';
+import { migrateV010ToV100 } from './migrations/v0.1.0-to-v1.0.0.js';
+
+const fixture = new URL(
+  '../../../tests/fixtures/migrations/figure-template-v0.1.0.json',
+  import.meta.url,
+);
+
+const readLegacyTemplate = async (): Promise<unknown> =>
+  JSON.parse(await readFile(fixture, 'utf8')) as unknown;
+
+describe('root package entry', () => {
+  it('exports only the stable runtime API surface', () => {
+    expect(Object.keys(figureMigrations).sort()).toEqual(['loadFigurePayload']);
+    expect(figureMigrations).not.toHaveProperty('createFigurePayloadLoader');
+    expect(figureMigrations).not.toHaveProperty('findMigrationStep');
+    expect(figureMigrations).not.toHaveProperty('parseSchemaVersion');
+    expect(figureMigrations).not.toHaveProperty('readEnvelope');
+    expect(figureMigrations).not.toHaveProperty('migrateV010ToV100');
+  });
+
+  it('re-exports the stable loader for current and legacy payloads', async () => {
+    const current = createCurrentTemplate();
+    const legacy = await readLegacyTemplate();
+    const currentResult = loadFigurePayload(current);
+    const legacyResult = loadFigurePayload(legacy);
+
+    expect(loadFigurePayload).toBe(internalLoadFigurePayload);
+    expect(currentResult).toEqual({
+      ok: true,
+      value: expect.any(Object),
+      diagnostics: [],
+    });
+    if (currentResult.ok) {
+      expect(currentResult).not.toHaveProperty('migratedFrom');
+      expect(canonicalizeFigurePayload(currentResult.value)).toBe(
+        canonicalizeFigurePayload(current),
+      );
+    }
+
+    expect(legacyResult).toMatchObject({
+      ok: true,
+      migratedFrom: '0.1.0',
+      diagnostics: [],
+    });
+    if (legacyResult.ok) {
+      expect(canonicalizeFigurePayload(legacyResult.value)).toBe(
+        canonicalizeFigurePayload(migrateV010ToV100(legacy)),
+      );
+    }
+  });
+
+  it('re-exports only the public result types', () => {
+    const diagnostic: MigrationDiagnostic = {
+      code: 'FIGURE_SCHEMA_INVALID',
+      severity: 'error',
+      path: '/kind',
+      message: 'must be figure-template or figure-document',
+    };
+    const failure: LoadResult = {
+      ok: false,
+      diagnostics: [diagnostic],
+    };
+    const success: LoadResult = {
+      ok: true,
+      value: createCurrentTemplate(),
+      diagnostics: [],
+    };
+
+    expect(failure.diagnostics[0]).toEqual(diagnostic);
+    expect(success.ok).toBe(true);
+    expectTypeOf<ReturnType<typeof loadFigurePayload>>().toEqualTypeOf<
+      LoadResult
+    >();
+  });
+});
+```
+
+- [x] **Step 2: Run the focused test and verify RED**
+
+Run: `pnpm vitest run packages/figure-migrations/src/index.test.ts`
+
+Expected: FAIL because `src/index.ts` is still empty, so the root runtime keyset is `[]` and `loadFigurePayload` is not callable through `@plot-fig/figure-migrations`.
+
+- [x] **Step 3: Export stable symbols only**
 
 ```ts
 export { loadFigurePayload } from './load.js';
 export type { LoadResult, MigrationDiagnostic } from './types.js';
 ```
 
-- [ ] **Step 2: Update implementation status in the approved spec**
+- [x] **Step 4: Update implementation status in the approved spec**
 
 In `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`, replace:
 
 ```markdown
-- `@plot-fig/figure-migrations`: planned
+- `@plot-fig/figure-migrations`: planned only; not yet implemented in this workspace
 ```
 
 with:
 
 ```markdown
-- `@plot-fig/figure-migrations`: implemented and verified; public API is `loadFigurePayload`
+- `@plot-fig/figure-migrations`: implemented and verified; stable runtime export is `loadFigurePayload`, public TypeScript exports are `LoadResult` and `MigrationDiagnostic`
 ```
 
-- [ ] **Step 3: Run verification gate**
+- [x] **Step 5: Run verification gate**
 
 ```powershell
 pnpm format
@@ -759,13 +857,25 @@ pnpm typecheck
 pnpm test:coverage
 pnpm build
 pnpm schema:check
+Set-Location packages/figure-migrations
+node --input-type=module -e 'import { readFile } from "node:fs/promises"; import { resolve } from "node:path"; const mod = await import("@plot-fig/figure-migrations"); const keys = Object.keys(mod).sort(); const expected = ["loadFigurePayload"]; if (JSON.stringify(keys) !== JSON.stringify(expected)) { throw new Error(`runtime keyset mismatch: ${JSON.stringify(keys)}`); } const leaked = ["createFigurePayloadLoader", "findMigrationStep", "parseSchemaVersion", "readEnvelope", "migrateV010ToV100"].filter((key) => key in mod); if (leaked.length > 0) { throw new Error(`leaked runtime exports: ${JSON.stringify(leaked)}`); } const legacy = JSON.parse(await readFile(resolve(process.cwd(), "../../tests/fixtures/migrations/figure-template-v0.1.0.json"), "utf8")); const { id, title, tags, ...rest } = legacy; const current = { ...rest, kind: "figure-template", schemaVersion: "1.0.0", templateId: id, metadata: { name: title, tags } }; const currentResult = mod.loadFigurePayload(current); if (!currentResult.ok || "migratedFrom" in currentResult) { throw new Error("current payload smoke failed"); } const legacyResult = mod.loadFigurePayload(legacy); if (!legacyResult.ok || legacyResult.migratedFrom !== "0.1.0") { throw new Error("legacy payload smoke failed"); } console.log("package-entry self-import smoke ok");'
+Set-Location ../..
+pnpm --filter @plot-fig/figure-migrations pack --dry-run
 ```
 
-Expected: all commands exit 0; migration tests prove old/current/future behavior and input immutability.
+Expected: all commands exit 0; migration tests prove old/current/future behavior and input immutability, the published package name resolves through `package.json#exports`, and the runtime keyset is exactly `["loadFigurePayload"]`.
 
-- [ ] **Step 4: Commit completed migration package**
+- [x] **Step 6: Commit completed migration package**
 
 ```powershell
-git add packages/figure-migrations docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md
-git commit -m "feat(migrations): 完成版本迁移基础设施"
+git add packages/figure-migrations/src/index.ts packages/figure-migrations/src/index.test.ts docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md docs/superpowers/plans/2026-09-02-figure-migrations.md
+git commit -m "feat(migrations): 完成版本迁移包"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-migrations/src/index.test.ts` exited 1 while `packages/figure-migrations/src/index.ts` was still `export {};`, with `expected [] to deeply equal ["loadFigurePayload"]` and `TypeError: loadFigurePayload is not a function`, proving the root package entry was empty and the public loader was not reachable through `@plot-fig/figure-migrations`.
+- GREEN: after reducing `packages/figure-migrations/src/index.ts` to `export { loadFigurePayload }` plus `export type { LoadResult, MigrationDiagnostic }`, rerunning `pnpm vitest run packages/figure-migrations/src/index.test.ts` exited 0 with `1` file passed and `3` tests passed, covering exact runtime keyset, hidden internal helpers, current payload success, legacy `0.1.0` migration behavior, and the public result-type surface without re-exporting `FigurePayload`.
+- Fresh final gates all exited 0 on 2026-09-02: `pnpm format`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm schema:check`, the `@plot-fig/figure-migrations` package-name self-import smoke, and `pnpm --filter @plot-fig/figure-migrations pack --dry-run`.
+- Coverage after the Task 5 entrypoint test increased to statements `96.09%` (`615/640`), branches `90.76%` (`344/379`), functions `99.34%` (`151/152`), and lines `95.96%` (`594/619`); the migration package slice specifically stayed at statements `97.29%`, branches `95.19%`, functions `100%`, and lines `97.16%`.
+- Package boundary proof: `packages/figure-migrations/dist/index.d.ts` now contains only `export { loadFigurePayload } from './load.js';` and `export type { LoadResult, MigrationDiagnostic } from './types.js';`, while the pack dry-run tarball still contained only `dist/**` plus `package.json`.

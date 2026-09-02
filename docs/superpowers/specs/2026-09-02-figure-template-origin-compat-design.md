@@ -512,5 +512,5 @@ Fixture 至少覆盖单 Panel Scatter、Line、Line + Marker、误差棒、多 P
 - Stable runtime exports: `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`
 - Public TypeScript exports: `DataBinding`, `DataSourceDescriptor`, `FigureDocument`, `FigureTemplate`, `ValidationIssue`, `ValidationResult`
 - Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`, plus post-build package-entry smoke and `pnpm --filter @plot-fig/figure-schema pack --dry-run`
-- `@plot-fig/figure-migrations`: planned only; not yet implemented in this workspace
+- `@plot-fig/figure-migrations`: implemented and verified; stable runtime export is `loadFigurePayload`, public TypeScript exports are `LoadResult` and `MigrationDiagnostic`
 - `@plot-fig/origin-compat`: planned only; not yet implemented in this workspace
