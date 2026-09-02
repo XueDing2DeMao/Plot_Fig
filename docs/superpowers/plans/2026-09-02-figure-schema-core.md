@@ -90,7 +90,7 @@ packages/figure-schema/
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "schema:generate": "pnpm --filter @plot-fig/figure-schema schema:generate",
-    "schema:check": "pnpm schema:generate && git diff --exit-code -- packages/figure-schema/schema"
+    "schema:check": "pnpm schema:generate && tsx packages/figure-schema/scripts/check-json-schema.ts"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "4.1.11",
@@ -2267,13 +2267,15 @@ git commit -m "feat(schema): 校验跨对象领域不变量"
 
 **Files:**
 
+- Modify: `package.json`
+- Create: `packages/figure-schema/scripts/check-json-schema.ts`
 - Create: `packages/figure-schema/scripts/generate-json-schema.ts`
 - Create: `packages/figure-schema/src/canonicalize.ts`
 - Create: `packages/figure-schema/src/canonicalize.test.ts`
 - Create: `packages/figure-schema/schema/figure-template.schema.json`
 - Create: `packages/figure-schema/schema/figure-document.schema.json`
 
-- [ ] **Step 1: Write failing canonicalization tests**
+- [x] **Step 1: Write failing canonicalization tests**
 
 `packages/figure-schema/src/canonicalize.test.ts`:
 
@@ -2294,23 +2296,29 @@ describe('canonicalizeFigurePayload', () => {
     expect(input).toEqual(before);
   });
 
+  it('canonicalizes negative zero to the JSON number 0', () => {
+    expect(canonicalizeFigurePayload(-0)).toBe('0');
+  });
+
   it.each([
     { value: undefined },
     { value: Number.NaN },
     { value: Number.POSITIVE_INFINITY },
+    { value: 1n },
+    { value: Symbol('unsafe') },
   ])('rejects non-JSON value %#', (input) =>
     expect(() => canonicalizeFigurePayload(input)).toThrow(TypeError),
   );
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/canonicalize.test.ts`
 
 Expected: FAIL because `canonicalizeFigurePayload` is missing.
 
-- [ ] **Step 3: Implement canonical JSON serialization**
+- [x] **Step 3: Implement canonical JSON serialization**
 
 ```ts
 function sortValue(value: unknown): unknown {
@@ -2339,7 +2347,9 @@ export function canonicalizeFigurePayload(value: unknown): string {
 }
 ```
 
-- [ ] **Step 4: Implement deterministic schema generation**
+实际实现进一步覆盖并通过测试确认了：`-0 -> 0` 语义、sparse arrays、object/array symbol keys、对象和数组 accessor getter 不执行、非 plain objects、循环引用、危险 keys，以及不突变输入。
+
+- [x] **Step 4: Implement deterministic schema generation**
 
 `packages/figure-schema/scripts/generate-json-schema.ts`:
 
@@ -2375,22 +2385,38 @@ for (const [file, id, schema] of roots) {
 }
 ```
 
-- [ ] **Step 5: Generate and inspect artifacts**
+实际实现先对 TypeBox schema 做 `JSON.stringify` / `JSON.parse` 归一化，再经 `canonicalizeFigurePayload` 输出稳定的 draft 2020-12 文档；另外补了 `packages/figure-schema/scripts/check-json-schema.ts`，让根脚本在 clean repo 下检测已跟踪与未跟踪的 schema 漂移，不依赖预先 staged。
+
+- [x] **Step 5: Generate and inspect artifacts**
 
 Run: `pnpm schema:generate`
 
 Expected: both JSON Schema files exist and declare `https://json-schema.org/draft/2020-12/schema`.
 
-Run: `git add packages/figure-schema/schema && pnpm schema:check`
+Run: `pnpm schema:generate` again and compare the two schema file hashes
 
-Expected: exit 0 because regeneration matches the staged artifacts; a subsequent manual edit to either schema makes the command fail.
+Expected: both schema files are byte-identical across repeated generation.
 
-- [ ] **Step 6: Commit canonicalization and schema artifacts**
+Run: `pnpm schema:check`
+
+Expected: before the artifacts are tracked it fails with `Schema artifacts are out of date` and `?? packages/figure-schema/schema/...`; after committing the generated artifacts, the same command passes on a clean repo without any staging trick.
+
+- [x] **Step 6: Commit canonicalization and schema artifacts**
 
 ```powershell
 git add packages/figure-schema/scripts packages/figure-schema/src/canonicalize.ts packages/figure-schema/src/canonicalize.test.ts packages/figure-schema/schema
 git commit -m "feat(schema): 生成规范 JSON Schema 产物"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/canonicalize.test.ts` exited 1 with `Cannot find module './canonicalize.js'` before `canonicalize.ts` existed.
+- GREEN: the same focused test command exited 0 with 1 file and 19 tests passed after implementing the deterministic serializer.
+- Generator RED: `pnpm schema:generate` exited 1 with `Cannot find module ... packages/figure-schema/scripts/generate-json-schema.ts` before the generator script existed.
+- Generator GREEN: `pnpm schema:generate` exited 0 and wrote both `packages/figure-schema/schema/figure-template.schema.json` and `packages/figure-schema/schema/figure-document.schema.json`, each with draft `https://json-schema.org/draft/2020-12/schema` and stable `$id`.
+- Clean-repo guard RED: the original root `schema:check` shape would false-green on untracked artifacts, so Task 9 replaced it with `tsx packages/figure-schema/scripts/check-json-schema.ts`; the updated `pnpm schema:check` then exited 1 with `Schema artifacts are out of date` and two `?? packages/figure-schema/schema/...` lines until the artifacts were tracked.
+- Determinism: two fresh `pnpm schema:generate` runs produced identical SHA-256 hashes — `figure-template.schema.json = F06B45F3F57AD20F33E7A4E235220D4388E7CC13E558E5202A1E9858026368AE`, `figure-document.schema.json = 3DD441AF915F605A14AA01A33FAD8AD050EB5B8D320533DC75A96CB00D3595B4`.
+- Fresh gates: `pnpm vitest run packages/figure-schema/src/canonicalize.test.ts`, `pnpm test`, `pnpm typecheck`, and `pnpm build` each exited 0; `pnpm format:check` initially failed on `packages/figure-schema/scripts/check-json-schema.ts`, `packages/figure-schema/src/canonicalize.test.ts`, and `packages/figure-schema/src/canonicalize.ts`, then exited 0 after a targeted Prettier run.
 
 ### Task 10: Publish the stable package API and verify the subsystem
 
