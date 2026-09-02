@@ -726,8 +726,16 @@ git commit -m "feat(migrations): 实现版本加载流水线"
 
 **Files:**
 
+- Modify: `packages/figure-migrations/package.json`
+- Create: `packages/figure-migrations/tsconfig.typecheck.json`
 - Modify: `packages/figure-migrations/src/index.ts`
 - Create: `packages/figure-migrations/src/index.test.ts`
+- Modify: `packages/figure-migrations/src/load.ts`
+- Delete: `packages/figure-migrations/src/load.test.ts`
+- Create: `packages/figure-migrations/src/load-internals.ts`
+- Create: `packages/figure-migrations/src/load-current.test.ts`
+- Create: `packages/figure-migrations/src/load-failures.test.ts`
+- Create: `packages/figure-migrations/src/typecheck-config.test.ts`
 - Modify: `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`
 
 - [x] **Step 1: Write the failing root entrypoint test**
@@ -876,6 +884,11 @@ git commit -m "feat(migrations): 完成版本迁移包"
 
 - RED: `pnpm vitest run packages/figure-migrations/src/index.test.ts` exited 1 while `packages/figure-migrations/src/index.ts` was still `export {};`, with `expected [] to deeply equal ["loadFigurePayload"]` and `TypeError: loadFigurePayload is not a function`, proving the root package entry was empty and the public loader was not reachable through `@plot-fig/figure-migrations`.
 - GREEN: after reducing `packages/figure-migrations/src/index.ts` to `export { loadFigurePayload }` plus `export type { LoadResult, MigrationDiagnostic }`, rerunning `pnpm vitest run packages/figure-migrations/src/index.test.ts` exited 0 with `1` file passed and `3` tests passed, covering exact runtime keyset, hidden internal helpers, current payload success, legacy `0.1.0` migration behavior, and the public result-type surface without re-exporting `FigurePayload`.
-- Fresh final gates all exited 0 on 2026-09-02: `pnpm format`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm schema:check`, the `@plot-fig/figure-migrations` package-name self-import smoke, and `pnpm --filter @plot-fig/figure-migrations pack --dry-run`.
+- Fresh-clone root-cause RED on 2026-09-02: in a repo-external clone where both `packages/figure-schema/dist` and `packages/figure-migrations/dist` were absent, `pnpm install --frozen-lockfile` succeeded but `pnpm typecheck` failed with `TS2307: Cannot find module '@plot-fig/figure-schema'` from `src/load.ts`, `src/migrations/v0.1.0-to-v1.0.0.ts`, and `src/types.ts`; `src/load.ts(156,39)` then also degraded to `TS7006` because the missing package types cascaded into `any`. The root cause was that `@plot-fig/figure-migrations` typechecked through `@plot-fig/figure-schema` package exports, whose published `types` target remains `./dist/index.d.ts`.
+- Option comparison on 2026-09-02: package-level `references` alone still failed with the same `TS2307`; adding `paths` on top of `references` changed the failure to `TS6305` because TypeScript 7 expected `figure-schema/dist/index.d.ts` to exist; moving `paths` into the build tsconfig without references changed the failure to `TS6059` because sibling source files landed outside `figure-migrations/src`. The minimal working fix was therefore a dedicated package-local `tsconfig.typecheck.json` plus `packages/figure-migrations/package.json#scripts.typecheck = "tsc -p tsconfig.typecheck.json --noEmit"`, leaving root config untouched and published `exports.types` still pointing to `dist/index.d.ts`.
+- Config-test RED/GREEN on 2026-09-02: `pnpm vitest run packages/figure-migrations/src/typecheck-config.test.ts` first exited 1 with `ENOENT` for `packages/figure-migrations/tsconfig.typecheck.json`, then exited 0 with `1` file passed and `1` test passed after adding the dedicated typecheck config and asserting the package still publishes `./dist/index.d.ts` while workspace typecheck resolves `@plot-fig/figure-schema` to `../figure-schema/src/index.ts`.
+- Split-file gate on 2026-09-02: `packages/figure-migrations/src/load.ts` was reduced to `9` lines, `packages/figure-migrations/src/load-internals.ts` is `266` lines, `packages/figure-migrations/src/load-current.test.ts` is `153` lines, and `packages/figure-migrations/src/load-failures.test.ts` is `174` lines; the deleted monolithic `load.test.ts` no longer exists, and test helpers still live under `tests/` so they do not enter the package tarball.
+- Current-workspace fresh final gates all exited 0 on 2026-09-02: `pnpm format`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm schema:check`, the `@plot-fig/figure-migrations` package-name self-import smoke, and `pnpm --filter @plot-fig/figure-migrations pack --dry-run`.
+- Fresh-clone GREEN on 2026-09-02: after applying only the package-local migrations patch into a new repo-external clone, both `packages/*/dist` still started absent, `pnpm install --frozen-lockfile` exited 0, and `pnpm typecheck` then exited 0 without any prebuild. In that same clean clone, `pnpm format:check`, `pnpm test:coverage`, `pnpm build`, `pnpm schema:check`, the package-name self-import smoke, and `pnpm --filter @plot-fig/figure-migrations pack --dry-run` all exited 0.
 - Coverage after the Task 5 entrypoint test increased to statements `96.09%` (`615/640`), branches `90.76%` (`344/379`), functions `99.34%` (`151/152`), and lines `95.96%` (`594/619`); the migration package slice specifically stayed at statements `97.29%`, branches `95.19%`, functions `100%`, and lines `97.16%`.
 - Package boundary proof: `packages/figure-migrations/dist/index.d.ts` now contains only `export { loadFigurePayload } from './load.js';` and `export type { LoadResult, MigrationDiagnostic } from './types.js';`, while the pack dry-run tarball still contained only `dist/**` plus `package.json`.
