@@ -20,6 +20,22 @@ const templateIssuePaths = (value: FigureTemplate) =>
   validateFigureTemplateDomain(value).map((issue) => issue.path);
 
 describe('extension safety domain invariants', () => {
+  it('rejects accessor properties without invoking their getters', () => {
+    const value = cloneTemplate();
+    const origin = {};
+
+    Object.defineProperty(origin, 'boom', {
+      enumerable: true,
+      get() {
+        throw new Error('getter should not execute');
+      },
+    });
+    value.extensions = { origin };
+
+    expect(() => validateFigureTemplateDomain(value)).not.toThrow();
+    expect(templateIssuePaths(value)).toContain('/extensions/origin/boom');
+  });
+
   const extensionCases: Array<readonly [string, string, TemplateMutator]> = [
     [
       'non-JSON extension values',
@@ -100,6 +116,50 @@ describe('extension safety domain invariants', () => {
   it.each(extensionCases)('rejects %s', (_name, path, mutate) => {
     const value = cloneTemplate();
     mutate(value);
+    expect(templateIssuePaths(value)).toContain(path);
+  });
+
+  it.each([
+    [
+      'arrays with extra own string keys',
+      '/page/extensions/origin/items/extra',
+      (items: number[]) => {
+        Object.defineProperty(items, 'extra', {
+          enumerable: true,
+          value: 1,
+        });
+      },
+    ],
+    [
+      'arrays with symbol keys',
+      '/page/extensions/origin/items',
+      (items: number[]) => {
+        Object.defineProperty(items, Symbol('secret'), {
+          enumerable: true,
+          value: 1,
+        });
+      },
+    ],
+    [
+      'arrays with accessor entries',
+      '/page/extensions/origin/items/0',
+      (items: number[]) => {
+        Object.defineProperty(items, '0', {
+          enumerable: true,
+          get() {
+            throw new Error('array getter should not execute');
+          },
+        });
+      },
+    ],
+  ] as const)('rejects %s', (_name, path, mutate) => {
+    const value = cloneTemplate();
+    const items = [1, 2];
+
+    mutate(items);
+    value.page.extensions = { origin: { items } };
+
+    expect(() => validateFigureTemplateDomain(value)).not.toThrow();
     expect(templateIssuePaths(value)).toContain(path);
   });
 });

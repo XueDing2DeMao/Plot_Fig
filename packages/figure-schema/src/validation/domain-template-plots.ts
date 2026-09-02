@@ -18,6 +18,14 @@ const BINDING_KEYS = [
   'size',
 ] as const satisfies ReadonlyArray<keyof PlotBindings>;
 
+type PlotValidationContext = {
+  panel: Panel;
+  panelIndex: number;
+  plotSlot: PlotSlot;
+  plotSlotIndex: number;
+  slots: Map<string, FigureTemplate['dataSlots'][number]>;
+};
+
 function domainIssue(path: string, message: string): ValidationIssue {
   return {
     code: 'FIGURE_DOMAIN_INVARIANT_FAILED',
@@ -40,12 +48,15 @@ function validateAxisRange(axis: Axis, path: string): ValidationIssue[] {
 }
 
 function validateAxisReferences(
-  panel: Panel,
-  plotSlot: PlotSlot,
+  context: PlotValidationContext,
   path: string,
 ): ValidationIssue[] {
-  const xAxis = panel.axes.find((axis) => axis.axisId === plotSlot.xAxisId);
-  const yAxis = panel.axes.find((axis) => axis.axisId === plotSlot.yAxisId);
+  const xAxis = context.panel.axes.find(
+    (axis) => axis.axisId === context.plotSlot.xAxisId,
+  );
+  const yAxis = context.panel.axes.find(
+    (axis) => axis.axisId === context.plotSlot.yAxisId,
+  );
   const issues: ValidationIssue[] = [];
 
   if (!xAxis || xAxis.dimension !== 'x') {
@@ -69,18 +80,17 @@ function validateAxisReferences(
 }
 
 function validateBindingReferences(
-  bindings: PlotBindings,
-  slots: Map<string, FigureTemplate['dataSlots'][number]>,
+  context: PlotValidationContext,
   path: string,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
   for (const key of BINDING_KEYS) {
-    const slotId = bindings[key];
+    const slotId = context.plotSlot.bindings[key];
     if (slotId === undefined) {
       continue;
     }
-    const slot = slots.get(slotId);
+    const slot = context.slots.get(slotId);
     if (!slot) {
       issues.push(
         domainIssue(`${path}/${key}`, `missing data slot "${slotId}"`),
@@ -98,13 +108,13 @@ function validateBindingReferences(
 }
 
 function validateErrorPair(
-  bindings: PlotBindings,
+  context: PlotValidationContext,
   prefix: 'x' | 'y',
-  path: string,
 ): ValidationIssue[] {
-  const symmetric = bindings[`${prefix}Error`];
-  const lower = bindings[`${prefix}ErrorLower`];
-  const upper = bindings[`${prefix}ErrorUpper`];
+  const path = `/panels/${context.panelIndex}/plotSlots/${context.plotSlotIndex}/bindings`;
+  const symmetric = context.plotSlot.bindings[`${prefix}Error`];
+  const lower = context.plotSlot.bindings[`${prefix}ErrorLower`];
+  const upper = context.plotSlot.bindings[`${prefix}ErrorUpper`];
 
   if (symmetric && (lower || upper)) {
     return [
@@ -133,20 +143,14 @@ function validateErrorPair(
   return [];
 }
 
-function validatePlotSlot(
-  panel: Panel,
-  plotSlot: PlotSlot,
-  panelIndex: number,
-  plotSlotIndex: number,
-  slots: Map<string, FigureTemplate['dataSlots'][number]>,
-): ValidationIssue[] {
-  const path = `/panels/${panelIndex}/plotSlots/${plotSlotIndex}`;
+function validatePlotSlot(context: PlotValidationContext): ValidationIssue[] {
+  const path = `/panels/${context.panelIndex}/plotSlots/${context.plotSlotIndex}`;
 
   return [
-    ...validateAxisReferences(panel, plotSlot, path),
-    ...validateBindingReferences(plotSlot.bindings, slots, `${path}/bindings`),
-    ...validateErrorPair(plotSlot.bindings, 'x', `${path}/bindings`),
-    ...validateErrorPair(plotSlot.bindings, 'y', `${path}/bindings`),
+    ...validateAxisReferences(context, path),
+    ...validateBindingReferences(context, `${path}/bindings`),
+    ...validateErrorPair(context, 'x'),
+    ...validateErrorPair(context, 'y'),
   ];
 }
 
@@ -177,7 +181,13 @@ export function validatePanelDomain(
   });
   panel.plotSlots.forEach((plotSlot, plotSlotIndex) => {
     issues.push(
-      ...validatePlotSlot(panel, plotSlot, panelIndex, plotSlotIndex, slots),
+      ...validatePlotSlot({
+        panel,
+        panelIndex,
+        plotSlot,
+        plotSlotIndex,
+        slots,
+      }),
     );
   });
 

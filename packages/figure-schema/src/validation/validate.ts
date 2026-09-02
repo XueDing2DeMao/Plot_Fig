@@ -8,7 +8,15 @@ import {
   validateFigureDocumentStructure,
   validateFigureTemplateStructure,
 } from './structural.js';
-import type { ValidationResult } from './types.js';
+import type { ValidationIssue, ValidationResult } from './types.js';
+
+function domainIssue(message: string): ValidationIssue {
+  return {
+    code: 'FIGURE_DOMAIN_INVARIANT_FAILED',
+    path: '/',
+    message,
+  };
+}
 
 function withDomain<T>(
   structuralResult: ValidationResult<T>,
@@ -18,7 +26,12 @@ function withDomain<T>(
     return structuralResult;
   }
 
-  const issues = validateDomain(structuralResult.value);
+  let issues: ValidationResult<T>['issues'];
+  try {
+    issues = validateDomain(structuralResult.value);
+  } catch {
+    issues = [domainIssue('domain validation threw unexpectedly')];
+  }
   return issues.length === 0 ? structuralResult : { ok: false, issues };
 }
 

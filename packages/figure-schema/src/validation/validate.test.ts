@@ -73,4 +73,30 @@ describe('public validation composition', () => {
       ]);
     }
   });
+
+  it('returns a structured issue when proxy reflection throws in domain validation', () => {
+    const input = cloneTemplate();
+
+    input.extensions = {
+      origin: new Proxy(
+        {},
+        {
+          ownKeys() {
+            throw new Error('reflection failed');
+          },
+        },
+      ) as Record<string, unknown>,
+    };
+
+    expect(() => validateFigureTemplate(input)).not.toThrow();
+    expect(validateFigureTemplate(input)).toEqual({
+      ok: false,
+      issues: [
+        expect.objectContaining({
+          code: 'FIGURE_DOMAIN_INVARIANT_FAILED',
+          path: '/extensions/origin',
+        }),
+      ],
+    });
+  });
 });

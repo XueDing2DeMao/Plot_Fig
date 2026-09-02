@@ -42,6 +42,28 @@ describe('FigureDocument domain invariants', () => {
     expect(validateFigureDocumentDomain(createDocument())).toEqual([]);
   });
 
+  it('reports duplicate source and column identifiers in stable order', () => {
+    const value = createDocument();
+
+    value.dataSources[0]!.columns.push({
+      columnId: 'temperature',
+      valueType: 'number',
+    });
+    value.dataSources.push({
+      sourceId: 'source-1',
+      name: 'Duplicate source',
+      sourceKind: 'external',
+      mediaType: 'text/csv',
+      contentHash: 'sha256:def456',
+      columns: [{ columnId: 'replicate', valueType: 'number' }],
+    });
+
+    expect(documentIssuePaths(value)).toEqual([
+      '/dataSources/0/columns/2/columnId',
+      '/dataSources/1/sourceId',
+    ]);
+  });
+
   const documentCases: Array<readonly [string, string, DocumentMutator]> = [
     [
       'missing required bindings',

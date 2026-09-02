@@ -209,10 +209,52 @@ describe('FigureTemplate domain invariants', () => {
     expect(templateIssuePaths(value)).toContain(path);
   });
 
+  it.each([
+    ['group', 'category'],
+    ['label', 'string'],
+    ['color', 'category'],
+  ] as const)('accepts %s slots with %s valueType', (role, valueType) => {
+    const value = cloneTemplate();
+
+    value.dataSlots.push({
+      dataSlotId: `slot-${role}`,
+      name: role,
+      role,
+      valueType,
+      required: false,
+    });
+
+    expect(templateIssuePaths(value)).toEqual([]);
+  });
+
+  it.each(['group', 'label', 'color'] as const)(
+    'rejects numeric %s slots',
+    (role) => {
+      const value = cloneTemplate();
+
+      value.dataSlots.push({
+        dataSlotId: `slot-${role}`,
+        name: role,
+        role,
+        valueType: 'number',
+        required: false,
+      });
+
+      expect(templateIssuePaths(value)).toContain('/dataSlots/2/valueType');
+    },
+  );
+
   it('returns issues in a deterministic order', () => {
     const value = cloneTemplate();
     value.annotations = [pageTextAnnotation('axis-x')];
     value.dataSlots[0]!.valueType = 'category';
+    value.dataSlots.push({
+      dataSlotId: 'slot-group',
+      name: 'group',
+      role: 'group',
+      valueType: 'number',
+      required: false,
+    });
     value.panels[0]!.frame.x = 0.3;
     value.panels[0]!.frame.width = 0.8;
     value.panels[0]!.plotSlots[0]!.xAxisId = 'axis-missing';
@@ -220,6 +262,7 @@ describe('FigureTemplate domain invariants', () => {
     expect(templateIssuePaths(value)).toEqual([
       '/annotations/0/annotationId',
       '/dataSlots/0/valueType',
+      '/dataSlots/2/valueType',
       '/panels/0/frame',
       '/panels/0/plotSlots/0/xAxisId',
     ]);

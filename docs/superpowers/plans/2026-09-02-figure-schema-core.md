@@ -2255,6 +2255,10 @@ git commit -m "feat(schema): 校验跨对象领域不变量"
 - GREEN: `pnpm vitest run packages/figure-schema/src/validation` exited 0 with 5 files and 39 tests passed after implementing domain validation and public composition.
 - Gates: `pnpm typecheck`, `pnpm format:check`, `pnpm test`, and `pnpm build` were rerun fresh and each exited 0.
 - Implementation note: private helpers and split test files were added under `packages/figure-schema/src/validation/` to keep every file within the project size limit while preserving the public Task 8 API surface.
+- Review RED: `pnpm vitest run packages/figure-schema/src/validation/domain-extensions.test.ts packages/figure-schema/src/validation/domain-document.test.ts packages/figure-schema/src/validation/domain.test.ts packages/figure-schema/src/validation/validate.test.ts` exited 1 with 4 failed files and 10 failed tests, covering accessor-triggered throws, array extra-key/symbol/accessor gaps, missing `dataSources`/`columns` uniqueness checks, missing `group`/`label`/`color` valueType rules, unstable deterministic ordering, and a crashing public `validateFigureTemplate` proxy case.
+- Review GREEN: the same review-focused command exited 0 with 4 files and 46 tests passed after hardening descriptor-based extension validation, adding source/column uniqueness checks, and tightening slot role/valueType constraints.
+- Fresh review gates: `pnpm vitest run packages/figure-schema/src/validation` exited 0 with 5 files and 51 tests passed; `pnpm test`, `pnpm typecheck`, `pnpm format:check`, and `pnpm build` were rerun fresh after the review fixes and each exited 0.
+- Hard-gate audit: source validation files remain within 300 lines, and a post-format static scan over function declarations confirmed every production function in `packages/figure-schema/src/validation/*.ts` stays within 50 lines and at most 3 positional parameters.
 
 ### Task 9: Generate JSON Schema and canonical serialization
 

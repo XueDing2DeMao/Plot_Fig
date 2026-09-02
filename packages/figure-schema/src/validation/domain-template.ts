@@ -3,6 +3,7 @@ import { collectTemplateExtensionEntries } from './domain-template-extensions.js
 import { validatePanelDomain } from './domain-template-plots.js';
 import type { FigureTemplate } from '../schema/figure-template.js';
 import type { ValidationIssue } from './types.js';
+
 type IdentifierEntry = { path: string; value: string };
 
 const NUMERIC_ROLES = new Set([
@@ -16,6 +17,7 @@ const NUMERIC_ROLES = new Set([
   'yErrorUpper',
   'size',
 ]);
+const TEXTUAL_ROLES = new Set(['group', 'label', 'color']);
 
 function domainIssue(path: string, message: string): ValidationIssue {
   return {
@@ -82,7 +84,7 @@ function validateUniqueIds(value: FigureTemplate): ValidationIssue[] {
   return issues;
 }
 
-function validateNumericSlots(value: FigureTemplate): ValidationIssue[] {
+function validateSlotValueTypes(value: FigureTemplate): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
   value.dataSlots.forEach((slot, slotIndex) => {
@@ -91,6 +93,14 @@ function validateNumericSlots(value: FigureTemplate): ValidationIssue[] {
         domainIssue(
           `/dataSlots/${slotIndex}/valueType`,
           `${slot.role} slots must use number valueType`,
+        ),
+      );
+    }
+    if (TEXTUAL_ROLES.has(slot.role) && slot.valueType === 'number') {
+      issues.push(
+        domainIssue(
+          `/dataSlots/${slotIndex}/valueType`,
+          `${slot.role} slots must use category or string valueType`,
         ),
       );
     }
@@ -150,7 +160,10 @@ export function validateFigureTemplateDomain(
   value: FigureTemplate,
 ): ValidationIssue[] {
   const slots = new Map(value.dataSlots.map((slot) => [slot.dataSlotId, slot]));
-  const issues = [...validateUniqueIds(value), ...validateNumericSlots(value)];
+  const issues = [
+    ...validateUniqueIds(value),
+    ...validateSlotValueTypes(value),
+  ];
 
   value.panels.forEach((panel, panelIndex) => {
     issues.push(...validatePanelDomain(panel, panelIndex, slots));
