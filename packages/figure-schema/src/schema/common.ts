@@ -25,6 +25,7 @@ export const LengthSchema = Type.Object(
 
 export const PointLengthSchema = Type.Number({ minimum: 0 });
 
+// 结构层只封闭扩展 namespace；JSON-only、深度/大小限制与危险键检查留给 Task 8 的 domain validator。
 export const ExtensionBagSchema = Type.Object(
   {
     origin: Type.Optional(Type.Unknown()),

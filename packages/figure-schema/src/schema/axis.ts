@@ -1,15 +1,6 @@
 import Type from 'typebox';
 import { ExtensionBagSchema, IdentifierSchema } from './common.js';
 
-const AxisDimensionSchema = Type.Union([Type.Literal('x'), Type.Literal('y')]);
-
-const AxisPositionSchema = Type.Union([
-  Type.Literal('bottom'),
-  Type.Literal('top'),
-  Type.Literal('left'),
-  Type.Literal('right'),
-]);
-
 const AxisScaleSchema = Type.Union([
   Type.Literal('linear'),
   Type.Literal('log10'),
@@ -76,34 +67,70 @@ const TickLabelSchema = Type.Object(
   { additionalProperties: false },
 );
 
-const AxisTitleSchema = Type.Object(
+const AxisTextSchema = Type.String({
+  maxLength: 16_384,
+  pattern: '^(?!.*<\\/?[A-Za-z][^>]*>)[\\s\\S]*$',
+});
+
+const AxisTitleCommonProperties = {
+  text: AxisTextSchema,
+  fontFamily: Type.String({ minLength: 1 }),
+  fontSizePt: Type.Number({ exclusiveMinimum: 0 }),
+  color: Type.String({ minLength: 1 }),
+};
+
+const AxisTitleSchema = Type.Union([
+  Type.Object(
+    {
+      format: Type.Literal('plain'),
+      ...AxisTitleCommonProperties,
+    },
+    { additionalProperties: false },
+  ),
+  Type.Object(
+    {
+      format: Type.Literal('latex'),
+      ...AxisTitleCommonProperties,
+    },
+    { additionalProperties: false },
+  ),
+]);
+
+const AxisCommonProperties = {
+  axisId: IdentifierSchema,
+  scale: AxisScaleSchema,
+  range: AxisRangeSchema,
+  reverse: Type.Boolean(),
+  visible: Type.Boolean(),
+  line: AxisLineSchema,
+  majorTicks: MajorTickSchema,
+  minorTicks: MinorTickSchema,
+  tickLabels: TickLabelSchema,
+  title: Type.Optional(AxisTitleSchema),
+  extensions: Type.Optional(ExtensionBagSchema),
+};
+
+const HorizontalAxisSchema = Type.Object(
   {
-    text: Type.String(),
-    format: Type.Union([Type.Literal('plain'), Type.Literal('latex')]),
-    fontFamily: Type.String({ minLength: 1 }),
-    fontSizePt: Type.Number({ exclusiveMinimum: 0 }),
-    color: Type.String({ minLength: 1 }),
+    ...AxisCommonProperties,
+    dimension: Type.Literal('x'),
+    position: Type.Union([Type.Literal('bottom'), Type.Literal('top')]),
   },
   { additionalProperties: false },
 );
 
-export const AxisSchema = Type.Object(
+const VerticalAxisSchema = Type.Object(
   {
-    axisId: IdentifierSchema,
-    dimension: AxisDimensionSchema,
-    position: AxisPositionSchema,
-    scale: AxisScaleSchema,
-    range: AxisRangeSchema,
-    reverse: Type.Boolean(),
-    visible: Type.Boolean(),
-    line: AxisLineSchema,
-    majorTicks: MajorTickSchema,
-    minorTicks: MinorTickSchema,
-    tickLabels: TickLabelSchema,
-    title: Type.Optional(AxisTitleSchema),
-    extensions: Type.Optional(ExtensionBagSchema),
+    ...AxisCommonProperties,
+    dimension: Type.Literal('y'),
+    position: Type.Union([Type.Literal('left'), Type.Literal('right')]),
   },
   { additionalProperties: false },
 );
+
+export const AxisSchema = Type.Union([
+  HorizontalAxisSchema,
+  VerticalAxisSchema,
+]);
 
 export type Axis = Type.Static<typeof AxisSchema>;

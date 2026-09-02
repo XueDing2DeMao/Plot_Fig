@@ -605,6 +605,9 @@ git commit -m "feat(schema): 定义页面面板与坐标轴"
 - RED: `pnpm vitest run packages/figure-schema/src/schema/layout-axis.test.ts` exited 1 with `Cannot find module './axis.js'` while `axis.ts` and `layout.ts` were still absent.
 - GREEN: the same focused test command exited 0 with 1 file and 2 tests passed after the minimal `PageSchema`, `PanelFrameSchema`, and `AxisSchema` implementation.
 - Gates: `pnpm typecheck` exited 0; `pnpm format:check` initially failed on `packages/figure-schema/src/schema/axis.ts`, then exited 0 after running Prettier and rerunning the gate.
+- Review fix RED: the same focused test command exited 1 with 5 tests and 2 failures, specifically `rejects x axes with left positions` and `rejects plain titles with html-like tags`, proving the review issues were still reproducible before the fix.
+- Review fix GREEN: the focused test command exited 0 with 1 file and 5 tests passed after converting `AxisSchema` to a closed discriminated union and applying the shared title text schema.
+- Review fix gates: `pnpm typecheck`, `pnpm format:check`, and `pnpm build` were rerun fresh after the fix and each exited 0.
 
 ### Task 4: Define Data Slot, Plot Slot and style schemas
 
