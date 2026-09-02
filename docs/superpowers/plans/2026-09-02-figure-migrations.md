@@ -93,7 +93,7 @@ Expected: exit 0.
 - [x] **Step 3: Commit package scaffold**
 
 ```powershell
-git add packages/figure-migrations pnpm-lock.yaml
+git add docs/superpowers/plans/2026-09-02-figure-migrations.md packages/figure-migrations pnpm-lock.yaml
 git commit -m "chore(migrations): 初始化迁移包"
 ```
 
