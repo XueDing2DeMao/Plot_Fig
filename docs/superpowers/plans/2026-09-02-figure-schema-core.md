@@ -617,7 +617,7 @@ git commit -m "feat(schema): 定义页面面板与坐标轴"
 - Create: `packages/figure-schema/src/schema/plot-slot.ts`
 - Test: `packages/figure-schema/src/schema/slot.test.ts`
 
-- [ ] **Step 1: Write failing slot tests**
+- [x] **Step 1: Write failing slot tests**
 
 ```ts
 import { Compile } from 'typebox/compile';
@@ -665,13 +665,13 @@ describe('slot schemas', () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/slot.test.ts`
 
 Expected: FAIL because slot modules do not exist.
 
-- [ ] **Step 3: Implement Data Slot schema**
+- [x] **Step 3: Implement Data Slot schema**
 
 ```ts
 import Type from 'typebox';
@@ -710,7 +710,7 @@ export const DataSlotSchema = Type.Object(
 );
 ```
 
-- [ ] **Step 4: Implement Plot Slot schema**
+- [x] **Step 4: Implement Plot Slot schema**
 
 Create closed schemas for `bindings`, `lineStyle`, `markerStyle`, `errorBarStyle` and `legendEntry`. The required `bindings` code is:
 
@@ -806,18 +806,25 @@ export const PlotSlotSchema = Type.Object(
 );
 ```
 
-- [ ] **Step 5: Run slot tests and typecheck**
+- [x] **Step 5: Run slot tests and typecheck**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/slot.test.ts && pnpm typecheck`
 
 Expected: PASS and exit 0.
 
-- [ ] **Step 6: Commit slot schemas**
+- [x] **Step 6: Commit slot schemas**
 
 ```powershell
 git add packages/figure-schema/src/schema/data-slot.ts packages/figure-schema/src/schema/plot-slot.ts packages/figure-schema/src/schema/slot.test.ts
 git commit -m "feat(schema): 分离绘图槽与数据槽"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/schema/slot.test.ts` exited 1 with `Cannot find module './data-slot.js'` before `data-slot.ts` and `plot-slot.ts` existed.
+- GREEN: the same focused test command exited 0 with 1 file and 3 tests passed after adding the minimal slot schemas.
+- Scope checks: `slot.test.ts` verifies `DataSlotSchema` does not accept plot styling, `PlotSlotSchema` keeps style and binding objects closed, and planned binding roles such as `xErrorLower`/`xErrorUpper`/`group`/`label`/`color`/`size` remain available.
+- Gates: fresh `pnpm typecheck`, `pnpm format:check`, and `pnpm build` each exited 0.
 
 ### Task 5: Assemble annotations, theme and FigureTemplate
 
