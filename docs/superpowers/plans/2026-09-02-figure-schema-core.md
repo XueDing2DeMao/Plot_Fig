@@ -374,7 +374,7 @@ git commit -m "feat(schema): 定义公共类型与扩展边界"
 - Create: `packages/figure-schema/src/schema/axis.ts`
 - Test: `packages/figure-schema/src/schema/layout-axis.test.ts`
 
-- [ ] **Step 1: Write failing layout and axis tests**
+- [x] **Step 1: Write failing layout and axis tests**
 
 ```ts
 import { Compile } from 'typebox/compile';
@@ -404,7 +404,7 @@ describe('layout and axis schemas', () => {
     ).toBe(true);
   });
 
-  it('accepts a fixed logarithmic axis structurally', () => {
+  it('accepts a complete fixed logarithmic axis', () => {
     expect(
       Compile(AxisSchema).Check({
         axisId: 'axis-x',
@@ -425,23 +425,39 @@ describe('layout and axis schemas', () => {
           notation: 'auto',
           precision: 6,
         },
+        title: {
+          text: 'Conductivity',
+          format: 'plain',
+          fontFamily: 'Arial',
+          fontSizePt: 10,
+          color: '#111111',
+        },
+        extensions: {
+          origin: {
+            axis: 'X Bottom',
+          },
+        },
       }),
     ).toBe(true);
   });
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/schema/layout-axis.test.ts`
 
 Expected: FAIL because `layout.js` and `axis.js` do not exist.
 
-- [ ] **Step 3: Implement layout schemas**
+- [x] **Step 3: Implement layout schemas**
 
 ```ts
 import Type from 'typebox';
-import { ExtensionBagSchema, LengthSchema } from './common.js';
+import {
+  ExtensionBagSchema,
+  LengthSchema,
+  PointLengthSchema,
+} from './common.js';
 
 export const PanelFrameSchema = Type.Object(
   {
@@ -462,10 +478,10 @@ export const PageSchema = Type.Object(
     background: Type.String({ minLength: 1 }),
     margins: Type.Object(
       {
-        top: Type.Number({ minimum: 0 }),
-        right: Type.Number({ minimum: 0 }),
-        bottom: Type.Number({ minimum: 0 }),
-        left: Type.Number({ minimum: 0 }),
+        top: PointLengthSchema,
+        right: PointLengthSchema,
+        bottom: PointLengthSchema,
+        left: PointLengthSchema,
       },
       { additionalProperties: false },
     ),
@@ -475,7 +491,7 @@ export const PageSchema = Type.Object(
 );
 ```
 
-- [ ] **Step 4: Implement axis schemas**
+- [x] **Step 4: Implement axis schemas**
 
 ```ts
 import Type from 'typebox';
@@ -567,18 +583,28 @@ export const AxisSchema = Type.Object(
 );
 ```
 
-- [ ] **Step 5: Run tests and typecheck**
+- [x] **Step 5: Run tests, typecheck and format check**
 
-Run: `pnpm vitest run packages/figure-schema/src/schema/layout-axis.test.ts && pnpm typecheck`
+Run: `pnpm vitest run packages/figure-schema/src/schema/layout-axis.test.ts`
 
-Expected: PASS and exit 0.
+Run: `pnpm typecheck`
 
-- [ ] **Step 6: Commit layout and axis schemas**
+Run: `pnpm format:check`
+
+Expected: PASS and exit 0 for all three commands.
+
+- [x] **Step 6: Commit layout and axis schemas**
 
 ```powershell
-git add packages/figure-schema/src/schema/layout.ts packages/figure-schema/src/schema/axis.ts packages/figure-schema/src/schema/layout-axis.test.ts
+git add packages/figure-schema/src/schema/layout.ts packages/figure-schema/src/schema/axis.ts packages/figure-schema/src/schema/layout-axis.test.ts docs/superpowers/plans/2026-09-02-figure-schema-core.md
 git commit -m "feat(schema): 定义页面面板与坐标轴"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/schema/layout-axis.test.ts` exited 1 with `Cannot find module './axis.js'` while `axis.ts` and `layout.ts` were still absent.
+- GREEN: the same focused test command exited 0 with 1 file and 2 tests passed after the minimal `PageSchema`, `PanelFrameSchema`, and `AxisSchema` implementation.
+- Gates: `pnpm typecheck` exited 0; `pnpm format:check` initially failed on `packages/figure-schema/src/schema/axis.ts`, then exited 0 after running Prettier and rerunning the gate.
 
 ### Task 4: Define Data Slot, Plot Slot and style schemas
 
