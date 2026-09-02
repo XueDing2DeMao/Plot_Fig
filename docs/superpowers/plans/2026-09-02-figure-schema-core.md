@@ -1665,10 +1665,18 @@ git commit -m "feat(schema): 增加 Ajv 结构校验"
 **Files:**
 
 - Create: `packages/figure-schema/src/validation/domain.ts`
+- Create: `packages/figure-schema/src/validation/domain-document.ts`
+- Create: `packages/figure-schema/src/validation/domain-extensions.ts`
+- Create: `packages/figure-schema/src/validation/domain-template.ts`
+- Create: `packages/figure-schema/src/validation/domain-template-extensions.ts`
+- Create: `packages/figure-schema/src/validation/domain-template-plots.ts`
 - Create: `packages/figure-schema/src/validation/validate.ts`
 - Test: `packages/figure-schema/src/validation/domain.test.ts`
+- Test: `packages/figure-schema/src/validation/domain-document.test.ts`
+- Test: `packages/figure-schema/src/validation/domain-extensions.test.ts`
+- Test: `packages/figure-schema/src/validation/validate.test.ts`
 
-- [ ] **Step 1: Write table-driven failing tests**
+- [x] **Step 1: Write table-driven failing tests**
 
 `packages/figure-schema/src/validation/domain.test.ts`:
 
@@ -1867,13 +1875,13 @@ describe('FigureDocument domain invariants', () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/validation/domain.test.ts`
 
 Expected: FAIL because domain validation is missing.
 
-- [ ] **Step 3: Implement JSON-only extension checking**
+- [x] **Step 3: Implement JSON-only extension checking**
 
 ```ts
 export function isSafeJsonValue(value: unknown, depth = 0): boolean {
@@ -1900,7 +1908,7 @@ export function isSafeJsonValue(value: unknown, depth = 0): boolean {
 }
 ```
 
-- [ ] **Step 4: Implement template and document invariant checks**
+- [x] **Step 4: Implement template and document invariant checks**
 
 `packages/figure-schema/src/validation/domain.ts`:
 
@@ -2185,7 +2193,7 @@ export function validateFigureDocumentDomain(
 }
 ```
 
-- [ ] **Step 5: Compose public structural + domain validation**
+- [x] **Step 5: Compose public structural + domain validation**
 
 `packages/figure-schema/src/validation/validate.ts`:
 
@@ -2228,18 +2236,25 @@ export const validateFigureDocument = (
   );
 ```
 
-- [ ] **Step 6: Run domain and full package tests**
+- [x] **Step 6: Run domain and full package tests**
 
 Run: `pnpm vitest run packages/figure-schema/src/validation && pnpm typecheck`
 
 Expected: PASS and exit 0.
 
-- [ ] **Step 7: Commit domain validators**
+- [x] **Step 7: Commit domain validators**
 
 ```powershell
 git add packages/figure-schema/src/validation
 git commit -m "feat(schema): 校验跨对象领域不变量"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/validation/domain.test.ts` exited 1 with `Cannot find module './domain.js'` before any Task 8 validator modules existed.
+- GREEN: `pnpm vitest run packages/figure-schema/src/validation` exited 0 with 5 files and 39 tests passed after implementing domain validation and public composition.
+- Gates: `pnpm typecheck`, `pnpm format:check`, `pnpm test`, and `pnpm build` were rerun fresh and each exited 0.
+- Implementation note: private helpers and split test files were added under `packages/figure-schema/src/validation/` to keep every file within the project size limit while preserving the public Task 8 API surface.
 
 ### Task 9: Generate JSON Schema and canonical serialization
 
