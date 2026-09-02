@@ -1,7 +1,5 @@
 import {
   canonicalizeFigurePayload,
-  FigureDocumentSchema,
-  FigureTemplateSchema,
   validateFigureDocument,
   validateFigureTemplate,
 } from '@plot-fig/figure-schema';
@@ -16,8 +14,6 @@ import type {
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import * as figureSchema from '@plot-fig/figure-schema';
 import { canonicalizeFigurePayload as internalCanonicalizeFigurePayload } from './canonicalize.js';
-import { FigureDocumentSchema as internalFigureDocumentSchema } from './schema/figure-document.js';
-import { FigureTemplateSchema as internalFigureTemplateSchema } from './schema/figure-template.js';
 import { validTemplate } from './schema/fixtures.js';
 import {
   validateFigureDocument as internalValidateFigureDocument,
@@ -51,19 +47,17 @@ const validDocument = {
 describe('root package entry', () => {
   it('exports only the stable runtime API surface', () => {
     expect(Object.keys(figureSchema).sort()).toEqual([
-      'FigureDocumentSchema',
-      'FigureTemplateSchema',
       'canonicalizeFigurePayload',
       'validateFigureDocument',
       'validateFigureTemplate',
     ]);
+    expect(figureSchema).not.toHaveProperty('FigureTemplateSchema');
+    expect(figureSchema).not.toHaveProperty('FigureDocumentSchema');
     expect(figureSchema).not.toHaveProperty('validateFigureTemplateDomain');
     expect(figureSchema).not.toHaveProperty('validateFigureTemplateStructure');
   });
 
   it('re-exports the stable runtime implementations', () => {
-    expect(FigureTemplateSchema).toBe(internalFigureTemplateSchema);
-    expect(FigureDocumentSchema).toBe(internalFigureDocumentSchema);
     expect(validateFigureTemplate).toBe(internalValidateFigureTemplate);
     expect(validateFigureDocument).toBe(internalValidateFigureDocument);
     expect(canonicalizeFigurePayload).toBe(internalCanonicalizeFigurePayload);

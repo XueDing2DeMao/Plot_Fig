@@ -509,7 +509,8 @@ Fixture 至少覆盖单 Panel Scatter、Line、Line + Marker、误差棒、多 P
 ## Implementation status
 
 - `@plot-fig/figure-schema`: implemented and verified; generated artifacts are `packages/figure-schema/schema/figure-template.schema.json` and `packages/figure-schema/schema/figure-document.schema.json`
-- Stable package exports: `FigureTemplateSchema`, `FigureDocumentSchema`, `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`, plus the public Figure template/document/validation TypeScript types
-- Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`
+- Stable runtime exports: `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`
+- Public TypeScript exports: `DataBinding`, `DataSourceDescriptor`, `FigureDocument`, `FigureTemplate`, `ValidationIssue`, `ValidationResult`
+- Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`, plus post-build package-entry smoke and `pnpm --filter @plot-fig/figure-schema pack --dry-run`
 - `@plot-fig/figure-migrations`: planned only; not yet implemented in this workspace
 - `@plot-fig/origin-compat`: planned only; not yet implemented in this workspace

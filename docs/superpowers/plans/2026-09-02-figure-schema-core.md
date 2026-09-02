@@ -2431,6 +2431,9 @@ git commit -m "feat(schema): 生成规范 JSON Schema 产物"
 
 **Files:**
 
+- Modify: `.gitattributes`
+- Modify: `packages/figure-schema/package.json`
+- Modify: `packages/figure-schema/tsconfig.json`
 - Create: `packages/figure-schema/src/index.ts`
 - Test: `packages/figure-schema/src/index.test.ts`
 - Modify: `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`
@@ -2441,13 +2444,11 @@ git commit -m "feat(schema): 生成规范 JSON Schema 产物"
 
 ```ts
 export { canonicalizeFigurePayload } from './canonicalize.js';
-export { FigureDocumentSchema } from './schema/figure-document.js';
 export type {
   DataBinding,
   DataSourceDescriptor,
   FigureDocument,
 } from './schema/figure-document.js';
-export { FigureTemplateSchema } from './schema/figure-template.js';
 export type { FigureTemplate } from './schema/figure-template.js';
 export type { ValidationIssue, ValidationResult } from './validation/types.js';
 export {
@@ -2464,8 +2465,9 @@ Append this implementation-status block to `docs/superpowers/specs/2026-09-02-fi
 ## Implementation status
 
 - `@plot-fig/figure-schema`: implemented and verified; generated artifacts are `packages/figure-schema/schema/figure-template.schema.json` and `packages/figure-schema/schema/figure-document.schema.json`
-- Stable package exports: `FigureTemplateSchema`, `FigureDocumentSchema`, `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`, plus the public Figure template/document/validation TypeScript types
-- Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`
+- Stable runtime exports: `validateFigureTemplate`, `validateFigureDocument`, `canonicalizeFigurePayload`
+- Public TypeScript exports: `DataBinding`, `DataSourceDescriptor`, `FigureDocument`, `FigureTemplate`, `ValidationIssue`, `ValidationResult`
+- Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`, plus post-build package-entry smoke and `pnpm --filter @plot-fig/figure-schema pack --dry-run`
 - `@plot-fig/figure-migrations`: planned only; not yet implemented in this workspace
 - `@plot-fig/origin-compat`: planned only; not yet implemented in this workspace
 ```
@@ -2480,7 +2482,9 @@ pnpm format:check
 pnpm typecheck
 pnpm test:coverage
 pnpm build
+node --input-type=module -e 'import("./packages/figure-schema/dist/index.js").then((mod) => { const keys = Object.keys(mod).sort(); const expected = ["canonicalizeFigurePayload", "validateFigureDocument", "validateFigureTemplate"]; if (JSON.stringify(keys) !== JSON.stringify(expected)) { throw new Error(`runtime keyset mismatch: ${JSON.stringify(keys)}`); } if (mod.canonicalizeFigurePayload({ b: 1, a: 2 }) !== "{\"a\":2,\"b\":1}") { throw new Error("canonicalizeFigurePayload smoke failed"); } if (mod.validateFigureTemplate({}).ok !== false) { throw new Error("validateFigureTemplate smoke failed"); } if (mod.validateFigureDocument({}).ok !== false) { throw new Error("validateFigureDocument smoke failed"); } console.log("package-entry smoke ok"); })'
 pnpm schema:check
+pnpm --filter @plot-fig/figure-schema pack --dry-run
 ```
 
 Expected: every command exits 0; coverage includes all domain branches named in Task 8.
@@ -2494,15 +2498,17 @@ Expected: no matches other than the literal `origin` extension namespace in `sch
 - [x] **Step 5: Commit the completed figure-schema subsystem**
 
 ```powershell
-git add packages/figure-schema docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md
-git commit -m "feat(schema): 完成 Figure 模型领域内核"
+git add .gitattributes packages/figure-schema docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md docs/superpowers/plans/2026-09-02-figure-schema-core.md
+git commit -m "fix(schema): 收紧公共 API 与发布边界"
 ```
 
 **Execution evidence (2026-09-02):**
 
-- RED: `pnpm vitest run packages/figure-schema/src/index.test.ts` exited 1 with 3 failed tests while `packages/figure-schema/src/index.ts` still contained only `export {}`; the root module exposed an empty runtime export set, `FigureTemplateSchema` resolved as `undefined`, and `validateFigureTemplate` was not callable.
-- GREEN: the same focused test command exited 0 with 1 file and 3 tests passed after exporting only the stable root API surface and public types from `packages/figure-schema/src/index.ts`.
-- Spec status: `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md` now records the implemented `@plot-fig/figure-schema` package, its stable root exports, and that `@plot-fig/figure-migrations` / `@plot-fig/origin-compat` remain planned and unimplemented.
-- Fresh gates: `pnpm format`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, and `pnpm schema:check` each exited 0 for the Task 10 state. Coverage summary from `pnpm test:coverage`: statements 96% (457/476), branches 88.97% (226/254), functions 99.09% (109/110), lines 95.88% (443/462).
-- Coupling audit: `rg -n "react|plotly|echarts|canvas" packages/figure-schema/src` exited 1 with no matches, confirming no renderer/UI coupling inside `figure-schema`.
-- Origin namespace audit: `rg -n "origin" packages/figure-schema/src` showed production-source matches only in the closed extension namespace definition and extension-path validation (`src/schema/common.ts`, `src/validation/domain-template-extensions.ts`, `src/validation/domain-document.ts`); remaining matches are targeted tests/fixtures exercising `extensions.origin` behavior and provenance samples, not runtime package dependencies.
+- RED: `pnpm vitest run packages/figure-schema/src/index.test.ts` exited 1 with the exact runtime keyset mismatch the review called out: the root package still exported `FigureTemplateSchema` and `FigureDocumentSchema`, so `Object.keys(@plot-fig/figure-schema)` had 5 keys instead of the approved 3-key runtime surface.
+- GREEN: the same focused test command exited 0 with 1 file and 3 tests passed after `packages/figure-schema/src/index.ts` was reduced to the approved runtime exports while keeping the public TypeScript types.
+- Fresh-clone LF RED: in a repo-external clone with `core.autocrlf=true`, `pnpm --dir <clone> format:check` exited 1 and reported 44 files with code-style issues, proving the prior `.gitattributes` rule did not keep text files on LF checkout.
+- Pack-boundary RED: before the publish-boundary fix, `pnpm --filter @plot-fig/figure-schema pack --dry-run` listed `dist/schema/fixtures.d.ts`, `dist/schema/fixtures.d.ts.map`, `dist/schema/fixtures.js`, and `dist/schema/fixtures.js.map`, proving stale build artifacts could leak test fixtures into the package tarball.
+- Dist-smoke RED: before rebuilding, `node --input-type=module -e 'import("./packages/figure-schema/dist/index.js") ...'` exited 1 with `runtime keyset mismatch: ["FigureDocumentSchema","FigureTemplateSchema","canonicalizeFigurePayload","validateFigureDocument","validateFigureTemplate"]`, proving a source-only test was not enough to validate the published entrypoint.
+- Review fix implementation: `.gitattributes` now enforces `* text=auto eol=lf`, `packages/figure-schema/tsconfig.json` excludes `src/schema/fixtures.ts` from production build output, and `packages/figure-schema/package.json` excludes `!dist/schema/fixtures.*` from package contents even if stale files still exist locally.
+- Current-repo GREEN gates: `pnpm format`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm schema:check`, the post-build package-entry smoke command, and `pnpm --filter @plot-fig/figure-schema pack --dry-run` all exited 0. Coverage stayed at statements 96% (457/476), branches 88.97% (226/254), functions 99.09% (109/110), and lines 95.88% (443/462). The local stale `dist/schema/fixtures.*` files remained on disk, but pack dry-run excluded them from the tarball.
+- Fresh-clone GREEN gates: after committing the review fix into a repo-external temporary source and cloning that source with `core.autocrlf=true`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, the same package-entry smoke command, `pnpm schema:check`, and `pnpm --filter @plot-fig/figure-schema pack --dry-run` all exited 0. The clean build emitted no `packages/figure-schema/dist/schema/fixtures*` files, proving the fixture source stayed test-only in production output.
