@@ -26,6 +26,14 @@ packages/origin-compat/
     ├── snapshot-contract.ts
     ├── snapshot-schema.ts
     ├── snapshot-validation-helpers.ts
+    ├── security-config.ts
+    ├── security-order.ts
+    ├── security-runtime.ts
+    ├── security-reflection.ts
+    ├── security-array.ts
+    ├── security-object.ts
+    ├── security-walk.ts
+    ├── security-text.ts
     ├── security.ts
     ├── normalize.ts
     ├── report.ts
@@ -307,551 +315,108 @@ git commit -m "feat(origin): 定义 Snapshot 输入契约"
 
 **Files:**
 
+- Create: `packages/origin-compat/src/security-config.ts`
+- Create: `packages/origin-compat/src/security-order.ts`
+- Create: `packages/origin-compat/src/security-runtime.ts`
+- Create: `packages/origin-compat/src/security-reflection.ts`
+- Create: `packages/origin-compat/src/security-array.ts`
+- Create: `packages/origin-compat/src/security-object.ts`
+- Create: `packages/origin-compat/src/security-walk.ts`
+- Create: `packages/origin-compat/src/security-text.ts`
 - Create: `packages/origin-compat/src/security.ts`
 - Create: `tests/origin/fixture-factory.ts`
-- Test: `tests/origin/security.test.ts`
+- Create: `tests/origin/security.test.ts`
+- Modify: `docs/superpowers/plans/2026-09-02-origin-compat-layer.md`
 
-- [ ] **Step 1: Create a complete base fixture factory**
+- [x] **Step 1: Create a reusable Snapshot security fixture**
 
-`tests/origin/fixture-factory.ts`:
+`tests/origin/fixture-factory.ts` now provides:
 
-```ts
-import type { FigureTemplate } from '@plot-fig/figure-schema';
-import type { OriginTemplateSnapshotV1 } from '../../packages/origin-compat/src/snapshot-schema.js';
+- a canonical valid `OriginTemplateSnapshotV1` baseline without automation
+- `createOriginSnapshot(mutate?)` for focused scenario setup
+- `createSnapshotClone` and `canonicalizeJson` helpers for immutability / determinism checks
+- `expectNoSharedSnapshotRefs` to prove the scrubber returns a fresh tree
 
-export function createOriginSnapshot(
-  overrides: Partial<OriginTemplateSnapshotV1> = {},
-): OriginTemplateSnapshotV1 {
-  const axis = {
-    scale: 'linear',
-    range: { mode: 'auto' },
-    reverse: false,
-    visible: true,
-    lineColor: '#111111',
-    lineWidthPt: 1,
-    majorTickLengthPt: 4,
-    minorTickCount: 0,
-    tickLabelFont: 'Arial',
-    tickLabelSizePt: 8,
-  } as const;
-  const value: OriginTemplateSnapshotV1 = {
-    kind: 'origin-template-snapshot',
-    snapshotVersion: '1.0.0',
-    originVersion: '2025b',
-    sourceHash: 'sha256:origin-fixture',
-    templateId: 'origin-basic',
-    name: 'Origin Basic',
-    page: { width: 89, height: 65, unit: 'mm', background: '#ffffff' },
-    layers: [
-      {
-        layerId: 'layer-1',
-        frame: { leftPct: 10, bottomPct: 10, widthPct: 80, heightPct: 80 },
-        xAxis: axis,
-        yAxis: axis,
-        plots: [
-          {
-            plotId: 'plot-1',
-            mode: 'line-symbol',
-            bindings: {
-              x: { slotId: 'slot-x', name: 'X', valueType: 'number' },
-              y: { slotId: 'slot-y', name: 'Y', valueType: 'number' },
-            },
-            line: {
-              visible: true,
-              color: '#111111',
-              widthPt: 1.2,
-              dash: 'solid',
-            },
-            symbol: {
-              visible: true,
-              shape: 'circle',
-              sizePt: 4,
-              fill: '#ffffff',
-              stroke: '#111111',
-              strokeWidthPt: 0.8,
-            },
-            legendText: 'Series 1',
-          },
-        ],
-        annotations: [],
-      },
-    ],
-    theme: {
-      fontFamily: 'Arial',
-      fontSizePt: 8,
-      foreground: '#111111',
-      background: '#ffffff',
-      palette: ['#0072B2', '#D55E00'],
-    },
-  };
-  return Object.assign(value, structuredClone(overrides));
-}
-```
+- [x] **Step 2: Write a complete RED security suite**
 
-- [ ] **Step 2: Write failing security tests**
+`tests/origin/security.test.ts` now covers:
 
-`tests/origin/security.test.ts`:
+- automation stripping for all four kinds without leaking script text into diagnostics, items or output
+- normalized script-like `unknownProperties` keys (`script`, `lab-talk`, `origin-c`, `python`, `macro`) removed while ordinary declarative keys remain
+- dangerous keys, JSON Pointer escaping, accessor getters, revoked / throwing proxies, symbol keys, named arrays, sparse arrays, array accessors, non-plain objects, non-enumerable properties, `undefined`, `bigint`, `function`, non-finite numbers and cycles
+- exact pass/fail boundaries for depth, array length, object keys, node count, UTF-16 string length, total UTF-8 bytes and extension UTF-8 bytes
+- fail-fast traversal, input immutability, no shared references, repeated scrub canonical stability and `validateOriginSnapshot` revalidation of the scrubbed output
 
-```ts
-import { describe, expect, it } from 'vitest';
-import { scrubOriginSnapshot } from '../../packages/origin-compat/src/security.js';
-import {
-  createExpectedTemplate,
-  createOriginSnapshot,
-} from './fixture-factory.js';
+- [x] **Step 3: Verify RED before implementation**
 
-const provenance = {
-  importerVersion: '0.1.0',
-  originVersion: '2025b',
-  sourceHash: 'sha256:origin-fixture',
-};
-const report = (layerCount = 1) => ({
-  items: [
-    {
-      sourcePath: '/page',
-      targetPath: '/page',
-      disposition: 'mapped',
-      message: 'page mapped',
-    },
-    ...Array.from({ length: layerCount }, (_value, index) => ({
-      sourcePath: `/layers/${index}`,
-      targetPath: `/panels/${index}`,
-      disposition: 'mapped',
-      message: `layer ${index} mapped`,
-    })),
-  ],
-  counts: {
-    mapped: layerCount + 1,
-    preservedInExtensions: 0,
-    lossy: 0,
-    dropped: 0,
-    ignoredForSecurity: 0,
-  },
-});
-
-describe('Origin Snapshot security', () => {
-  it.each(['labtalk', 'origin-c', 'python', 'macro'] as const)(
-    'drops %s automation text and records it',
-    (kind) => {
-      const input = createOriginSnapshot({
-        automation: [{ kind, text: `${kind} secret` }],
-      });
-      const result = scrubOriginSnapshot(input);
-      expect(result.ok).toBe(true);
-      if (result.ok)
-        expect(JSON.stringify(result.value)).not.toContain(`${kind} secret`);
-      expect(result.diagnostics).toContainEqual(
-        expect.objectContaining({ code: 'ORIGIN_SCRIPT_IGNORED' }),
-      );
-    },
-  );
-  it('rejects dangerous extension keys', () => {
-    const input = createOriginSnapshot();
-    input.unknownProperties = JSON.parse(
-      '{"__proto__":{"polluted":true}}',
-    ) as Record<string, unknown>;
-    expect(scrubOriginSnapshot(input)).toMatchObject({
-      ok: false,
-      diagnostics: [{ code: 'ORIGIN_DANGEROUS_KEY_REJECTED' }],
-    });
-  });
-  it('rejects oversized strings', () => {
-    expect(
-      scrubOriginSnapshot(createOriginSnapshot({ name: 'x'.repeat(65_537) })),
-    ).toMatchObject({
-      ok: false,
-      diagnostics: [{ code: 'ORIGIN_INPUT_LIMIT_EXCEEDED' }],
-    });
-  });
-
-  it('removes HTML tags from declarative text and marks the conversion lossy', () => {
-    const input = createOriginSnapshot();
-    input.layers[0]!.annotations = [
-      {
-        annotationId: 'text-html',
-        kind: 'text',
-        coordinateSpace: 'page',
-        position: { x: 0, y: 0 },
-        text: '<b>Note</b>',
-        format: 'plain',
-      },
-    ];
-    const result = scrubOriginSnapshot(input);
-    expect(result.ok).toBe(true);
-    if (result.ok)
-      expect(result.value.layers[0]!.annotations[0]).toMatchObject({
-        text: 'Note',
-      });
-    expect(result.items).toContainEqual(
-      expect.objectContaining({ disposition: 'lossy' }),
-    );
-  });
-
-  it.each([
-    [
-      'array',
-      (input: ReturnType<typeof createOriginSnapshot>) => {
-        input.unknownProperties = {
-          values: Array.from({ length: 10_001 }, () => 0),
-        };
-      },
-    ],
-    [
-      'depth',
-      (input: ReturnType<typeof createOriginSnapshot>) => {
-        let value: Record<string, unknown> = {};
-        for (let index = 0; index < 34; index += 1) value = { child: value };
-        input.unknownProperties = value;
-      },
-    ],
-    [
-      'extension bytes',
-      (input: ReturnType<typeof createOriginSnapshot>) => {
-        input.unknownProperties = Object.fromEntries(
-          Array.from({ length: 5 }, (_value, index) => [
-            `value${index}`,
-            'x'.repeat(60_000),
-          ]),
-        );
-      },
-    ],
-    [
-      'total bytes',
-      (input: ReturnType<typeof createOriginSnapshot>) => {
-        input.automation = Array.from({ length: 34 }, () => ({
-          kind: 'macro' as const,
-          text: 'x'.repeat(60_000),
-        }));
-      },
-    ],
-  ] as const)('rejects the %s limit', (_name, mutate) => {
-    const input = createOriginSnapshot();
-    mutate(input);
-    expect(scrubOriginSnapshot(input).diagnostics).toContainEqual(
-      expect.objectContaining({ code: 'ORIGIN_INPUT_LIMIT_EXCEEDED' }),
-    );
-  });
-});
-```
-
-- [ ] **Step 3: Run and verify failure**
-
-Run: `pnpm vitest run tests/origin/security.test.ts`
-
-Expected: FAIL because `security.js` does not exist.
-
-- [ ] **Step 4: Implement bounded JSON cloning**
-
-Create `packages/origin-compat/src/security.ts`:
-
-```ts
-import type { OriginTemplateSnapshotV1 } from './snapshot-schema.js';
-import type { CompatibilityItem, ImportDiagnostic } from './types.js';
-
-const BLOCKED = new Set(['__proto__', 'prototype', 'constructor']);
-const SCRIPT_KEYS = new Set([
-  'script',
-  'labtalk',
-  'originC',
-  'python',
-  'macro',
-]);
-const LIMITS = {
-  depth: 32,
-  array: 10_000,
-  string: 65_536,
-  nodes: 100_000,
-  totalBytes: 2_000_000,
-  extensionBytes: 262_144,
-} as const;
-type State = {
-  nodes: number;
-  bytes: number;
-  extensionBytes: number;
-  fatal: boolean;
-  diagnostics: ImportDiagnostic[];
-  items: CompatibilityItem[];
-};
-const byteLength = (value: string) =>
-  new TextEncoder().encode(value).byteLength;
-
-function reject(
-  state: State,
-  code: ImportDiagnostic['code'],
-  path: string,
-  message: string,
-  category: 'dangerous-key' | 'input-limit',
-) {
-  state.fatal = true;
-  state.diagnostics.push({
-    code,
-    severity: 'error',
-    sourcePath: path,
-    message,
-    recoverable: false,
-    securityCategory: category,
-  });
-}
-
-function cloneJson(
-  value: unknown,
-  path: string,
-  depth: number,
-  state: State,
-): unknown {
-  state.nodes += 1;
-  if (state.nodes > LIMITS.nodes || depth > LIMITS.depth) {
-    reject(
-      state,
-      'ORIGIN_INPUT_LIMIT_EXCEEDED',
-      path || '/',
-      'Snapshot depth or node limit exceeded',
-      'input-limit',
-    );
-    return undefined;
-  }
-  if (typeof value === 'string') {
-    const bytes = byteLength(value);
-    state.bytes += bytes;
-    if (path.includes('unknownProperties')) state.extensionBytes += bytes;
-    if (value.length > LIMITS.string)
-      reject(
-        state,
-        'ORIGIN_INPUT_LIMIT_EXCEEDED',
-        path || '/',
-        'Snapshot string limit exceeded',
-        'input-limit',
-      );
-    if (
-      state.bytes > LIMITS.totalBytes ||
-      state.extensionBytes > LIMITS.extensionBytes
-    ) {
-      reject(
-        state,
-        'ORIGIN_INPUT_LIMIT_EXCEEDED',
-        path || '/',
-        'Snapshot byte budget exceeded',
-        'input-limit',
-      );
-    }
-    return value;
-  }
-  if (
-    value === null ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
-  ) {
-    state.bytes += byteLength(String(value));
-    if (state.bytes > LIMITS.totalBytes)
-      reject(
-        state,
-        'ORIGIN_INPUT_LIMIT_EXCEEDED',
-        path || '/',
-        'Snapshot byte budget exceeded',
-        'input-limit',
-      );
-    return value;
-  }
-  if (Array.isArray(value)) {
-    if (value.length > LIMITS.array)
-      reject(
-        state,
-        'ORIGIN_INPUT_LIMIT_EXCEEDED',
-        path || '/',
-        'Snapshot array limit exceeded',
-        'input-limit',
-      );
-    return value
-      .slice(0, LIMITS.array)
-      .map((entry, index) =>
-        cloneJson(entry, `${path}/${index}`, depth + 1, state),
-      );
-  }
-  if (typeof value !== 'object') {
-    state.fatal = true;
-    state.diagnostics.push({
-      code: 'ORIGIN_SNAPSHOT_INVALID',
-      severity: 'error',
-      sourcePath: path || '/',
-      message: 'non-JSON value',
-      recoverable: false,
-    });
-    return undefined;
-  }
-  const output: Record<string, unknown> = Object.create(null) as Record<
-    string,
-    unknown
-  >;
-  for (const [key, descriptor] of Object.entries(
-    Object.getOwnPropertyDescriptors(value),
-  )) {
-    const childPath = `${path}/${key}`;
-    const keyBytes = byteLength(key);
-    state.bytes += keyBytes;
-    if (path.includes('unknownProperties')) state.extensionBytes += keyBytes;
-    if (
-      state.bytes > LIMITS.totalBytes ||
-      state.extensionBytes > LIMITS.extensionBytes
-    ) {
-      reject(
-        state,
-        'ORIGIN_INPUT_LIMIT_EXCEEDED',
-        childPath,
-        'Snapshot byte budget exceeded',
-        'input-limit',
-      );
-    }
-    if (BLOCKED.has(key)) {
-      reject(
-        state,
-        'ORIGIN_DANGEROUS_KEY_REJECTED',
-        childPath,
-        `dangerous key ${key}`,
-        'dangerous-key',
-      );
-    } else if (!('value' in descriptor)) {
-      state.fatal = true;
-      state.diagnostics.push({
-        code: 'ORIGIN_SNAPSHOT_INVALID',
-        severity: 'error',
-        sourcePath: childPath,
-        message: 'accessor is not JSON',
-        recoverable: false,
-      });
-    } else if (SCRIPT_KEYS.has(key) && path.includes('unknownProperties')) {
-      state.diagnostics.push({
-        code: 'ORIGIN_SCRIPT_IGNORED',
-        severity: 'warning',
-        sourcePath: childPath,
-        message: 'script-like extension ignored',
-        recoverable: true,
-        securityCategory: 'script',
-      });
-      state.items.push({
-        sourcePath: childPath,
-        disposition: 'ignoredForSecurity',
-        message: 'script-like extension removed',
-      });
-    } else {
-      output[key] = cloneJson(descriptor.value, childPath, depth + 1, state);
-    }
-  }
-  return output;
-}
-```
-
-- [ ] **Step 5: Complete script and HTML removal**
-
-Append to `packages/origin-compat/src/security.ts`:
-
-```ts
-function scrubText(value: OriginTemplateSnapshotV1, state: State): void {
-  const clean = (
-    sourcePath: string,
-    text: string,
-    assign: (value: string) => void,
-  ) => {
-    if (!/<[^>]*>/.test(text)) return;
-    assign(text.replace(/<[^>]*>/g, ''));
-    state.diagnostics.push({
-      code: 'ORIGIN_LOSSY_CONVERSION',
-      severity: 'warning',
-      sourcePath,
-      message: 'HTML tags removed',
-      recoverable: true,
-      securityCategory: 'html',
-    });
-    state.items.push({
-      sourcePath,
-      disposition: 'lossy',
-      message: 'HTML tags removed before mapping',
-    });
-  };
-  value.layers.forEach((layer, li) => {
-    if (layer.xAxis.title)
-      clean(
-        `/layers/${li}/xAxis/title/text`,
-        layer.xAxis.title.text,
-        (text) => {
-          layer.xAxis.title!.text = text;
-        },
-      );
-    if (layer.yAxis.title)
-      clean(
-        `/layers/${li}/yAxis/title/text`,
-        layer.yAxis.title.text,
-        (text) => {
-          layer.yAxis.title!.text = text;
-        },
-      );
-    layer.annotations.forEach((annotation, ai) => {
-      if (annotation.kind === 'text')
-        clean(
-          `/layers/${li}/annotations/${ai}/text`,
-          annotation.text,
-          (text) => {
-            annotation.text = text;
-          },
-        );
-    });
-  });
-}
-
-export function scrubOriginSnapshot(
-  input: OriginTemplateSnapshotV1,
-):
-  | {
-      ok: true;
-      value: OriginTemplateSnapshotV1;
-      diagnostics: ImportDiagnostic[];
-      items: CompatibilityItem[];
-    }
-  | { ok: false; diagnostics: ImportDiagnostic[]; items: CompatibilityItem[] } {
-  const state: State = {
-    nodes: 0,
-    bytes: 0,
-    extensionBytes: 0,
-    fatal: false,
-    diagnostics: [],
-    items: [],
-  };
-  const value = cloneJson(input, '', 0, state) as OriginTemplateSnapshotV1;
-  if (value.automation) {
-    value.automation.forEach((_entry, index) => {
-      const sourcePath = `/automation/${index}`;
-      state.diagnostics.push({
-        code: 'ORIGIN_SCRIPT_IGNORED',
-        severity: 'warning',
-        sourcePath,
-        message: 'Origin automation ignored',
-        recoverable: true,
-        securityCategory: 'script',
-      });
-      state.items.push({
-        sourcePath,
-        disposition: 'ignoredForSecurity',
-        message: 'automation removed',
-      });
-    });
-    delete value.automation;
-  }
-  if (!state.fatal) scrubText(value, state);
-  return state.fatal
-    ? { ok: false, diagnostics: state.diagnostics, items: state.items }
-    : { ok: true, value, diagnostics: state.diagnostics, items: state.items };
-}
-```
-
-- [ ] **Step 6: Run security tests and commit**
-
-Run: `pnpm vitest run tests/origin/security.test.ts`
-
-Expected: PASS; successful output contains no automation text.
+Run:
 
 ```powershell
-git add packages/origin-compat/src/security.ts tests/origin
-git commit -m "feat(origin): 隔离脚本并限制不可信输入"
+pnpm vitest run tests/origin/security.test.ts
 ```
+
+Observed: exited `1` because `../../packages/origin-compat/src/security-config.js` did not exist yet, proving Task 3 was still missing implementation.
+
+- [x] **Step 4: Implement a descriptor-based bounded scrubber**
+
+The final implementation intentionally avoids the earlier unsafe `slice` / `Object.entries` approach:
+
+- `security-config.ts`: stable limits, dangerous-key set and script-like key normalization
+- `security-runtime.ts`: shared walk state plus stable diagnostic / compatibility item helpers
+- `security-reflection.ts`: guarded descriptor and own-key readers that never execute getters
+- `security-array.ts`: array validation and automation removal without materializing script text in the output
+- `security-object.ts`: object traversal with explicit `unknownProperties` context, dangerous-key rejection and script-like extension filtering
+- `security-walk.ts`: primitive handling, cycle detection, depth / node / byte enforcement and recursive bounded clone dispatch
+- `security-text.ts`: HTML-like tag stripping for axis titles and text annotations
+- `security.ts`: orchestration, stable sorting and final `validateOriginSnapshot` revalidation
+
+- [x] **Step 5: Run GREEN checks and final gates**
+
+Run:
+
+```powershell
+pnpm format
+pnpm vitest run tests/origin/security.test.ts
+pnpm test
+pnpm typecheck
+pnpm format:check
+pnpm build
+pnpm --filter @plot-fig/origin-compat typecheck
+pnpm --filter @plot-fig/origin-compat pack --dry-run
+```
+
+Observed:
+
+- focused security gate passed with `1` file and `21` tests green
+- full workspace test gate passed with `27` files and `218` tests green
+- root `typecheck`, package-local `@plot-fig/origin-compat typecheck`, `format:check`, `build` and `pack --dry-run` all exited `0`
+- `rg --files packages/origin-compat/dist` confirmed the built package emits all private `security*` modules under `dist/**`
+- test helpers remain outside `packages/origin-compat/dist`, so no fixture or test helper enters the package boundary
+
+**Task 3 completion checklist:**
+
+- [x] bounded clone is descriptor-based and never uses property access, `slice`, or `Object.entries` to traverse untrusted input
+- [x] malicious getters are never executed; hostile inputs return diagnostics instead of throwing
+- [x] symbol keys, dangerous keys, named / sparse / accessor arrays, non-plain objects, non-enumerable properties, `undefined`, `bigint`, `function`, non-finite numbers, cycles and revoked / throwing proxies are rejected
+- [x] limits are deterministic and exact for depth, array length, object keys, node count, string length, total bytes and extension bytes
+- [x] once a fatal limit is hit, traversal stops before visiting later sibling payloads
+- [x] automation entries and normalized script-like extension keys are removed and recorded one-by-one without copying script text into diagnostics or compatibility items
+- [x] ordinary declarative `unknownProperties` remain intact; dangerous keys are fatal
+- [x] HTML-like tags are removed from axis titles and text annotations as lossy conversions while the input snapshot remains unchanged
+- [x] successful scrubbed output passes `validateOriginSnapshot`, shares no mutable references with the input, and remains canonically stable across repeated scrub passes
+- [x] public exports remain unchanged (`packages/origin-compat/src/index.ts` is still `export {}`)
+
+**Current Task 3 line-count evidence (`packages/origin-compat/src/**/*.ts`):**
+
+- `security-array.ts = 209`
+- `security-config.ts = 35`
+- `security-object.ts = 131`
+- `security-order.ts = 60`
+- `security-reflection.ts = 89`
+- `security-runtime.ts = 170`
+- `security-text.ts = 87`
+- `security-walk.ts = 123`
+- `security.ts = 56`
 
 ### Task 4: Normalize units and coordinates
 
