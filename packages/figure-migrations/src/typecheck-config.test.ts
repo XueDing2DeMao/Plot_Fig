@@ -27,6 +27,34 @@ const readJson = async <T>(path: string): Promise<T> =>
 const readText = async (path: string): Promise<string> =>
   readFile(new URL(path, import.meta.url), 'utf8');
 
+async function collectTypeScriptFiles(
+  directory: URL,
+  prefix = '',
+): Promise<string[]> {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files: string[] = [];
+
+  for (const entry of entries.sort((left, right) =>
+    left.name.localeCompare(right.name),
+  )) {
+    const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      files.push(
+        ...(await collectTypeScriptFiles(
+          new URL(`${entry.name}/`, directory),
+          path,
+        )),
+      );
+      continue;
+    }
+    if (entry.isFile() && entry.name.endsWith('.ts')) {
+      files.push(path);
+    }
+  }
+
+  return files;
+}
+
 function countLines(content: string): number {
   const normalized = content.replaceAll('\r\n', '\n');
   if (normalized.length === 0) {
@@ -62,9 +90,14 @@ describe('workspace typecheck configuration', () => {
     });
     expect(typecheckConfig.include).toEqual(['src/**/*.ts']);
     expect(typecheckConfig.exclude).toEqual(['src/**/*.test.ts']);
-    const files = (await readdir(new URL('./', import.meta.url)))
-      .filter((file) => file.endsWith('.ts'))
-      .sort();
+    const files = await collectTypeScriptFiles(new URL('./', import.meta.url));
+
+    expect(files).toEqual(
+      expect.arrayContaining([
+        'migrations/v0.1.0-to-v1.0.0.test.ts',
+        'migrations/v0.1.0-to-v1.0.0.ts',
+      ]),
+    );
 
     const counts = await Promise.all(
       files.map(async (file) => ({
