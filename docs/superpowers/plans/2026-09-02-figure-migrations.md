@@ -112,7 +112,7 @@ git commit -m "chore(migrations): 初始化迁移包"
 - Create: `packages/figure-migrations/src/version.ts`
 - Test: `packages/figure-migrations/src/version.test.ts`
 
-- [ ] **Step 1: Write failing version tests**
+- [x] **Step 1: Write failing version tests**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -145,13 +145,13 @@ describe('readEnvelope', () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-migrations/src/version.test.ts`
 
 Expected: FAIL because `version.js` is missing.
 
-- [ ] **Step 3: Implement result types**
+- [x] **Step 3: Implement result types**
 
 ```ts
 import type { FigureDocument, FigureTemplate } from '@plot-fig/figure-schema';
@@ -175,7 +175,7 @@ export type LoadResult =
   | { ok: false; diagnostics: MigrationDiagnostic[] };
 ```
 
-- [ ] **Step 4: Implement envelope reading**
+- [x] **Step 4: Implement envelope reading**
 
 ```ts
 export type PayloadKind = 'figure-template' | 'figure-document';
@@ -210,16 +210,21 @@ export function readEnvelope(
 }
 ```
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run: `pnpm vitest run packages/figure-migrations/src/version.test.ts`
 
 Expected: PASS.
 
 ```powershell
-git add packages/figure-migrations/src/types.ts packages/figure-migrations/src/version.ts packages/figure-migrations/src/version.test.ts
+git add docs/superpowers/plans/2026-09-02-figure-migrations.md packages/figure-migrations/src/types.ts packages/figure-migrations/src/version.ts packages/figure-migrations/src/version.test.ts
 git commit -m "feat(migrations): 识别版本信封"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-migrations/src/version.test.ts` exited 1 because `./version.js` did not exist yet.
+- GREEN: after implementing `types.ts` and `version.ts`, rerunning `pnpm vitest run packages/figure-migrations/src/version.test.ts` exited 0 with `1` file passed and `24` tests passed.
 
 ### Task 3: Add a real synthetic v0.1.0 → v1.0.0 migration
 
