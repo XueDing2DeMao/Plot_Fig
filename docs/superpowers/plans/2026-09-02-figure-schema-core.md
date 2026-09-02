@@ -1422,7 +1422,7 @@ git commit -m "feat(schema): 定义文档与数据绑定"
 - Create: `packages/figure-schema/src/validation/structural.ts`
 - Test: `packages/figure-schema/src/validation/structural.test.ts`
 
-- [ ] **Step 1: Write failing structural validation tests**
+- [x] **Step 1: Write failing structural validation tests**
 
 `packages/figure-schema/src/validation/structural.test.ts`:
 
@@ -1452,13 +1452,13 @@ describe('structural validation', () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-schema/src/validation/structural.test.ts`
 
 Expected: FAIL because the validator is missing.
 
-- [ ] **Step 3: Define validation result types**
+- [x] **Step 3: Define validation result types**
 
 ```ts
 export type ValidationIssue = {
@@ -1471,7 +1471,7 @@ export type ValidationResult<T> =
   { ok: true; value: T; issues: [] } | { ok: false; issues: ValidationIssue[] };
 ```
 
-- [ ] **Step 4: Implement strict Ajv 2020 validators**
+- [x] **Step 4: Implement strict Ajv 2020 validators**
 
 ```ts
 import Ajv2020 from 'ajv/dist/2020.js';
@@ -1509,18 +1509,25 @@ export const validateFigureDocumentStructure = (input: unknown) =>
   run<FigureDocument>(documentValidator, input);
 ```
 
-- [ ] **Step 5: Run structural tests**
+- [x] **Step 5: Run structural tests**
 
 Run: `pnpm vitest run packages/figure-schema/src/validation/structural.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit structural validators**
+- [x] **Step 6: Commit structural validators**
 
 ```powershell
 git add packages/figure-schema/src/validation
 git commit -m "feat(schema): 增加 Ajv 结构校验"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-schema/src/validation/structural.test.ts` exited 1 with `Cannot find module './structural.js'`, proving the validator module was missing before implementation.
+- GREEN: the same focused test command exited 0 with 1 file and 4 tests passed after adding `types.ts` and `structural.ts`.
+- Gates: fresh `pnpm test`, `pnpm typecheck`, `pnpm format:check`, and `pnpm build` each exited 0 after the final implementation.
+- Real API correction: the plan's direct default-import sketch for `ajv/dist/2020.js` and `ajv-formats` did not typecheck under this repo's `NodeNext` + `verbatimModuleSyntax` settings, so the shipped validator uses top-level `await import(...)` interop while keeping Ajv 2020 `strict: true` and `allErrors: true`.
 
 ### Task 8: Add domain invariant validators
 
