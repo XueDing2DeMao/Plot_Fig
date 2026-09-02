@@ -16,7 +16,10 @@ const CURRENT_SCHEMA_VERSION = '1.0.0';
 const CURRENT_VERSION = parseSchemaVersion(CURRENT_SCHEMA_VERSION);
 
 type MigrationLookup = typeof findMigrationStep;
-type MigrationStep = NonNullable<ReturnType<MigrationLookup>>;
+type MigrationStep = {
+  targetVersion: string;
+  migrate: (input: unknown) => unknown;
+};
 type SupportedEnvelope = {
   kind: PayloadKind;
   schemaVersion: string;
@@ -30,6 +33,7 @@ type SafeCloneResult =
       ok: false;
       path: string;
     };
+type ReflectionResult<T> = { ok: true; value: T } | { ok: false };
 
 function compareVersions(left: SchemaVersion, right: SchemaVersion): number {
   if (left.major !== right.major) {
@@ -89,6 +93,14 @@ function cloneCanonical(value: unknown): SafeCloneResult {
       ok: false,
       path: getCanonicalErrorPath(error),
     };
+  }
+}
+
+function reflect<T>(read: () => T): ReflectionResult<T> {
+  try {
+    return { ok: true, value: read() };
+  } catch {
+    return { ok: false };
   }
 }
 
@@ -172,19 +184,38 @@ function getMigrationStepOrFail(
   envelope: SupportedEnvelope,
   lookup: MigrationLookup,
 ): MigrationStep | LoadResult {
-  const step = lookup(envelope.kind, envelope.schemaVersion);
-  if (!step) {
+  const step = reflect(() => lookup(envelope.kind, envelope.schemaVersion));
+  if (!step.ok) {
+    return migrationFailed();
+  }
+  if (!step.value) {
     return fail(
       'FIGURE_VERSION_UNSUPPORTED',
       '/schemaVersion',
       'no migration path is registered for this schemaVersion',
     );
   }
-  if (step.targetVersion === envelope.schemaVersion) {
+
+  const candidate = step.value;
+  const targetVersion = reflect(() => candidate.targetVersion);
+  const migrate = reflect(() => candidate.migrate);
+  if (
+    !targetVersion.ok ||
+    !migrate.ok ||
+    typeof targetVersion.value !== 'string' ||
+    typeof migrate.value !== 'function'
+  ) {
     return migrationFailed();
   }
 
-  return step;
+  if (targetVersion.value === envelope.schemaVersion) {
+    return migrationFailed();
+  }
+
+  return {
+    targetVersion: targetVersion.value,
+    migrate: migrate.value,
+  };
 }
 
 function applyMigrationStep(

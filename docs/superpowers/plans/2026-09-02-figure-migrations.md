@@ -496,6 +496,8 @@ git commit -m "feat(migrations): 迁移旧版模板信封"
 - Create: `packages/figure-migrations/src/registry.ts`
 - Create: `packages/figure-migrations/src/load.ts`
 - Test: `packages/figure-migrations/src/load.test.ts`
+- Test: `packages/figure-migrations/src/registry.test.ts`
+- Test: `packages/figure-migrations/src/load-safety.test.ts`
 - Create: `tests/helpers/figure-payloads.ts`
 
 - [x] **Step 1: Write failing load tests**
@@ -713,6 +715,12 @@ git commit -m "feat(migrations): 实现版本加载流水线"
 - Type gate regression: `pnpm --filter @plot-fig/figure-migrations typecheck` 曾 exited 1 because `applyMigration` 的返回联合仍可能泄漏 `RawEnvelope`；将受支持信封收紧为 `SupportedEnvelope`，并把 step 查找与 step 输出校验拆成私有 helper 后，rerun exited 0。
 - File-size compliance: Prettier 将 `packages/figure-migrations/src/load.test.ts` 展开到 `335` 行，超过仓库 `file <= 300` 门禁；抽出 `tests/helpers/figure-payloads.ts` 复用 current payload builders 与无共享引用断言后，`load.test.ts` 降到 `291` 行，且 helper 位于 `tests/` 下，不会进入 `@plot-fig/figure-migrations` 产物。
 - Fresh final gates on the final Task 4 state all exited 0: `pnpm format`, `pnpm format:check`, `pnpm vitest run packages/figure-migrations/src/load.test.ts`, `pnpm test`, `pnpm typecheck`, `pnpm build`, and `pnpm schema:check`.
+- Review-fix RED (registry): `pnpm vitest run packages/figure-migrations/src/registry.test.ts` exited 1 with `expected true to be false` after `Reflect.set(first, "targetVersion", "9.9.9")`, proving `findMigrationStep` leaked a mutable live step; the same RED also showed `createMigrationRegistry` was still unavailable to test duplicate fail-fast.
+- Review-fix GREEN (registry): after switching to an internal entry-list factory, freezing stored/returned steps, and returning fresh frozen copies, rerunning `pnpm vitest run packages/figure-migrations/src/registry.test.ts` exited 0 with `1` file passed and `2` tests passed; duplicate `figure-template@0.1.0` entries now throw `TypeError('duplicate migration registry entry for figure-template@0.1.0')`.
+- Review-fix RED (loader safety): `pnpm vitest run packages/figure-migrations/src/load-safety.test.ts` exited 1 because `createFigurePayloadLoader` leaked both `Error: sensitive lookup failure` from the injected lookup and `Error: sensitive targetVersion getter` from a malicious step getter.
+- Review-fix GREEN (loader safety): after wrapping lookup invocation plus `targetVersion` / `migrate` field reads in the same reflection boundary and preserving `undefined` as the normal no-step path, rerunning `pnpm vitest run packages/figure-migrations/src/load-safety.test.ts` exited 0 with `1` file passed and `3` tests passed; all throwing lookup/getter/proxy cases now return stable `FIGURE_MIGRATION_FAILED` without echoing sensitive text.
+- Review-fix focused gate: `pnpm vitest run packages/figure-migrations/src/registry.test.ts packages/figure-migrations/src/load-safety.test.ts packages/figure-migrations/src/load.test.ts` exited 0 with `3` files passed and `32` tests passed, covering the original loader behavior plus the new registry immutability and injectable-lookup safety regressions.
+- Review-fix fresh final gates all exited 0: `pnpm format`, `pnpm format:check`, `pnpm vitest run packages/figure-migrations/src/registry.test.ts packages/figure-migrations/src/load-safety.test.ts packages/figure-migrations/src/load.test.ts`, `pnpm test` (`18` files / `171` tests passed), `pnpm typecheck`, `pnpm build`, `pnpm schema:check`, and `pnpm --filter @plot-fig/figure-migrations pack --dry-run`; the dry-run tarball still contained only `dist/**` plus `package.json`.
 
 ### Task 5: Export stable API and verify migration subsystem
 
