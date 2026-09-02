@@ -1427,27 +1427,100 @@ git commit -m "feat(schema): 定义文档与数据绑定"
 `packages/figure-schema/src/validation/structural.test.ts`:
 
 ```ts
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import type { FigureDocument } from '../schema/figure-document.js';
+import type { FigureTemplate } from '../schema/figure-template.js';
 import { validTemplate } from '../schema/fixtures.js';
-import { validateFigureTemplateStructure } from './structural.js';
+import {
+  validateFigureDocumentStructure,
+  validateFigureTemplateStructure,
+} from './structural.js';
+
+const validDocument = {
+  kind: 'figure-document',
+  schemaVersion: '1.0.0',
+  documentId: 'document-1',
+  templateSnapshot: validTemplate,
+  dataSources: [
+    {
+      sourceId: 'source-1',
+      name: 'Measurement',
+      sourceKind: 'external',
+      mediaType: 'text/csv',
+      contentHash: 'sha256:abc123',
+      columns: [
+        { columnId: 'temperature', valueType: 'number' },
+        { columnId: 'conductivity', valueType: 'number' },
+      ],
+    },
+  ],
+  bindingSet: [
+    { dataSlotId: 'slot-x', sourceId: 'source-1', columnId: 'temperature' },
+    { dataSlotId: 'slot-y', sourceId: 'source-1', columnId: 'conductivity' },
+  ],
+} as const satisfies FigureDocument;
 
 describe('structural validation', () => {
   it('returns the typed value for a structurally valid template', () => {
-    expect(validateFigureTemplateStructure(validTemplate)).toEqual({
+    const result = validateFigureTemplateStructure(validTemplate);
+
+    expect(result).toEqual({
       ok: true,
       value: validTemplate,
       issues: [],
     });
+
+    if (result.ok) expectTypeOf(result.value).toEqualTypeOf<FigureTemplate>();
   });
 
-  it('returns stable issues for a missing schemaVersion', () => {
+  it('returns the typed value for a structurally valid document', () => {
+    const result = validateFigureDocumentStructure(validDocument);
+
+    expect(result).toEqual({
+      ok: true,
+      value: validDocument,
+      issues: [],
+    });
+
+    if (result.ok) expectTypeOf(result.value).toEqualTypeOf<FigureDocument>();
+  });
+
+  it('returns stable code/path for a missing schemaVersion', () => {
     const { schemaVersion: _removed, ...input } = validTemplate;
     const result = validateFigureTemplateStructure(input);
+
     expect(result.ok).toBe(false);
-    if (!result.ok)
-      expect(
-        result.issues.some((issue) => issue.code === 'FIGURE_SCHEMA_INVALID'),
-      ).toBe(true);
+    if (!result.ok) {
+      expect(result.issues).toHaveLength(1);
+      expect(result.issues[0]).toMatchObject({
+        code: 'FIGURE_SCHEMA_INVALID',
+        path: '/schemaVersion',
+      });
+      expect(result.issues[0]?.message).toEqual(expect.any(String));
+      expect(result.issues[0]?.message.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('aggregates multiple structural issues from one payload', () => {
+    const input = structuredClone(validTemplate) as Record<string, unknown>;
+
+    delete input.schemaVersion;
+    input.templateId = 1;
+    input.extraRoot = true;
+
+    const result = validateFigureTemplateStructure(input);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toHaveLength(3);
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ path: '/schemaVersion' }),
+          expect.objectContaining({ path: '/templateId' }),
+          expect.objectContaining({ path: '/extraRoot' }),
+        ]),
+      );
+    }
   });
 });
 ```
@@ -1474,39 +1547,96 @@ export type ValidationResult<T> =
 - [x] **Step 4: Implement strict Ajv 2020 validators**
 
 ```ts
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
-import type { ValidateFunction } from 'ajv';
+import type { ErrorObject, ValidateFunction } from 'ajv';
+import type { FormatsPlugin } from 'ajv-formats';
 import type { FigureDocument } from '../schema/figure-document.js';
 import { FigureDocumentSchema } from '../schema/figure-document.js';
 import type { FigureTemplate } from '../schema/figure-template.js';
 import { FigureTemplateSchema } from '../schema/figure-template.js';
-import type { ValidationResult } from './types.js';
+import type { ValidationIssue, ValidationResult } from './types.js';
 
-const ajv = new Ajv2020({ allErrors: true, strict: true });
+type Ajv2020Constructor = typeof import('ajv/dist/2020.js').Ajv2020;
+
+const Ajv2020 = (await import('ajv/dist/2020.js'))
+  .Ajv2020 as Ajv2020Constructor;
+const addFormats = (await import('ajv-formats'))
+  .default as unknown as FormatsPlugin;
+
+const ajv = new Ajv2020({
+  allErrors: true,
+  strict: true,
+});
+
 addFormats(ajv);
-const templateValidator = ajv.compile(FigureTemplateSchema);
-const documentValidator = ajv.compile(FigureDocumentSchema);
+const templateValidator = ajv.compile<FigureTemplate>(FigureTemplateSchema);
+const documentValidator = ajv.compile<FigureDocument>(FigureDocumentSchema);
 
-function run<T>(
-  validator: ValidateFunction<unknown>,
-  input: unknown,
-): ValidationResult<T> {
-  if (validator(input)) return { ok: true, value: input as T, issues: [] };
+function escapeJsonPointerSegment(segment: string): string {
+  return segment.replaceAll('~', '~0').replaceAll('/', '~1');
+}
+
+function appendPath(path: string, segment: string): string {
+  const normalizedPath = path === '' ? '/' : path;
+  const escapedSegment = escapeJsonPointerSegment(segment);
+  return normalizedPath === '/'
+    ? `/${escapedSegment}`
+    : `${normalizedPath}/${escapedSegment}`;
+}
+
+function getIssuePath(error: ErrorObject): string {
+  if (error.keyword === 'required') {
+    const missingProperty = (error.params as { missingProperty?: string })
+      .missingProperty;
+    if (missingProperty) return appendPath(error.instancePath, missingProperty);
+  }
+
+  if (error.keyword === 'additionalProperties') {
+    const additionalProperty = (error.params as { additionalProperty?: string })
+      .additionalProperty;
+    if (additionalProperty)
+      return appendPath(error.instancePath, additionalProperty);
+  }
+
+  return error.instancePath || '/';
+}
+
+function mapIssue(error: ErrorObject): ValidationIssue {
   return {
-    ok: false,
-    issues: (validator.errors ?? []).map((error) => ({
-      code: 'FIGURE_SCHEMA_INVALID',
-      path: error.instancePath || '/',
-      message: error.message ?? 'schema validation failed',
-    })),
+    code: 'FIGURE_SCHEMA_INVALID',
+    path: getIssuePath(error),
+    message: error.message ?? 'schema validation failed',
   };
 }
 
-export const validateFigureTemplateStructure = (input: unknown) =>
-  run<FigureTemplate>(templateValidator, input);
-export const validateFigureDocumentStructure = (input: unknown) =>
-  run<FigureDocument>(documentValidator, input);
+function run<T>(
+  validator: ValidateFunction<T>,
+  input: unknown,
+): ValidationResult<T> {
+  if (validator(input)) {
+    return {
+      ok: true,
+      value: input,
+      issues: [],
+    };
+  }
+
+  return {
+    ok: false,
+    issues: (validator.errors ?? []).map(mapIssue),
+  };
+}
+
+export function validateFigureTemplateStructure(
+  input: unknown,
+): ValidationResult<FigureTemplate> {
+  return run(templateValidator, input);
+}
+
+export function validateFigureDocumentStructure(
+  input: unknown,
+): ValidationResult<FigureDocument> {
+  return run(documentValidator, input);
+}
 ```
 
 - [x] **Step 5: Run structural tests**
@@ -1528,6 +1658,7 @@ git commit -m "feat(schema): 增加 Ajv 结构校验"
 - GREEN: the same focused test command exited 0 with 1 file and 4 tests passed after adding `types.ts` and `structural.ts`.
 - Gates: fresh `pnpm test`, `pnpm typecheck`, `pnpm format:check`, and `pnpm build` each exited 0 after the final implementation.
 - Real API correction: the plan's direct default-import sketch for `ajv/dist/2020.js` and `ajv-formats` did not typecheck under this repo's `NodeNext` + `verbatimModuleSyntax` settings, so the shipped validator uses top-level `await import(...)` interop while keeping Ajv 2020 `strict: true` and `allErrors: true`.
+- Review follow-up: `structural.test.ts` now locks aggregated multi-error reporting from a single payload and treats `message` as non-empty diagnostics instead of a public English-string contract.
 
 ### Task 8: Add domain invariant validators
 

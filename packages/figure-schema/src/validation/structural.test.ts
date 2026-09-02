@@ -64,16 +64,16 @@ describe('structural validation', () => {
     const { schemaVersion: _removed, ...input } = validTemplate;
     const result = validateFigureTemplateStructure(input);
 
-    expect(result).toEqual({
-      ok: false,
-      issues: [
-        {
-          code: 'FIGURE_SCHEMA_INVALID',
-          path: '/schemaVersion',
-          message: "must have required property 'schemaVersion'",
-        },
-      ],
-    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toHaveLength(1);
+      expect(result.issues[0]).toMatchObject({
+        code: 'FIGURE_SCHEMA_INVALID',
+        path: '/schemaVersion',
+      });
+      expect(result.issues[0]?.message).toEqual(expect.any(String));
+      expect(result.issues[0]?.message.length).toBeGreaterThan(0);
+    }
   });
 
   it('returns a stable nested path for additional properties', () => {
@@ -84,15 +84,50 @@ describe('structural validation', () => {
 
     const result = validateFigureDocumentStructure(input);
 
-    expect(result).toEqual({
-      ok: false,
-      issues: [
-        {
-          code: 'FIGURE_SCHEMA_INVALID',
-          path: '/dataSources/0/filePath',
-          message: 'must NOT have additional properties',
-        },
-      ],
-    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toHaveLength(1);
+      expect(result.issues[0]).toMatchObject({
+        code: 'FIGURE_SCHEMA_INVALID',
+        path: '/dataSources/0/filePath',
+      });
+      expect(result.issues[0]?.message).toEqual(expect.any(String));
+      expect(result.issues[0]?.message.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('aggregates multiple structural issues from one payload', () => {
+    const input = structuredClone(validTemplate) as Record<string, unknown>;
+
+    delete input.schemaVersion;
+    input.templateId = 1;
+    input.extraRoot = true;
+
+    const result = validateFigureTemplateStructure(input);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toHaveLength(3);
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'FIGURE_SCHEMA_INVALID',
+            path: '/schemaVersion',
+          }),
+          expect.objectContaining({
+            code: 'FIGURE_SCHEMA_INVALID',
+            path: '/templateId',
+          }),
+          expect.objectContaining({
+            code: 'FIGURE_SCHEMA_INVALID',
+            path: '/extraRoot',
+          }),
+        ]),
+      );
+      for (const issue of result.issues) {
+        expect(issue.message).toEqual(expect.any(String));
+        expect(issue.message.length).toBeGreaterThan(0);
+      }
+    }
   });
 });
