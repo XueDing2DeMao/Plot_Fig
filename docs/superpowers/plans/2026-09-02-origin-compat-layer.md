@@ -38,6 +38,8 @@ tests/origin/
 ├── golden.test.ts
 ├── security.test.ts
 └── fuzz.test.ts
+tests/helpers/
+└── origin-snapshot.ts
 docs/origin-compatibility-matrix.md
 ```
 
@@ -198,7 +200,13 @@ git commit -m "chore(origin): 初始化兼容层包"
 - Create: `packages/origin-compat/src/snapshot-contract.ts`
 - Create: `packages/origin-compat/src/snapshot-validation-helpers.ts`
 - Create: `packages/origin-compat/src/snapshot-schema.ts`
-- Test: `packages/origin-compat/src/snapshot-schema.test.ts`
+- Create: `packages/origin-compat/src/typecheck-config.test.ts`
+- Create: `packages/origin-compat/src/snapshot-schema/contracts.test.ts`
+- Create: `packages/origin-compat/src/snapshot-schema/structure.test.ts`
+- Create: `packages/origin-compat/src/snapshot-schema/safety.test.ts`
+- Create: `packages/origin-compat/src/snapshot-schema/symbol-keys.test.ts`
+- Create: `tests/helpers/origin-snapshot.ts`
+- Delete: `packages/origin-compat/src/snapshot-schema.test.ts`
 - Modify: `docs/superpowers/plans/2026-09-02-origin-compat-layer.md`
 
 - [x] **Step 1: Define stable result types**
@@ -207,25 +215,28 @@ git commit -m "chore(origin): 初始化兼容层包"
 
 - [x] **Step 2: Write failing contract tests**
 
-`packages/origin-compat/src/snapshot-schema.test.ts` now covers:
+Task 2 test coverage now lives in split, responsibility-focused files:
 
-- complete legal Snapshot acceptance
-- future `1.0.1` / `1.1.0` / `2.0.0` returning `FIGURE_FUTURE_VERSION_UNSUPPORTED`
-- loose and older `snapshotVersion` values returning `ORIGIN_SNAPSHOT_INVALID`
-- missing fields, bad enums, unknown root fields, and multiple nested closed-schema failures with `allErrors`
-- automation allowed as the only script-bearing root field
-- null, array, revoked proxy, root getter, and nested throwing getter inputs returning diagnostics instead of throwing
-- compile-time use of `ImportResult` / `CompatibilityReport` / `OriginTemplateSnapshotV1` to keep the Task 2 contract explicit
+- `packages/origin-compat/src/snapshot-schema/contracts.test.ts`: success path, typed contract use, future versions, loose/older versions
+- `packages/origin-compat/src/snapshot-schema/structure.test.ts`: missing fields, enums, closed schema, automation-only script field
+- `packages/origin-compat/src/snapshot-schema/safety.test.ts`: null/array, root getter, nested getter, revoked proxy
+- `packages/origin-compat/src/snapshot-schema/symbol-keys.test.ts`: root / nested object / array / annotation / unknownProperties symbol own keys
+- `packages/origin-compat/src/typecheck-config.test.ts`: recursive `src/**/*.ts` coverage plus `<= 300` line cap
+- `tests/helpers/origin-snapshot.ts`: shared Snapshot fixture and assertion helpers outside package build output
 
 - [x] **Step 3: Run and verify RED**
 
 Run:
 
 ```powershell
-pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts
+pnpm vitest run packages/origin-compat/src/snapshot-schema/symbol-keys.test.ts
+pnpm vitest run packages/origin-compat/src/typecheck-config.test.ts
 ```
 
-Observed on 2026-09-02: the suite failed before running tests because `./snapshot-schema.js` did not exist, which proved the contract test was genuinely red before implementation.
+Observed on 2026-09-03:
+
+- `pnpm vitest run packages/origin-compat/src/snapshot-schema/symbol-keys.test.ts` exited `1`; all five cases failed with `expected true to be false`, proving symbol own keys were silently accepted by the current safe clone.
+- `pnpm vitest run packages/origin-compat/src/typecheck-config.test.ts` exited `1` with `[{ "file": "snapshot-schema.test.ts", "lines": 332 }]`, proving the existing Task 2 test layout still violated the recursive `src/**/*.ts <= 300` gate.
 
 - [x] **Step 4: Define reusable Snapshot schema modules**
 
@@ -236,6 +247,8 @@ To keep every source file within the repository line budget, the Snapshot contra
 
 `packages/origin-compat/src/snapshot-schema.ts` remains the internal facade that re-exports `OriginTemplateSnapshotV1Schema` / `OriginTemplateSnapshotV1` and owns the Ajv validator.
 
+Task 2 review closeout on 2026-09-03 further splits the original `snapshot-schema.test.ts` into nested test files under `packages/origin-compat/src/snapshot-schema/`, and moves shared test fixtures into `tests/helpers/origin-snapshot.ts` so no helper enters the package tarball.
+
 - [x] **Step 5: Complete the closed root contract and validator**
 
 `packages/origin-compat/src/snapshot-schema.ts` now:
@@ -245,6 +258,7 @@ To keep every source file within the repository line budget, the Snapshot contra
 - treats loose, malformed, or older versions as `ORIGIN_SNAPSHOT_INVALID`
 - maps `required` and `additionalProperties` failures to stable JSON Pointer `sourcePath` values
 - safe-clones plain JSON-compatible inputs through own data descriptors so root `snapshotVersion` getters are never executed
+- rejects any own symbol key on Snapshot objects or arrays as `ORIGIN_SNAPSHOT_INVALID` instead of silently dropping it
 - catches revoked proxies, nested accessors, reflection failures, and unexpected Ajv exceptions without throwing to callers
 
 - [x] **Step 6: Run GREEN checks and prepare the commit**
@@ -274,19 +288,20 @@ git commit -m "feat(origin): 定义 Snapshot 输入契约"
 - [x] Missing fields, bad enums, unknown root fields, and nested closed-schema violations aggregate through Ajv `allErrors`.
 - [x] `validateOriginSnapshot` does not throw for `null`, arrays, revoked proxies, root accessors, nested accessors, or unexpected validator failures.
 - [x] Root `snapshotVersion` is inspected as an own data property and never read through a getter.
+- [x] Any own symbol key on a Snapshot object, nested object, array container, annotation object, or `unknownProperties` object returns `ORIGIN_SNAPSHOT_INVALID` instead of being silently dropped.
+- [x] Recursive `src/**/*.ts` line-limit coverage now includes nested Snapshot test files, and every TypeScript file under `packages/origin-compat/src` is `<= 300` after final formatting.
 - [x] Root `index.ts` remains empty, and Task 2 does not publish `snapshot-v1` or any other public subpath.
 
-**Execution evidence (2026-09-02):**
+**Execution evidence (2026-09-03):**
 
-- RED proof: `pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts` exited `1` with `Cannot find module './snapshot-schema.js'`, confirming the test suite failed before any production implementation existed.
-- GREEN proof: after implementing `types.ts`, `snapshot-contract.ts`, `snapshot-validation-helpers.ts`, and `snapshot-schema.ts`, the same focused command exited `0` with `15 passed (15)`.
-- Package type gate: `pnpm --filter @plot-fig/origin-compat typecheck` exited `0`.
-- File-size gate: `types.ts` is 59 lines, `snapshot-contract.ts` 269 lines, `snapshot-validation-helpers.ts` 209 lines, `snapshot-schema.ts` 156 lines, and `snapshot-schema.test.ts` 294 lines.
-- Public-surface gate: `packages/origin-compat/src/index.ts` is still an empty root export stub, so Task 2 does not leak internal Snapshot modules before Task 6.
-- Fresh verification on final Task 2 state: `pnpm format` exited `0`, then `pnpm vitest run packages/origin-compat/src/snapshot-schema.test.ts` exited `0` with `15 passed (15)`.
-- Fresh workspace regression gate: `pnpm test` exited `0` with `22 passed (22)` test files and `191 passed (191)` tests.
-- Fresh workspace type/build gate: `pnpm typecheck`, `pnpm format:check`, and `pnpm build` all exited `0`.
-- Fresh package boundary gate: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0`; the tarball contained `package.json` plus `dist/**` only, and no test fixtures or unpublished source tests were packed.
+- Original Task 2 baseline: commit `eaf6300fc2621541fe618f907f00ede838e96813` had already established the Snapshot contract and green schema tests before this review closeout.
+- RED proof for symbol keys: `pnpm vitest run packages/origin-compat/src/snapshot-schema/symbol-keys.test.ts` exited `1`; all five cases failed because `validateOriginSnapshot` returned `ok: true`.
+- RED proof for recursive line cap: `pnpm vitest run packages/origin-compat/src/typecheck-config.test.ts` exited `1` with `snapshot-schema.test.ts = 332`, proving the old monolithic test file exceeded the repository cap after final formatting.
+- GREEN proof after the fix: `pnpm vitest run packages/origin-compat/src/snapshot-schema/contracts.test.ts packages/origin-compat/src/snapshot-schema/structure.test.ts packages/origin-compat/src/snapshot-schema/safety.test.ts packages/origin-compat/src/snapshot-schema/symbol-keys.test.ts packages/origin-compat/src/typecheck-config.test.ts` exited `0` with `5 passed` files and `21 passed` tests.
+- Package type gate after the fix: `pnpm --filter @plot-fig/origin-compat typecheck` exited `0`.
+- Recursive line-count gate after final formatting used `Get-ChildItem packages/origin-compat/src -Recurse -Filter *.ts | Sort-Object FullName | ForEach-Object { $rel = $_.FullName.Replace((Resolve-Path 'packages/origin-compat/src').Path + '\', '').Replace('\','/'); [pscustomobject]@{ file = $rel; lines = (Get-Content -LiteralPath $_.FullName).Count } }`; the final counts were `index.ts = 1`, `snapshot-contract.ts = 284`, `snapshot-schema.ts = 173`, `snapshot-schema/contracts.test.ts = 56`, `snapshot-schema/safety.test.ts = 69`, `snapshot-schema/structure.test.ts = 56`, `snapshot-schema/symbol-keys.test.ts = 83`, `snapshot-validation-helpers.ts = 275`, `typecheck-config.test.ts = 119`, and `types.ts = 68`.
+- Fresh final verification on 2026-09-03: `pnpm format`, the focused Vitest command above, `pnpm test`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`, and `pnpm --filter @plot-fig/origin-compat pack --dry-run` all exited `0`; the full workspace test run reported `26 passed` files and `197 passed` tests.
+- Public-surface gate: `packages/origin-compat/src/index.ts` is still an empty root export stub, and `package.json` still publishes only the root export without any Snapshot subpath.
 
 ### Task 3: Enforce the security boundary
 

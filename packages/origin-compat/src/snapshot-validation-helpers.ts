@@ -133,6 +133,37 @@ export function cloneForValidation(
   return cloneObject(input, path);
 }
 
+function readDescriptorKeys(
+  descriptors: PropertyDescriptorMap,
+  path: string,
+  kind: 'array' | 'object',
+):
+  | { ok: true; keys: string[] }
+  | { ok: false; sourcePath: string; message: string } {
+  const keys = reflect(() => Reflect.ownKeys(descriptors));
+  if (!keys.ok) {
+    return {
+      ok: false,
+      sourcePath: path,
+      message: `Snapshot ${kind} reflection failed`,
+    };
+  }
+
+  const stringKeys: string[] = [];
+  for (const key of keys.value) {
+    if (typeof key === 'symbol') {
+      return {
+        ok: false,
+        sourcePath: path,
+        message: `Snapshot ${kind} fields must not use symbol keys`,
+      };
+    }
+    stringKeys.push(key);
+  }
+
+  return { ok: true, keys: stringKeys };
+}
+
 function cloneArray(value: object, path: string): SafeCloneResult {
   const descriptors = reflect(() => Object.getOwnPropertyDescriptors(value));
   if (!descriptors.ok) {
@@ -159,7 +190,12 @@ function cloneArray(value: object, path: string): SafeCloneResult {
     };
   }
 
-  for (const key of Object.keys(descriptors.value)) {
+  const keys = readDescriptorKeys(descriptors.value, path, 'array');
+  if (!keys.ok) {
+    return keys;
+  }
+
+  for (const key of keys.keys) {
     if (key !== 'length' && !/^(0|[1-9]\d*)$/u.test(key)) {
       return {
         ok: false,
@@ -205,7 +241,20 @@ function cloneObject(value: object, path: string): SafeCloneResult {
   }
 
   const clone: Record<string, unknown> = {};
-  for (const [key, descriptor] of Object.entries(descriptors.value)) {
+  const keys = readDescriptorKeys(descriptors.value, path, 'object');
+  if (!keys.ok) {
+    return keys;
+  }
+
+  for (const key of keys.keys) {
+    const descriptor = descriptors.value[key];
+    if (!descriptor) {
+      return {
+        ok: false,
+        sourcePath: appendPath(path, key),
+        message: 'Snapshot object reflection failed',
+      };
+    }
     if (!descriptor.enumerable) {
       continue;
     }
