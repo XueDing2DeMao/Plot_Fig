@@ -496,8 +496,9 @@ git commit -m "feat(migrations): 迁移旧版模板信封"
 - Create: `packages/figure-migrations/src/registry.ts`
 - Create: `packages/figure-migrations/src/load.ts`
 - Test: `packages/figure-migrations/src/load.test.ts`
+- Create: `tests/helpers/figure-payloads.ts`
 
-- [ ] **Step 1: Write failing load tests**
+- [x] **Step 1: Write failing load tests**
 
 `packages/figure-migrations/src/load.test.ts`:
 
@@ -554,13 +555,13 @@ describe('loadFigurePayload', () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-migrations/src/load.test.ts`
 
 Expected: FAIL because `loadFigurePayload` is missing.
 
-- [ ] **Step 3: Implement the registry**
+- [x] **Step 3: Implement the registry**
 
 ```ts
 import { migrateV010ToV100 } from './migrations/v0.1.0-to-v1.0.0.js';
@@ -574,7 +575,7 @@ export const migrationRegistry = new Map<string, MigrationStep>([
 ]);
 ```
 
-- [ ] **Step 4: Implement the loader**
+- [x] **Step 4: Implement the loader**
 
 ```ts
 import {
@@ -692,18 +693,26 @@ export function loadFigurePayload(input: unknown): LoadResult {
 }
 ```
 
-- [ ] **Step 5: Run tests and typecheck**
+- [x] **Step 5: Run tests and typecheck**
 
 Run: `pnpm vitest run packages/figure-migrations/src/load.test.ts && pnpm --filter @plot-fig/figure-migrations typecheck`
 
 Expected: PASS and exit 0.
 
-- [ ] **Step 6: Commit loader**
+- [x] **Step 6: Commit loader**
 
 ```powershell
-git add packages/figure-migrations/src/registry.ts packages/figure-migrations/src/load.ts packages/figure-migrations/src/load.test.ts
-git commit -m "feat(migrations): 加载并迁移 Figure 数据"
+git add docs/superpowers/plans/2026-09-02-figure-migrations.md packages/figure-migrations/src/registry.ts packages/figure-migrations/src/load.ts packages/figure-migrations/src/load.test.ts tests/helpers/figure-payloads.ts
+git commit -m "feat(migrations): 实现版本加载流水线"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-migrations/src/load.test.ts` 初次执行 exited 1 with `Cannot find module './load.js'`, 证明 Task 4 的加载测试在实现前确实失败。
+- GREEN: 新增 `packages/figure-migrations/src/registry.ts`、`packages/figure-migrations/src/load.ts`、`packages/figure-migrations/src/load.test.ts` 后，focused command exited 0 with `1` file passed and `27` tests passed，覆盖 current template/document 深克隆与 canonical 保持、`0.1.0` 模板迁移、严格 SemVer future 检查、unsupported historical versions、结构/领域诊断透传、unsafe current payload 安全失败，以及 migration throw / wrong kind / wrong target version / non-progress / cycle 的稳定 `FIGURE_MIGRATION_FAILED`。
+- Type gate regression: `pnpm --filter @plot-fig/figure-migrations typecheck` 曾 exited 1 because `applyMigration` 的返回联合仍可能泄漏 `RawEnvelope`；将受支持信封收紧为 `SupportedEnvelope`，并把 step 查找与 step 输出校验拆成私有 helper 后，rerun exited 0。
+- File-size compliance: Prettier 将 `packages/figure-migrations/src/load.test.ts` 展开到 `335` 行，超过仓库 `file <= 300` 门禁；抽出 `tests/helpers/figure-payloads.ts` 复用 current payload builders 与无共享引用断言后，`load.test.ts` 降到 `291` 行，且 helper 位于 `tests/` 下，不会进入 `@plot-fig/figure-migrations` 产物。
+- Fresh final gates on the final Task 4 state all exited 0: `pnpm format`, `pnpm format:check`, `pnpm vitest run packages/figure-migrations/src/load.test.ts`, `pnpm test`, `pnpm typecheck`, `pnpm build`, and `pnpm schema:check`.
 
 ### Task 5: Export stable API and verify migration subsystem
 
