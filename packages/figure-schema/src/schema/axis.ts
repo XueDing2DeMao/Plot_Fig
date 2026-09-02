@@ -1,5 +1,9 @@
 import Type from 'typebox';
-import { ExtensionBagSchema, IdentifierSchema } from './common.js';
+import {
+  DeclarativeTextSchema,
+  ExtensionBagSchema,
+  IdentifierSchema,
+} from './common.js';
 
 const AxisScaleSchema = Type.Union([
   Type.Literal('linear'),
@@ -67,13 +71,8 @@ const TickLabelSchema = Type.Object(
   { additionalProperties: false },
 );
 
-const AxisTextSchema = Type.String({
-  maxLength: 16_384,
-  pattern: '^(?!.*<\\/?[A-Za-z][^>]*>)[\\s\\S]*$',
-});
-
 const AxisTitleCommonProperties = {
-  text: AxisTextSchema,
+  text: DeclarativeTextSchema,
   fontFamily: Type.String({ minLength: 1 }),
   fontSizePt: Type.Number({ exclusiveMinimum: 0 }),
   color: Type.String({ minLength: 1 }),

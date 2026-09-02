@@ -115,4 +115,14 @@ export const validTemplate = {
     palette: ['#0072B2', '#D55E00'],
     background: '#ffffff',
   },
+  provenance: {
+    sourceKind: 'origin-snapshot',
+    sourceHash: 'sha256:fixture-basic-xy',
+    importerVersion: '0.1.0',
+  },
+  extensions: {
+    origin: {
+      layer: 'Layer1',
+    },
+  },
 } as const;

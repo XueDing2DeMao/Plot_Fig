@@ -1,5 +1,9 @@
 import Type from 'typebox';
-import { ExtensionBagSchema, IdentifierSchema } from './common.js';
+import {
+  ExtensionBagSchema,
+  IdentifierSchema,
+  ShortDeclarativeTextSchema,
+} from './common.js';
 
 const OptionalBindingSchema = Type.Optional(IdentifierSchema);
 
@@ -69,7 +73,7 @@ export const ErrorBarStyleSchema = Type.Object(
 export const LegendEntrySchema = Type.Object(
   {
     visible: Type.Boolean(),
-    text: Type.String({ maxLength: 1024 }),
+    text: ShortDeclarativeTextSchema,
   },
   { additionalProperties: false },
 );

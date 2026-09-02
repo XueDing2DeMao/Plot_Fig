@@ -25,6 +25,18 @@ export const LengthSchema = Type.Object(
 
 export const PointLengthSchema = Type.Number({ minimum: 0 });
 
+const DECLARATIVE_TEXT_PATTERN = '^(?!.*<\\/?[A-Za-z][^>]*>)[\\s\\S]*$';
+
+export const DeclarativeTextSchema = Type.String({
+  maxLength: 16_384,
+  pattern: DECLARATIVE_TEXT_PATTERN,
+});
+
+export const ShortDeclarativeTextSchema = Type.String({
+  maxLength: 1_024,
+  pattern: DECLARATIVE_TEXT_PATTERN,
+});
+
 // 结构层只封闭扩展 namespace；JSON-only、深度/大小限制与危险键检查留给 Task 8 的 domain validator。
 export const ExtensionBagSchema = Type.Object(
   {

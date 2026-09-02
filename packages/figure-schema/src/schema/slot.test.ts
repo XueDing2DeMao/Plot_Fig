@@ -170,4 +170,23 @@ describe('slot schemas', () => {
       }),
     ).toBe(false);
   });
+
+  it('rejects legend text with html-like tags', () => {
+    const validatePlotSlot = Compile(PlotSlotSchema);
+
+    expect(
+      validatePlotSlot.Check({
+        plotSlotId: 'series-legend-html',
+        kind: 'xy',
+        mode: 'line',
+        xAxisId: 'axis-x',
+        yAxisId: 'axis-y',
+        bindings: { x: 'slot-x', y: 'slot-y' },
+        legendEntry: {
+          visible: true,
+          text: '<b>Series 1</b>',
+        },
+      }),
+    ).toBe(false);
+  });
 });

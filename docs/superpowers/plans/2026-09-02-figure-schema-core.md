@@ -1255,6 +1255,10 @@ git commit -m "feat(schema): 组装 FigureTemplate 模型"
 - Gates: fresh `pnpm format:check`, `pnpm typecheck`, `pnpm test`, and `pnpm build` each exited 0 after Task 5 implementation.
 - Spec-alignment fix: `TextAnnotationSchema.text` was tightened to the same non-HTML text rule already used by `AxisSchema.title.text`, which is a minimal correction to align Task 5 structure with approved spec 5.7.
 - Size gate: `annotation.ts` 80 lines, `theme.ts` 40 lines, `figure-template.ts` 58 lines, `figure-template.test.ts` 62 lines, `fixtures.ts` 118 lines; all remain below the 300-line cap.
+- Review fix RED: fresh `pnpm vitest run packages/figure-schema/src/schema/figure-template.test.ts` exited 1 with 7 tests and 3 failures, specifically the page/panel/data annotation scope guards; fresh `pnpm vitest run packages/figure-schema/src/schema/slot.test.ts` exited 1 with 10 tests and 1 failure on `legendEntry.text` accepting HTML-like tags.
+- Review fix GREEN: after introducing shared declarative text schemas and scope-specific closed annotation variants, `pnpm vitest run packages/figure-schema/src/schema/figure-template.test.ts` exited 0 with 7 tests passed and `pnpm vitest run packages/figure-schema/src/schema/slot.test.ts` exited 0 with 10 tests passed.
+- Review fix gates: fresh `pnpm vitest run packages/figure-schema/src/schema/layout-axis.test.ts` exited 0 with 5 tests passed; fresh `pnpm test` exited 0 with 4 files and 24 tests passed; fresh `pnpm typecheck`, `pnpm format:check`, and `pnpm build` each exited 0.
+- Review fix scope: `ThemeSchema` surface area stayed unchanged; the text-boundary tightening was centralized in `common.ts` and reused by `AxisSchema`, `TextAnnotationSchema`, and `PlotSlotSchema.legendEntry`.
 
 ### Task 6: Define FigureDocument and binding contracts
 
