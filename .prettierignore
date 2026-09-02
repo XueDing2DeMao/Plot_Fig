@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+.superpowers
+pnpm-lock.yaml
+docs/superpowers
+packages/*/schema
