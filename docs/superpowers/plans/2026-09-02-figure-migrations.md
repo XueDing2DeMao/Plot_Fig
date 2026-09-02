@@ -235,8 +235,9 @@ git commit -m "feat(migrations): 识别版本信封"
 - Create: `tests/fixtures/migrations/figure-template-v0.1.0.json`
 - Create: `packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.ts`
 - Test: `packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.test.ts`
+- Modify: `packages/figure-migrations/package.json`
 
-- [ ] **Step 1: Create the complete synthetic legacy fixture**
+- [x] **Step 1: Create the complete synthetic legacy fixture**
 
 The v0.1.0 fixture uses the deliberate legacy fields `id`, `title`, and root `tags`, while every nested field already has V1 semantics:
 
@@ -372,7 +373,7 @@ The v0.1.0 fixture uses the deliberate legacy fields `id`, `title`, and root `ta
 }
 ```
 
-- [ ] **Step 2: Write the failing migration test**
+- [x] **Step 2: Write the failing migration test**
 
 ```ts
 import { readFile } from 'node:fs/promises';
@@ -405,15 +406,17 @@ describe('migrateV010ToV100', () => {
 });
 ```
 
-- [ ] **Step 3: Run and verify failure**
+- [x] **Step 3: Run and verify failure**
 
 Run: `pnpm vitest run packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.test.ts`
 
 Expected: FAIL because migration is missing.
 
-- [ ] **Step 4: Implement the pure migration**
+- [x] **Step 4: Implement the pure migration**
 
 ```ts
+import { canonicalizeFigurePayload } from '@plot-fig/figure-schema';
+
 type V010 = Record<string, unknown> & {
   kind: 'figure-template';
   schemaVersion: '0.1.0';
@@ -422,8 +425,29 @@ type V010 = Record<string, unknown> & {
   tags: string[];
 };
 
+function cloneLegacyTemplate(input: unknown): V010 {
+  const value = JSON.parse(canonicalizeFigurePayload(input)) as
+    | Record<string, unknown>
+    | unknown;
+  // Reject malformed legacy payloads after the safe JSON clone.
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    Array.isArray(value) ||
+    value.kind !== 'figure-template' ||
+    value.schemaVersion !== '0.1.0' ||
+    typeof value.id !== 'string' ||
+    typeof value.title !== 'string' ||
+    !Array.isArray(value.tags) ||
+    value.tags.some((entry) => typeof entry !== 'string')
+  ) {
+    throw new TypeError('legacy figure-template@0.1.0 payload is invalid');
+  }
+  return value as V010;
+}
+
 export function migrateV010ToV100(input: unknown): unknown {
-  const value = structuredClone(input) as V010;
+  const value = cloneLegacyTemplate(input);
   const { id, title, tags, ...rest } = value;
   return {
     ...rest,
@@ -434,7 +458,7 @@ export function migrateV010ToV100(input: unknown): unknown {
 }
 ```
 
-- [ ] **Step 5: Run test and commit**
+- [x] **Step 5: Run test and commit**
 
 Run: `pnpm vitest run packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.test.ts`
 
@@ -444,6 +468,15 @@ Expected: PASS.
 git add tests/fixtures/migrations packages/figure-migrations/src/migrations
 git commit -m "feat(migrations): 迁移旧版模板信封"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- RED: `pnpm vitest run packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.test.ts` exited 1 with `Cannot find module './v0.1.0-to-v1.0.0.js'`, proving the new Task 3 test failed before the migration existed.
+- GREEN: after implementing `packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.ts`, rerunning the same focused command exited 0 with `1` file passed and `4` tests passed, covering field rename, final `validateFigureTemplate` success, input immutability, deep-clone isolation, accessor-safe failure, non-JSON / dangerous-key `TypeError`, and canonical stability across repeated runs.
+- Pack-boundary RED: `pnpm --filter @plot-fig/figure-migrations pack --dry-run` initially included `src/migrations/v0.1.0-to-v1.0.0.test.ts` and `src/version.test.ts`, proving validation assets could leak into the package tarball.
+- Pack-boundary GREEN: after adding `"files": ["dist"]` to `packages/figure-migrations/package.json`, rerunning `pnpm --filter @plot-fig/figure-migrations pack --dry-run` listed only `dist/**` plus `package.json`; the new root-level fixture under `tests/fixtures/migrations/` was not packaged.
+- Stable API boundary: after `pnpm build`, `node --input-type=module -e 'import("./dist/index.js") ...'` from `packages/figure-migrations` exited 0 with `migrations package entrypoint has no version-specific exports`, confirming Task 3 did not leak the version-specific migration step to the top-level runtime API.
+- Fresh gates on the final Task 3 state all exited 0: `pnpm format`, `pnpm vitest run packages/figure-migrations/src/migrations/v0.1.0-to-v1.0.0.test.ts`, `pnpm test`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`, and `pnpm schema:check`.
 
 ### Task 4: Implement the migration registry and load pipeline
 
