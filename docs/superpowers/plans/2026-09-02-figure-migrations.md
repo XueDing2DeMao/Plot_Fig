@@ -44,7 +44,7 @@ tests/fixtures/migrations/
 - Create: `packages/figure-migrations/tsconfig.json`
 - Create: `packages/figure-migrations/src/index.ts`
 
-- [ ] **Step 1: Create package configuration**
+- [x] **Step 1: Create package configuration**
 
 ```json
 {
@@ -84,18 +84,25 @@ tests/fixtures/migrations/
 export {};
 ```
 
-- [ ] **Step 2: Install workspace links and verify**
+- [x] **Step 2: Install workspace links and verify**
 
 Run: `pnpm install && pnpm --filter @plot-fig/figure-migrations typecheck`
 
 Expected: exit 0.
 
-- [ ] **Step 3: Commit package scaffold**
+- [x] **Step 3: Commit package scaffold**
 
 ```powershell
 git add packages/figure-migrations pnpm-lock.yaml
 git commit -m "chore(migrations): 初始化迁移包"
 ```
+
+**Execution evidence (2026-09-02):**
+
+- Prerequisite gates: `pnpm --filter @plot-fig/figure-schema build` and `pnpm --filter @plot-fig/figure-schema typecheck` were rerun fresh and both exited 0.
+- Workspace link refresh: `pnpm install` exited 0 and updated `pnpm-lock.yaml` with the `packages/figure-migrations` importer linked to `@plot-fig/figure-schema`.
+- Task gate: `pnpm --filter @plot-fig/figure-migrations typecheck` exited 0 against the new scaffold package.
+- Global gates: `pnpm format:check` and `pnpm build` were rerun fresh and both exited 0, including the new `packages/figure-migrations` workspace build.
 
 ### Task 2: Define version envelopes and failure semantics
 
