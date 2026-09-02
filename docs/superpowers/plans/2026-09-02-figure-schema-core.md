@@ -2425,6 +2425,7 @@ git commit -m "feat(schema): 生成规范 JSON Schema 产物"
 - Read-only check semantics: after the refactor, `pnpm schema:check` exited 0 on the clean repo without running `schema:generate`, and `pnpm schema:generate` followed by `git diff --exit-code -- packages/figure-schema/schema` still exited 0, proving the render module remained byte-stable.
 - Fresh gates: `pnpm vitest run packages/figure-schema/src/canonicalize.test.ts packages/figure-schema/scripts/schema-artifacts.test.ts`, `pnpm test`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`, and `pnpm schema:check` each exited 0 after the review fix.
 - Fresh-checkout guard: because this machine has `core.autocrlf=true`, Task 9 added `.gitattributes` with `packages/figure-schema/schema/*.json text eol=lf` so the read-only byte comparison stays clean on Windows fresh checkouts.
+- Repo-external preservation verification: a temp clone outside the workspace with `core.autocrlf=true` showed `lineEndingHasCrLf=false` on the clean artifact checkout and `checkSchemaArtifacts(<temp clone schema dir>)` returned `ok: true`. In sibling temp clones, staged modified (`M  ...`), unstaged modified (`M ...`), and missing (`D ...`) artifacts each returned non-empty issues while preserving the exact pre-check Git status; modified-file SHA-256 stayed `E5CE67907B09E86DE38E6BE765A90A0B7EBC5076CB31666C4A2D0C3E82EC63FD` before and after the check, and the missing file remained absent after the check.
 
 ### Task 10: Publish the stable package API and verify the subsystem
 
