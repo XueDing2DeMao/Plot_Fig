@@ -20,6 +20,7 @@
 packages/origin-compat/
 ├── package.json
 ├── tsconfig.json
+├── tsconfig.typecheck.json
 └── src/
     ├── types.ts
     ├── snapshot-schema.ts
@@ -44,9 +45,11 @@ docs/origin-compatibility-matrix.md
 
 - Create: `packages/origin-compat/package.json`
 - Create: `packages/origin-compat/tsconfig.json`
+- Create: `packages/origin-compat/tsconfig.typecheck.json`
 - Create: `packages/origin-compat/src/index.ts`
+- Modify: `docs/superpowers/plans/2026-09-02-origin-compat-layer.md`
 
-- [ ] **Step 1: Create package configuration**
+- [x] **Step 1: Create package configuration**
 
 `packages/origin-compat/package.json`:
 
@@ -57,15 +60,19 @@ docs/origin-compatibility-matrix.md
   "private": true,
   "type": "module",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
     "./snapshot-v1": {
       "types": "./dist/snapshot-v1.d.ts",
       "import": "./dist/snapshot-v1.js"
     }
   },
+  "files": ["dist"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit"
   },
   "dependencies": {
     "@plot-fig/figure-schema": "workspace:*",
@@ -90,24 +97,98 @@ docs/origin-compatibility-matrix.md
 }
 ```
 
+`packages/origin-compat/tsconfig.typecheck.json`:
+
+```json
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@plot-fig/figure-schema": ["../figure-schema/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}
+```
+
 `packages/origin-compat/src/index.ts`:
 
 ```ts
 export {};
 ```
 
-- [ ] **Step 2: Install and verify**
+The `./snapshot-v1` subpath export is reserved in Task 1 so downstream bridge/reader code can target the final public surface immediately; `src/snapshot-v1.ts` is still created in Task 6, and `tsc -p tsconfig.json` does not require that future export target to exist yet.
 
-Run: `pnpm install && pnpm --filter @plot-fig/origin-compat typecheck`
+- [x] **Step 2: Refresh workspace links and verify no-dist typecheck behavior**
 
-Expected: exit 0 and workspace dependency resolution succeeds.
-
-- [ ] **Step 3: Commit the scaffold**
+Run:
 
 ```powershell
-git add packages/origin-compat pnpm-lock.yaml
+pnpm install
+$repoRoot = (Resolve-Path '.').Path
+$targets = @(
+  (Join-Path $repoRoot 'packages/figure-schema/dist'),
+  (Join-Path $repoRoot 'packages/figure-migrations/dist')
+)
+$backups = @()
+foreach ($target in $targets) {
+  if (Test-Path -LiteralPath $target) {
+    $backup = "$target.__task1_backup__"
+    Move-Item -LiteralPath $target -Destination $backup
+    $backups += [pscustomobject]@{ Target = $target; Backup = $backup }
+  }
+}
+try {
+  pnpm install --frozen-lockfile
+  pnpm --filter @plot-fig/origin-compat typecheck
+  pnpm typecheck
+}
+finally {
+  foreach ($item in $backups) {
+    if (Test-Path -LiteralPath $item.Backup) {
+      Move-Item -LiteralPath $item.Backup -Destination $item.Target
+    }
+  }
+}
+```
+
+Expected: all commands exit `0`, and both package-local and root `typecheck` succeed even when `packages/figure-schema/dist` and `packages/figure-migrations/dist` are temporarily absent.
+
+- [x] **Step 3: Run final formatting, build and package gates**
+
+Run:
+
+```powershell
+pnpm format
+pnpm format:check
+pnpm build
+pnpm --filter @plot-fig/origin-compat pack --dry-run
+```
+
+Expected: all commands exit `0`, and the pack dry-run lists only `dist/**` plus `package.json`.
+
+- [x] **Step 4: Commit the scaffold**
+
+```powershell
+git add docs/superpowers/plans/2026-09-02-origin-compat-layer.md packages/origin-compat pnpm-lock.yaml
 git commit -m "chore(origin): 初始化兼容层包"
 ```
+
+**Task 1 completion checklist:**
+
+- [x] `@plot-fig/origin-compat` now publishes only `dist/**` via `"files": ["dist"]`.
+- [x] Root and `./snapshot-v1` `exports` are fixed to `dist` paths even before Task 6 adds `src/snapshot-v1.ts`.
+- [x] `packages/origin-compat/tsconfig.typecheck.json` resolves `@plot-fig/figure-schema` to `../figure-schema/src/index.ts`.
+- [x] `pnpm install`, `pnpm install --frozen-lockfile`, `pnpm --filter @plot-fig/origin-compat typecheck`, and root `pnpm typecheck` succeeded without relying on prebuilt sibling `dist` output.
+- [x] Final `pnpm format`, `pnpm format:check`, `pnpm build`, and `pnpm --filter @plot-fig/origin-compat pack --dry-run` gates have succeeded on the Task 1 state.
+
+**Execution evidence (2026-09-02):**
+
+- Lockfile refresh: `pnpm install` exited `0` and added the `packages/origin-compat` importer with `@plot-fig/figure-schema`, `ajv`, and `typebox` pinned exactly as planned.
+- No-dist type gate: after temporarily moving `packages/figure-schema/dist` and `packages/figure-migrations/dist` aside, `pnpm install --frozen-lockfile`, `pnpm --filter @plot-fig/origin-compat typecheck`, and root `pnpm typecheck` all exited `0`; both backup directories were restored afterward, proving Task 1 does not depend on sibling prebuild artifacts.
+- Final workspace gates: `pnpm format`, `pnpm format:check`, and `pnpm build` all exited `0` on the Task 1 state; the new `packages/origin-compat` build emitted only `dist/index.{js,d.ts}` plus source maps because `src/index.ts` is intentionally empty until Task 6.
+- Pack boundary proof: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0` and listed only `dist/index.d.ts`, `dist/index.d.ts.map`, `dist/index.js`, `dist/index.js.map`, and `package.json`; the reserved `./snapshot-v1` export target is intentionally absent from the tarball until Task 6 creates `src/snapshot-v1.ts`.
 
 ### Task 2: Define import results and Snapshot types
 
