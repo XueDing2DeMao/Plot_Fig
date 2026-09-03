@@ -1,16 +1,18 @@
 import type { FigureTemplate } from '@plot-fig/figure-schema';
 import type { NormalizedOriginSnapshot } from './normalize.js';
 import type { CompatibilityItem, ImportDiagnostic } from './types.js';
+import {
+  preserveUnknown,
+  validateSlotRequirements,
+} from './map-diagnostics.js';
 
 export type MappingCandidate = {
   value: FigureTemplate;
   diagnostics: ImportDiagnostic[];
   items: CompatibilityItem[];
 };
-
-function extension(value: Record<string, unknown> | undefined) {
-  return value && Object.keys(value).length > 0 ? { origin: value } : undefined;
-}
+const extension = (value: Record<string, unknown> | undefined) =>
+  value && Object.keys(value).length ? { origin: value } : undefined;
 
 function mapAxis(
   axis: NormalizedOriginSnapshot['layers'][number]['xAxis'],
@@ -67,27 +69,27 @@ function collectDataSlots(
   input: NormalizedOriginSnapshot,
 ): FigureTemplate['dataSlots'] {
   const slots = new Map<string, FigureTemplate['dataSlots'][number]>();
-  for (const layer of input.layers) {
-    for (const plot of layer.plots) {
+  for (const layer of input.layers)
+    for (const plot of layer.plots)
       for (const [role, requirement] of Object.entries(plot.bindings)) {
-        if (!requirement || slots.has(requirement.slotId)) continue;
-        slots.set(requirement.slotId, {
-          dataSlotId: requirement.slotId,
-          name: requirement.name,
-          role: role as FigureTemplate['dataSlots'][number]['role'],
-          valueType: requirement.valueType,
-          required: role === 'x' || role === 'y',
-        });
+        if (!slots.has(requirement.slotId))
+          slots.set(requirement.slotId, {
+            dataSlotId: requirement.slotId,
+            name: requirement.name,
+            role: role as FigureTemplate['dataSlots'][number]['role'],
+            valueType: requirement.valueType,
+            required: role === 'x' || role === 'y',
+          });
       }
-    }
-  }
   return [...slots.values()];
 }
 
 type OriginAnnotation =
   NormalizedOriginSnapshot['layers'][number]['annotations'][number];
-
-function mapAnnotation(annotation: OriginAnnotation, panelId: string) {
+function mapAnnotation(
+  annotation: OriginAnnotation,
+  panelId: string,
+): FigureTemplate['annotations'][number] {
   const coordinateSpace =
     annotation.coordinateSpace === 'layer'
       ? ('panel' as const)
@@ -106,14 +108,14 @@ function mapAnnotation(annotation: OriginAnnotation, panelId: string) {
     case 'legend':
       return {
         ...common,
-        kind: 'legend' as const,
+        kind: 'legend',
         position: annotation.position,
         visible: annotation.visible,
       } as FigureTemplate['annotations'][number];
     case 'text':
       return {
         ...common,
-        kind: 'text' as const,
+        kind: 'text',
         position: annotation.position,
         text: annotation.text,
         format: annotation.format,
@@ -121,126 +123,25 @@ function mapAnnotation(annotation: OriginAnnotation, panelId: string) {
     case 'arrow':
       return {
         ...common,
-        kind: 'arrow' as const,
+        kind: 'arrow',
         start: annotation.start,
         end: annotation.end,
       } as FigureTemplate['annotations'][number];
     case 'rectangle':
       return {
         ...common,
-        kind: 'rectangle' as const,
+        kind: 'rectangle',
         start: annotation.start,
         end: annotation.end,
       } as FigureTemplate['annotations'][number];
     default:
       return {
         ...common,
-        kind: 'reference-line' as const,
+        kind: 'reference-line',
         orientation: annotation.orientation,
         value: annotation.value,
       } as FigureTemplate['annotations'][number];
   }
-}
-
-function preserveUnknown(input: NormalizedOriginSnapshot) {
-  const items: CompatibilityItem[] = [];
-  const add = (
-    object: Record<string, unknown> | undefined,
-    path: string,
-    targetPath: string,
-  ) => {
-    for (const key of Object.keys(object ?? {}).sort()) {
-      items.push({
-        sourcePath: `${path}/${key}`,
-        targetPath,
-        disposition: 'preservedInExtensions',
-        message: 'declarative Origin property preserved',
-      });
-    }
-  };
-  add(input.unknownProperties, '/unknownProperties', '/extensions/origin');
-  let annotationOffset = 0;
-  input.layers.forEach((layer, layerIndex) => {
-    add(
-      layer.unknownProperties,
-      `/layers/${layerIndex}/unknownProperties`,
-      `/panels/${layerIndex}/extensions/origin`,
-    );
-    add(
-      layer.xAxis.unknownProperties,
-      `/layers/${layerIndex}/xAxis/unknownProperties`,
-      `/panels/${layerIndex}/axes/0/extensions/origin`,
-    );
-    add(
-      layer.yAxis.unknownProperties,
-      `/layers/${layerIndex}/yAxis/unknownProperties`,
-      `/panels/${layerIndex}/axes/1/extensions/origin`,
-    );
-    layer.plots.forEach((plot, plotIndex) =>
-      add(
-        plot.unknownProperties,
-        `/layers/${layerIndex}/plots/${plotIndex}/unknownProperties`,
-        `/panels/${layerIndex}/plotSlots/${plotIndex}/extensions/origin`,
-      ),
-    );
-    layer.annotations.forEach((annotation, annotationIndex) =>
-      add(
-        annotation.unknownProperties,
-        `/layers/${layerIndex}/annotations/${annotationIndex}/unknownProperties`,
-        `/annotations/${annotationOffset + annotationIndex}/extensions/origin`,
-      ),
-    );
-    annotationOffset += layer.annotations.length;
-  });
-  return {
-    items,
-    diagnostics: items.map((item) => ({
-      code: 'ORIGIN_UNSUPPORTED_PROPERTY' as const,
-      severity: 'info' as const,
-      sourcePath: item.sourcePath,
-      ...(item.targetPath ? { targetPath: item.targetPath } : {}),
-      message: item.message,
-      recoverable: true,
-    })),
-  };
-}
-
-function validateSlotRequirements(
-  input: NormalizedOriginSnapshot,
-): ImportDiagnostic[] {
-  const seen = new Map<
-    string,
-    { role: string; valueType: string; path: string }
-  >();
-  const diagnostics: ImportDiagnostic[] = [];
-  input.layers.forEach((layer, layerIndex) =>
-    layer.plots.forEach((plot, plotIndex) => {
-      Object.entries(plot.bindings).forEach(([role, requirement]) => {
-        const sourcePath = `/layers/${layerIndex}/plots/${plotIndex}/bindings/${role}`;
-        const previous = seen.get(requirement.slotId);
-        if (
-          previous &&
-          (previous.role !== role ||
-            previous.valueType !== requirement.valueType)
-        ) {
-          diagnostics.push({
-            code: 'ORIGIN_INVALID_REFERENCE',
-            severity: 'error',
-            sourcePath,
-            message: `${requirement.slotId} conflicts with ${previous.path}`,
-            recoverable: false,
-          });
-        } else if (!previous) {
-          seen.set(requirement.slotId, {
-            role,
-            valueType: requirement.valueType,
-            path: sourcePath,
-          });
-        }
-      });
-    }),
-  );
-  return diagnostics;
 }
 
 export function mapOriginSnapshot(
@@ -251,11 +152,11 @@ export function mapOriginSnapshot(
   const panels = input.layers.map((layer) => {
     const xAxisId = `${layer.layerId}-x`;
     const yAxisId = `${layer.layerId}-y`;
-    const layerExtensions = extension(layer.unknownProperties);
     const axes = [
       mapAxis(layer.xAxis, xAxisId, 'x'),
       mapAxis(layer.yAxis, yAxisId, 'y'),
     ] as FigureTemplate['panels'][number]['axes'];
+    const layerExtensions = extension(layer.unknownProperties);
     return {
       panelId: layer.layerId,
       frame: layer.frame,
@@ -263,7 +164,7 @@ export function mapOriginSnapshot(
       clip: true,
       axes,
       plotSlots: layer.plots.map((plot) => {
-        const plotExtensions = extension(plot.unknownProperties);
+        const extensions = extension(plot.unknownProperties);
         return {
           plotSlotId: plot.plotId,
           kind: 'xy' as const,
@@ -276,9 +177,9 @@ export function mapOriginSnapshot(
           xAxisId,
           yAxisId,
           bindings: Object.fromEntries(
-            Object.entries(plot.bindings).map(([role, requirement]) => [
+            Object.entries(plot.bindings).map(([role, req]) => [
               role,
-              requirement.slotId,
+              req.slotId,
             ]),
           ) as FigureTemplate['panels'][number]['plotSlots'][number]['bindings'],
           ...(plot.line ? { lineStyle: plot.line } : {}),
@@ -288,7 +189,7 @@ export function mapOriginSnapshot(
             visible: plot.legendText.length > 0,
             text: plot.legendText,
           },
-          ...(plotExtensions ? { extensions: plotExtensions } : {}),
+          ...(extensions ? { extensions } : {}),
         };
       }),
       ...(layerExtensions ? { extensions: layerExtensions } : {}),
@@ -335,7 +236,7 @@ export function mapOriginSnapshot(
     },
     ...(rootExtensions ? { extensions: rootExtensions } : {}),
   };
-  const mappedItems: CompatibilityItem[] = [
+  const items: CompatibilityItem[] = [
     {
       sourcePath: '/page',
       targetPath: '/page',
@@ -352,6 +253,6 @@ export function mapOriginSnapshot(
   return {
     value,
     diagnostics: [...preserved.diagnostics, ...validateSlotRequirements(input)],
-    items: [...mappedItems, ...preserved.items],
+    items: [...items, ...preserved.items],
   };
 }

@@ -514,4 +514,5 @@ Fixture 至少覆盖单 Panel Scatter、Line、Line + Marker、误差棒、多 P
 - Public TypeScript exports: `DataBinding`, `DataSourceDescriptor`, `FigureDocument`, `FigureTemplate`, `ValidationIssue`, `ValidationResult`
 - Verification: `pnpm format:check && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm schema:check`, plus post-build package-entry smoke and `pnpm --filter @plot-fig/figure-schema pack --dry-run`
 - `@plot-fig/figure-migrations`: implemented and verified; stable runtime export is `loadFigurePayload`, public TypeScript exports are `LoadResult` and `MigrationDiagnostic`, and a clean checkout on 2026-09-02 passed `pnpm install --frozen-lockfile && pnpm typecheck` without any prebuilt `packages/*/dist`
-- `@plot-fig/origin-compat`: planned only; not yet implemented in this workspace
+- `@plot-fig/origin-compat`: Snapshot V1 contract, security scrubber, mapper and compatibility report implemented and verified
+- Native OTP/OTPU reader and live Origin Bridge remain outside milestone 1
