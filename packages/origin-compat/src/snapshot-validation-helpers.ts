@@ -50,7 +50,7 @@ export function appendPath(path: string, segment: string): string {
 }
 
 export function parseSemVer(value: string): SemVer | undefined {
-  const match = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.exec(value);
+  const match = value.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
   if (!match) {
     return undefined;
   }
