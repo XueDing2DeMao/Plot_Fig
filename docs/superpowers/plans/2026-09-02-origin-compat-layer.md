@@ -523,6 +523,7 @@ git commit -m "feat(origin): 归一化单位与图层坐标"
 - Pack gate: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0`.
 - Review RED on 2026-09-03: direct `normalizeOriginSnapshot` of a cyclic `unknownProperties.self` leaked `RangeError: Maximum call stack size exceeded`, and `validateOriginSnapshot` had the same recursion failure before the active-ancestor guard.
 - Review GREEN after the guard: `pnpm vitest run packages/origin-compat/src/normalize.test.ts packages/origin-compat/src/snapshot-schema/safety.test.ts` exited `0` with `2` files and `17` tests; cyclic inputs now produce the stable normalization `TypeError` or structured `ORIGIN_SNAPSHOT_INVALID` diagnostic, while non-cyclic shared references still clone independently.
+- Final review-fix commit: `65706a7` added the active-ancestor cycle guard and extracted `snapshot-safe-clone.ts`; fresh `pnpm test` now reports `29` files and `235` tests passed, with `pnpm test:coverage`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`, `pnpm schema:check`, and `pnpm --filter @plot-fig/origin-compat pack --dry-run` all exiting `0`.
 - Final recursive line-count snapshot after formatting: `normalize.ts = 106`, `normalize.test.ts = 269`, `snapshot-contract.ts = 284`, `snapshot-safe-clone.ts = 232`, `snapshot-validation-helpers.ts = 78`, `snapshot-schema.ts = 173`, `snapshot-schema/safety.test.ts = 139`, and no `packages/origin-compat/src/**/*.ts` file exceeded `300` lines.
 
 ### Task 5: Map Snapshot semantics and compatibility items
