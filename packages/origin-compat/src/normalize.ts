@@ -1,5 +1,5 @@
 import type { OriginTemplateSnapshotV1 } from './snapshot-schema.js';
-import { cloneForValidation } from './snapshot-validation-helpers.js';
+import { cloneForValidation } from './snapshot-safe-clone.js';
 
 export const NORMALIZE_TYPE_ERROR_MESSAGE =
   'Origin Snapshot normalization requires JSON-safe own data properties';

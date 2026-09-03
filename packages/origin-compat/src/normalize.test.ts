@@ -225,4 +225,45 @@ describe('normalizeOriginSnapshot', () => {
     expect((error as Error).message).toBe(NORMALIZE_TYPE_ERROR_MESSAGE);
     expect(touched).toBe(false);
   });
+
+  it('throws the stable TypeError for cyclic unknownProperties without leaking RangeError details', () => {
+    const input = createOriginSnapshot();
+    const cycle: Record<string, unknown> = {};
+    cycle.self = cycle;
+    input.unknownProperties = cycle;
+
+    let error: unknown;
+    try {
+      normalizeOriginSnapshot(input);
+    } catch (caught) {
+      error = caught;
+    }
+
+    expect(error).toBeInstanceOf(TypeError);
+    expect(error).not.toBeInstanceOf(RangeError);
+    expect((error as Error).message).toBe(NORMALIZE_TYPE_ERROR_MESSAGE);
+    expect((error as Error).message).not.toContain('Maximum call stack');
+  });
+
+  it('allows non-cyclic shared references and copies them with JSON semantics', () => {
+    const input = createOriginSnapshot();
+    const shared = { label: 'shared', values: [1, 2, 3] };
+    input.unknownProperties = {
+      left: shared,
+      right: shared,
+    };
+
+    const output = normalizeOriginSnapshot(input);
+
+    expect(output.unknownProperties).toEqual({
+      left: { label: 'shared', values: [1, 2, 3] },
+      right: { label: 'shared', values: [1, 2, 3] },
+    });
+    expect(output.unknownProperties).not.toBe(input.unknownProperties);
+    expect(output.unknownProperties?.left).not.toBe(shared);
+    expect(output.unknownProperties?.right).not.toBe(shared);
+    expect(output.unknownProperties?.left).not.toBe(
+      output.unknownProperties?.right,
+    );
+  });
 });

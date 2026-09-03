@@ -113,4 +113,27 @@ describe('validateOriginSnapshot safety boundaries', () => {
       ]),
     );
   });
+
+  it('returns a stable cycle failure instead of leaking a recursion error', () => {
+    const input = createValidSnapshot() as Record<string, unknown>;
+    const cycle: Record<string, unknown> = {};
+    cycle.self = cycle;
+    input.unknownProperties = cycle;
+
+    expect(() => validateOriginSnapshot(input)).not.toThrow();
+
+    const result = validateOriginSnapshot(input);
+
+    expectInvalid(result, 'ORIGIN_SNAPSHOT_INVALID', '/unknownProperties/self');
+    if (result.ok) {
+      throw new Error('expected cycle validation to fail');
+    }
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        code: 'ORIGIN_SNAPSHOT_INVALID',
+        sourcePath: '/unknownProperties/self',
+        message: 'Snapshot values must not contain cycles',
+      }),
+    ]);
+  });
 });

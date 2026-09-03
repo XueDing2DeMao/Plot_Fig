@@ -5,13 +5,13 @@ import {
 } from './snapshot-contract.js';
 import {
   appendPath,
-  cloneForValidation,
   compareSemVer,
   isPlainRecord,
   parseSemVer,
   readIsArray,
   readOwnDataProperty,
 } from './snapshot-validation-helpers.js';
+import { cloneForValidation } from './snapshot-safe-clone.js';
 import type { ImportDiagnostic } from './types.js';
 
 type Ajv2020Constructor = typeof import('ajv/dist/2020.js').Ajv2020;

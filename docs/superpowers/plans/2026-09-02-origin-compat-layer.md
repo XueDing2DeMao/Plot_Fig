@@ -452,6 +452,10 @@ Observed:
 
 - Create: `packages/origin-compat/src/normalize.ts`
 - Test: `packages/origin-compat/src/normalize.test.ts`
+- Create: `packages/origin-compat/src/snapshot-safe-clone.ts`
+- Modify: `packages/origin-compat/src/snapshot-validation-helpers.ts`
+- Modify: `packages/origin-compat/src/snapshot-schema.ts`
+- Modify: `packages/origin-compat/src/snapshot-schema/safety.test.ts`
 
 - [x] **Step 1: Write the failing normalization test**
 
@@ -477,7 +481,7 @@ Observed on 2026-09-02: exited `1` with `Cannot find module './normalize.js'`, p
 - exports a complete normalized type family: `NormalizedOriginLengthUnit`, `NormalizedOriginLength`, `NormalizedOriginFrame`, `NormalizedOriginPage`, `NormalizedOriginLayer`, and `NormalizedOriginSnapshot`
 - keeps `mm` / `cm` untouched, rewrites only `inch` to `in`, and does not convert the numeric page dimensions
 - maps `leftPct`, `widthPct`, and `heightPct` by dividing by `100`
-- computes top-origin `y` with the equivalent formula `(100 - bottomPct - heightPct) / 100`, preserving out-of-range values for later Figure domain diagnostics while avoiding `1 - 1.05` floating-tail noise
+- computes top-origin `y` with the equivalent formula `(100 - bottomPct - heightPct) / 100`, preserving out-of-range values for later Figure structural/domain validation while avoiding `1 - 1.05` floating-tail noise
 - canonicalizes computed negative zero values back to plain `0`
 - throws a stable `TypeError` with message `Origin Snapshot normalization requires JSON-safe own data properties` when safe cloning fails
 
@@ -517,7 +521,9 @@ git commit -m "feat(origin): 归一化单位与图层坐标"
 - Package and workspace type gates: `pnpm --filter @plot-fig/origin-compat typecheck` and `pnpm typecheck` both exited `0`.
 - Formatting and build gates: `pnpm format`, `pnpm format:check`, and `pnpm build` all exited `0`.
 - Pack gate: `pnpm --filter @plot-fig/origin-compat pack --dry-run` exited `0`.
-- Final recursive line-count snapshot after formatting: `normalize.ts = 106`, `normalize.test.ts = 228`, `snapshot-contract.ts = 284`, `snapshot-validation-helpers.ts = 279`, and no `packages/origin-compat/src/**/*.ts` file exceeded `300` lines.
+- Review RED on 2026-09-03: direct `normalizeOriginSnapshot` of a cyclic `unknownProperties.self` leaked `RangeError: Maximum call stack size exceeded`, and `validateOriginSnapshot` had the same recursion failure before the active-ancestor guard.
+- Review GREEN after the guard: `pnpm vitest run packages/origin-compat/src/normalize.test.ts packages/origin-compat/src/snapshot-schema/safety.test.ts` exited `0` with `2` files and `17` tests; cyclic inputs now produce the stable normalization `TypeError` or structured `ORIGIN_SNAPSHOT_INVALID` diagnostic, while non-cyclic shared references still clone independently.
+- Final recursive line-count snapshot after formatting: `normalize.ts = 106`, `normalize.test.ts = 269`, `snapshot-contract.ts = 284`, `snapshot-safe-clone.ts = 232`, `snapshot-validation-helpers.ts = 78`, `snapshot-schema.ts = 173`, `snapshot-schema/safety.test.ts = 139`, and no `packages/origin-compat/src/**/*.ts` file exceeded `300` lines.
 
 ### Task 5: Map Snapshot semantics and compatibility items
 
