@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./snapshot-v1": {
+      "types": "./dist/snapshot-v1.d.ts",
+      "import": "./dist/snapshot-v1.js"
     }
   },
   "files": [
