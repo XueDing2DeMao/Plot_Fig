@@ -44,9 +44,7 @@ describe('web editor data pipeline', () => {
 
   it('rebinds slots and refreshes or clears the preview', async () => {
     render(<App />);
-    await uploadCsv(
-      'X,Y,Time,Signal,Group\n0,1,10,7,A\n1,2,20,5,B',
-    );
+    await uploadCsv('X,Y,Time,Signal,Group\n0,1,10,7,A\n1,2,20,5,B');
 
     const preview = screen.getByTestId('svg-preview');
     const initialSvg = preview.querySelector('svg')?.outerHTML;

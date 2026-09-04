@@ -26,8 +26,7 @@ function slotError(
     const column = data.columns.find((item) => item.columnId === columnId);
     return `${slot.name} 需要 number 类型的列，当前为 ${column?.valueType ?? '未知'}。`;
   }
-  if (!binding)
-    return `${slot.name} 没有自动匹配的列，请选择一个可用列。`;
+  if (!binding) return `${slot.name} 没有自动匹配的列，请选择一个可用列。`;
   return undefined;
 }
 

@@ -27,11 +27,15 @@
 .slot-meta {
   display: block;
   color: #4d7c5c;
-  font: 500 11px 'Fira Code', monospace;
+  font:
+    500 11px 'Fira Code',
+    monospace;
 }
 .slot-status {
   color: #15803d;
-  font: 600 10px 'Fira Code', monospace;
+  font:
+    600 10px 'Fira Code',
+    monospace;
   white-space: nowrap;
 }
 .slot-status.invalid,

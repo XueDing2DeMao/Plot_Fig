@@ -2,7 +2,8 @@ import type { DataBindingSet } from '@plot-fig/data-binding';
 
 export function ColumnSummary({ data }: { data: DataBindingSet | undefined }) {
   const roles = new Map(
-    data?.bindings.map((binding) => [binding.columnId, binding.dataSlotId]) ?? [],
+    data?.bindings.map((binding) => [binding.columnId, binding.dataSlotId]) ??
+      [],
   );
   return (
     <section className="card column-summary" aria-label="可用数据列">

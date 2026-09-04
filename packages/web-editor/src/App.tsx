@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import {
-  BindingPanel,
-  type BindingChange,
-} from './components/BindingPanel.js';
+import { BindingPanel, type BindingChange } from './components/BindingPanel.js';
 import { ColumnSummary } from './components/ColumnSummary.js';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel.js';
 import { FigurePreview } from './components/FigurePreview.js';
