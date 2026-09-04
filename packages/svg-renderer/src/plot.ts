@@ -53,7 +53,7 @@ export function renderPlot(
     svg += `<path d="${path}" fill="none" stroke="${escapeXml(plot.lineStyle.color)}" stroke-width="${formatNumber(plot.lineStyle.widthPt)}" />`;
   if (plot.mode !== 'line' && plot.markerStyle?.visible)
     for (const point of points)
-      svg += `<circle cx="${formatNumber(point.x)}" cy="${formatNumber(point.y)}" r="${formatNumber(plot.markerStyle.sizePt / 2)}" fill="${escapeXml(plot.markerStyle.fill)}" stroke="${escapeXml(plot.markerStyle.stroke)}" stroke-width="${formatNumber(plot.markerStyle.strokeWidthPt)}" />`;
+      svg += `<circle data-role="marker" cx="${formatNumber(point.x)}" cy="${formatNumber(point.y)}" r="${formatNumber(plot.markerStyle.sizePt / 2)}" fill="${escapeXml(plot.markerStyle.fill)}" stroke="${escapeXml(plot.markerStyle.stroke)}" stroke-width="${formatNumber(plot.markerStyle.strokeWidthPt)}" />`;
   if (plot.legendEntry.visible)
     svg += `<text data-role="legend" x="${formatNumber(rect.x + rect.width)}" y="${formatNumber(rect.y - 8)}">${escapeXml(plot.legendEntry.text)}</text>`;
   return { svg, skipped };

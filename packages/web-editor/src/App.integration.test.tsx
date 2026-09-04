@@ -23,5 +23,10 @@ describe('web editor data pipeline', () => {
         screen.getByRole('img', { name: 'XY 图形预览' }),
       ),
     );
+    expect(
+      screen
+        .getByTestId('svg-preview')
+        .querySelectorAll('[data-role="marker"]'),
+    ).toHaveLength(2);
   });
 });
