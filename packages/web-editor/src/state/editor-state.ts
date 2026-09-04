@@ -12,6 +12,7 @@ export type EditorState = {
   fileName?: string;
   data?: DataBindingSet;
   svg?: string;
+  overrides: Record<string, string>;
   diagnostics: Array<DataDiagnostic | RenderDiagnostic>;
   status: 'empty' | 'parsing' | 'ready' | 'error';
 };
@@ -146,31 +147,60 @@ async function readFileText(file: File): Promise<string> {
   });
 }
 
+const bindingDiagnosticCodes = new Set<DataDiagnostic['code']>([
+  'COLUMN_TYPE_CONFLICT',
+  'SLOT_COLUMN_MISSING',
+  'SLOT_VALUE_INVALID',
+]);
+
+function cleanSourceData(data: DataBindingSet): DataBindingSet {
+  return {
+    ...structuredClone(data),
+    bindings: [],
+    diagnostics: data.diagnostics.filter(
+      (diagnostic) => !bindingDiagnosticCodes.has(diagnostic.code),
+    ),
+  };
+}
+
+export function rebindEditorData(
+  template: FigureTemplate,
+  source: DataBindingSet,
+  overrides: Record<string, string>,
+): EditorState {
+  const data = bindDataSlots(template, cleanSourceData(source), overrides);
+  const rendered = renderFigureSvg(template, data);
+  const diagnostics = [...data.diagnostics, ...rendered.diagnostics];
+  if (!rendered.ok)
+    return {
+      fileName: data.source.name,
+      data,
+      overrides: { ...overrides },
+      diagnostics,
+      status: 'error',
+    };
+  return {
+    fileName: data.source.name,
+    data,
+    svg: rendered.svg,
+    overrides: { ...overrides },
+    diagnostics,
+    status: 'ready',
+  };
+}
+
 export async function loadCsvFile(file: File): Promise<EditorState> {
   const parsed = parseCsvText(await readFileText(file), file.name);
   if (!parsed.ok)
     return {
       fileName: file.name,
+      overrides: {},
       diagnostics: parsed.diagnostics,
       status: 'error',
     };
-  const data = bindDataSlots(
+  return rebindEditorData(
     defaultTemplate(),
     inferDataBindingSet(parsed.rows, file.name),
+    {},
   );
-  const rendered = renderFigureSvg(defaultTemplate(), data);
-  if (!rendered.ok)
-    return {
-      fileName: file.name,
-      data,
-      diagnostics: [...data.diagnostics, ...rendered.diagnostics],
-      status: 'error',
-    };
-  return {
-    fileName: file.name,
-    data,
-    svg: rendered.svg,
-    diagnostics: [...data.diagnostics, ...rendered.diagnostics],
-    status: 'ready',
-  };
 }

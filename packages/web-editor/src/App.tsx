@@ -5,12 +5,21 @@ import { FigurePreview } from './components/FigurePreview.js';
 import { FilePicker } from './components/FilePicker.js';
 import { loadCsvFile, type EditorState } from './state/editor-state.js';
 
-const initialState: EditorState = { diagnostics: [], status: 'empty' };
+const initialState: EditorState = {
+  diagnostics: [],
+  overrides: {},
+  status: 'empty',
+};
 
 export default function App() {
   const [state, setState] = useState(initialState);
   const onFile = async (file: File) => {
-    setState({ fileName: file.name, diagnostics: [], status: 'parsing' });
+    setState({
+      fileName: file.name,
+      diagnostics: [],
+      overrides: {},
+      status: 'parsing',
+    });
     setState(await loadCsvFile(file));
   };
   return (
