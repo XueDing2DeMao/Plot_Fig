@@ -1,5 +1,8 @@
 import type { DataBindingSet } from './types.js';
 
+export { parseCsvText } from './csv/parse.js';
+export type { CsvParseResult } from './csv/parse.js';
+
 export type {
   DataBindingSet,
   DataColumn,
