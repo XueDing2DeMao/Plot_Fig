@@ -9,7 +9,7 @@
 - 本地 UTF-8 CSV，逗号分隔；支持 LF/CRLF、引号字段、逗号转义和空单元格。
 - 数值列自动推断为 `number`，其余列保留为 `category`/`string`；`X`、`Y` 列按模板名称自动绑定。
 - 以 `DataSlot` 为中心提供 X/Y 列的交互式 override；选择“自动匹配”可恢复模板列名匹配。
-- XY 三种 plot mode：`scatter`、`line`、`line-markers`。
+- XY 三种 plot mode：`markers`、`line`、`line-markers`，界面标签分别为“散点”“折线”“折线 + 标记”。
 - 线、点、图例、坐标轴、文本与 reference-line annotation 的确定性 SVG 输出。
 - 数据只在浏览器内存中处理；没有上传接口、持久化或执行表达式。
 
@@ -44,6 +44,8 @@ pnpm build
 4. 将 Y 选择为不兼容的分类列：槽位显示类型冲突，诊断区域显示 `COLUMN_TYPE_CONFLICT`，预览不显示过期 SVG。
 5. 选择 `tests/fixtures/web/malformed.csv`：诊断区域显示 `CSV_PARSE_ERROR`，主界面和预览区域仍保持可用，页面不崩溃。
 6. 在 760px 窄屏视口检查：页面无横向溢出，文件选择器和 DataSlot 选择器均可获得键盘焦点。
+7. 确认“绘制方式”默认为“折线 + 标记”；选择“散点”后 SVG 有 4 个 marker、没有 plot line path；选择“折线”后有 plot line path、没有 marker；恢复“折线 + 标记”后两者同时存在。
+8. 切换 plot mode 前后确认 X/Y 选择器值不变；未上传 CSV 时切换 plot mode 不崩溃且不生成 SVG。
 
 上述交互步骤已在本机 In-App Browser 的 Vite 开发服务器上完成验证。
 
