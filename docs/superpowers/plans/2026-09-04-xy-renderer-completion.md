@@ -8,6 +8,8 @@
 
 **Tech Stack:** TypeScript 7、Vitest 4、TypeBox FigureTemplate、纯 SVG 字符串生成。
 
+**Execution status (2026-09-04):** Tasks 1–5 completed. Fresh workspace verification passed: format check, typecheck, 44 test files/283 tests, workspace build, schema check, and runtime safety scan.
+
 ---
 
 ## 范围与约束
