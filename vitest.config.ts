@@ -13,6 +13,9 @@ export default defineConfig({
       '@plot-fig/origin-compat': fileURLToPath(
         new URL('./packages/origin-compat/src/index.ts', import.meta.url),
       ),
+      '@plot-fig/data-binding': fileURLToPath(
+        new URL('./packages/data-binding/src/index.ts', import.meta.url),
+      ),
     },
   },
   test: {

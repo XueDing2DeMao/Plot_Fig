@@ -27,6 +27,8 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(@vitest/coverage-v8@4.1.11)(vite@8.2.2(esbuild@0.28.2)(tsx@4.23.13))
 
+  packages/data-binding: {}
+
   packages/figure-migrations:
     dependencies:
       '@plot-fig/figure-schema':
