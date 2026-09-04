@@ -1,6 +1,7 @@
 import type { DataBindingSet } from '@plot-fig/data-binding';
 import type { FigureTemplate } from '@plot-fig/figure-schema';
 import { escapeXml, formatNumber, panelRect, type Rect } from './geometry.js';
+import { renderPanelAnnotations } from './annotations.js';
 import { renderAxis } from './axis.js';
 import { renderPlot } from './plot.js';
 import { createScaleFromValues } from './scales.js';
@@ -19,18 +20,6 @@ function numericValues(data: DataBindingSet, slotId: string): number[] {
       (value): value is number => typeof value === 'number',
     ) ?? []
   );
-}
-
-function annotationSvg(
-  annotation: FigureTemplate['annotations'][number],
-  rect: Rect,
-): string {
-  if (annotation.kind === 'text')
-    return `<text data-role="annotation-text" x="${formatNumber(rect.x + annotation.position.x * rect.width)}" y="${formatNumber(rect.y + (1 - annotation.position.y) * rect.height)}">${escapeXml(annotation.text)}</text>`;
-  if (annotation.kind !== 'reference-line') return '';
-  if (annotation.orientation === 'x')
-    return `<line data-role="annotation-reference-line" x1="${formatNumber(rect.x)}" x2="${formatNumber(rect.x + rect.width)}" y1="${formatNumber(rect.y + rect.height / 2)}" y2="${formatNumber(rect.y + rect.height / 2)}" />`;
-  return `<line data-role="annotation-reference-line" x1="${formatNumber(rect.x + rect.width / 2)}" x2="${formatNumber(rect.x + rect.width / 2)}" y1="${formatNumber(rect.y)}" y2="${formatNumber(rect.y + rect.height)}" />`;
 }
 
 function renderPlots(
@@ -110,14 +99,13 @@ export function renderPanel(
   const axes = panel.axes
     .map((axis) => renderAxis(axis, rect, axis.dimension === 'x' ? xScale : yScale))
     .join('');
-  const annotations = template.annotations
-    .filter(
-      (annotation) =>
-        annotation.coordinateSpace !== 'page' &&
-        annotation.panelId === panel.panelId,
-    )
-    .map((annotation) => annotationSvg(annotation, rect))
-    .join('');
+  const annotations = renderPanelAnnotations(
+    template.annotations,
+    panel,
+    rect,
+    xScale,
+    yScale,
+  );
   const svg = `<g data-role="panel" data-panel-id="${escapeXml(panel.panelId)}"><rect data-role="panel-clip" x="${formatNumber(rect.x)}" y="${formatNumber(rect.y)}" width="${formatNumber(rect.width)}" height="${formatNumber(rect.height)}" fill="none" /><g data-role="axes">${axes}</g><g data-role="plot-slot">${plots.svg}</g><g data-role="annotations">${annotations}</g></g>`;
   return { svg, diagnostics: plots.diagnostics };
 }

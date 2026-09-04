@@ -57,6 +57,78 @@ describe('XY SVG rendering', () => {
     expect(svg).toContain('X axis');
   });
 
+  it('renders panel annotations and maps data reference lines by value', () => {
+    const template = createCurrentTemplate();
+    template.annotations = [
+      {
+        annotationId: 'text-1',
+        coordinateSpace: 'panel',
+        panelId: 'panel-main',
+        kind: 'text',
+        position: { x: 0.2, y: 0.8 },
+        text: 'Note',
+        format: 'plain',
+      },
+      {
+        annotationId: 'arrow-1',
+        coordinateSpace: 'panel',
+        panelId: 'panel-main',
+        kind: 'arrow',
+        start: { x: 0.1, y: 0.1 },
+        end: { x: 0.3, y: 0.3 },
+      },
+      {
+        annotationId: 'rect-1',
+        coordinateSpace: 'panel',
+        panelId: 'panel-main',
+        kind: 'rectangle',
+        start: { x: 0.1, y: 0.1 },
+        end: { x: 0.3, y: 0.3 },
+      },
+      {
+        annotationId: 'legend-1',
+        coordinateSpace: 'panel',
+        panelId: 'panel-main',
+        kind: 'legend',
+        position: { x: 0.8, y: 0.8 },
+        visible: true,
+      },
+      {
+        annotationId: 'ref-1',
+        coordinateSpace: 'data',
+        panelId: 'panel-main',
+        xAxisId: 'axis-x',
+        yAxisId: 'axis-y',
+        kind: 'reference-line',
+        orientation: 'y',
+        value: 1,
+      },
+    ];
+    const svg = renderFixture(template);
+    expect(svg).toContain('data-role="annotation-text"');
+    expect(svg).toContain('data-role="annotation-arrow"');
+    expect(svg).toContain('data-role="annotation-rectangle"');
+    expect(svg).toContain('data-role="annotation-legend"');
+    expect(svg).toContain('y1="720" y2="720"');
+  });
+
+  it('renders page annotations with escaped text', () => {
+    const template = createCurrentTemplate();
+    template.annotations = [
+      {
+        annotationId: 'page-note',
+        coordinateSpace: 'page',
+        kind: 'text',
+        position: { x: 0.1, y: 0.9 },
+        text: 'A & B',
+        format: 'plain',
+      },
+    ];
+    const svg = renderFixture(template);
+    expect(svg).toContain('data-role="annotation-text"');
+    expect(svg).toContain('A &amp; B');
+  });
+
   it('is deterministic and rejects invalid templates without throwing', () => {
     const template = createCurrentTemplate();
     expect(renderFixture(template)).toBe(renderFixture(template));

@@ -4,6 +4,7 @@ import {
   type FigureTemplate,
 } from '@plot-fig/figure-schema';
 import { escapeXml, formatNumber } from './geometry.js';
+import { renderPageAnnotations } from './annotations.js';
 import { renderPanel } from './panel.js';
 import type { RenderDiagnostic, RenderResult } from './types.js';
 
@@ -18,7 +19,8 @@ function failure(
 }
 
 function openSvg(template: FigureTemplate): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${formatNumber(template.page.size.width.value)}${template.page.size.width.unit}" height="${formatNumber(template.page.size.height.value)}${template.page.size.height.unit}" viewBox="0 0 1000 800" role="img" aria-label="XY 图形预览" data-role="figure"><rect data-role="page-background" width="1000" height="800" fill="${escapeXml(template.page.background)}" />`;
+  const viewport = { x: 0, y: 0, width: 1000, height: 800 };
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${formatNumber(template.page.size.width.value)}${template.page.size.width.unit}" height="${formatNumber(template.page.size.height.value)}${template.page.size.height.unit}" viewBox="0 0 1000 800" role="img" aria-label="XY 图形预览" data-role="figure"><rect data-role="page-background" width="1000" height="800" fill="${escapeXml(template.page.background)}" />${renderPageAnnotations(template.annotations, viewport)}`;
 }
 
 export function renderTemplateSvg(
