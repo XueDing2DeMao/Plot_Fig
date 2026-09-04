@@ -23,7 +23,7 @@ Select local CSV
   → show updated preview or an actionable diagnostic
 ```
 
-Each slot row displays its human-readable name, role, required value type, current column, inferred type, and row count. The first selector option is `自动匹配`. Compatible columns can be selected; incompatible columns remain visible but disabled with an explanation.
+Each slot row displays its human-readable name, role, required value type, current column, inferred type, and row count. The first selector option is `自动匹配`. All columns remain visible and selectable with their inferred types; selecting an incompatible column preserves the choice and shows an actionable type-conflict diagnostic.
 
 ## State and data flow
 
