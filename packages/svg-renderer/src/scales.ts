@@ -49,6 +49,20 @@ export function createScale(
   };
 }
 
+export function createScaleFromValues(
+  axis: Axis,
+  values: number[],
+): PlotScale | undefined {
+  const finite = values.filter((value) => Number.isFinite(value));
+  const usable =
+    axis.scale === 'linear' ? finite : finite.filter((value) => value > 0);
+  const range =
+    axis.range.mode === 'fixed'
+      ? { min: axis.range.min, max: axis.range.max }
+      : { min: Math.min(...usable), max: Math.max(...usable) };
+  return createScale(axis, range.min, range.max);
+}
+
 function niceStep(rawStep: number): number {
   if (!Number.isFinite(rawStep) || rawStep <= 0) return 1;
   const exponent = Math.floor(Math.log10(rawStep));
@@ -80,14 +94,8 @@ export function createLinearScale(
   axis: Axis,
   values: number[],
 ): LinearScale | undefined {
-  const finite = values.filter(Number.isFinite);
-  const range =
-    axis.range.mode === 'fixed'
-      ? { min: axis.range.min, max: axis.range.max }
-      : { min: Math.min(...finite), max: Math.max(...finite) };
-  return createScale(
-    { scale: 'linear', reverse: axis.reverse },
-    range.min,
-    range.max,
+  return createScaleFromValues(
+    { ...axis, scale: 'linear' },
+    values,
   );
 }

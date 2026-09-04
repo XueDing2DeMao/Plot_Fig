@@ -37,6 +37,26 @@ describe('XY SVG rendering', () => {
     expect(svg).toContain('<path');
   });
 
+  it('renders axis ticks, labels and optional titles', () => {
+    const template = createCurrentTemplate();
+    const xAxis = template.panels[0]!.axes.find(
+      (axis) => axis.dimension === 'x',
+    )!;
+    xAxis.title = {
+      format: 'plain',
+      text: 'X axis',
+      fontFamily: 'Arial',
+      fontSizePt: 8,
+      color: '#111111',
+    };
+    const svg = renderFixture(template);
+    expect(svg).toContain('data-role="axis-x"');
+    expect(svg).toContain('data-role="major-tick"');
+    expect(svg).toContain('data-role="tick-label"');
+    expect(svg).toContain('data-role="axis-title"');
+    expect(svg).toContain('X axis');
+  });
+
   it('is deterministic and rejects invalid templates without throwing', () => {
     const template = createCurrentTemplate();
     expect(renderFixture(template)).toBe(renderFixture(template));
