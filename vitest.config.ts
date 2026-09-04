@@ -16,6 +16,9 @@ export default defineConfig({
       '@plot-fig/data-binding': fileURLToPath(
         new URL('./packages/data-binding/src/index.ts', import.meta.url),
       ),
+      '@plot-fig/svg-renderer': fileURLToPath(
+        new URL('./packages/svg-renderer/src/index.ts', import.meta.url),
+      ),
     },
   },
   test: {
