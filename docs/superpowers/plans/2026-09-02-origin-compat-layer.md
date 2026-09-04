@@ -26,6 +26,7 @@ packages/origin-compat/
     ├── snapshot-contract.ts
     ├── snapshot-schema.ts
     ├── snapshot-validation-helpers.ts
+    ├── snapshot-safe-clone.ts
     ├── security-config.ts
     ├── security-order.ts
     ├── security-runtime.ts
@@ -38,11 +39,13 @@ packages/origin-compat/
     ├── normalize.ts
     ├── report.ts
     ├── map.ts
+    ├── map-diagnostics.ts
     ├── import.ts
     ├── snapshot-v1.ts
     └── index.ts
 tests/origin/
 ├── fixture-factory.ts
+├── map.test.ts
 ├── golden.test.ts
 ├── security.test.ts
 └── fuzz.test.ts
@@ -50,6 +53,14 @@ tests/helpers/
 └── origin-snapshot.ts
 docs/origin-compatibility-matrix.md
 ```
+
+## Implementation evidence
+
+- Tasks 1–4 were implemented in commits `bc94ba9` through `309cf1a`; the cycle-safe clone fix is `65706a7`.
+- Task 5 mapping/report implementation is `3f0f4e7`; Task 6 import pipeline is `3e89d8c`.
+- Task 7 fuzz, matrix and completion gates are `68b8222`; the forbidden-runtime scan remediation is `d1948b8`.
+- Fresh verification on 2026-09-03: 32 Vitest files / 243 tests passed; `pnpm format:check`, `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm schema:check`, Origin package self-import and pack dry-run passed.
+- Independent subagent review for Tasks 4–5 was attempted but unavailable because the selected model repeatedly reported capacity exhaustion; local tests, typecheck, coverage and black-box security checks were run instead.
 
 ### Task 1: Scaffold the origin-compat package
 
@@ -535,7 +546,7 @@ git commit -m "feat(origin): 归一化单位与图层坐标"
 - Modify: `tests/origin/fixture-factory.ts`
 - Test: `tests/origin/golden.test.ts`
 
-- [ ] **Step 1: Add the complete expected FigureTemplate factory**
+- [x] **Step 1: Add the complete expected FigureTemplate factory**
 
 Append to `tests/origin/fixture-factory.ts`:
 
@@ -649,7 +660,7 @@ export function createExpectedTemplate(
 }
 ```
 
-- [ ] **Step 2: Write the failing Golden and invalid-reference tests**
+- [x] **Step 2: Write the failing Golden and invalid-reference tests**
 
 `tests/origin/golden.test.ts`:
 
@@ -963,13 +974,13 @@ describe('Origin Golden imports', () => {
 });
 ```
 
-- [ ] **Step 3: Run and verify failure**
+- [x] **Step 3: Run and verify failure**
 
 Run: `pnpm vitest run tests/origin/golden.test.ts`
 
 Expected: FAIL because `import.js` does not exist.
 
-- [ ] **Step 4: Implement report aggregation**
+- [x] **Step 4: Implement report aggregation**
 
 `packages/origin-compat/src/report.ts`:
 
@@ -1000,7 +1011,7 @@ export function buildCompatibilityReport(
 }
 ```
 
-- [ ] **Step 5: Implement axis, slot and annotation mapping helpers**
+- [x] **Step 5: Implement axis, slot and annotation mapping helpers**
 
 Create `packages/origin-compat/src/map.ts`:
 
@@ -1147,7 +1158,7 @@ function mapAnnotation(
 }
 ```
 
-- [ ] **Step 6: Complete unknown-property tracing and root mapping**
+- [x] **Step 6: Complete unknown-property tracing and root mapping**
 
 Append to `packages/origin-compat/src/map.ts`:
 
@@ -1363,7 +1374,7 @@ export function mapOriginSnapshot(
 }
 ```
 
-- [ ] **Step 7: Typecheck the mapper**
+- [x] **Step 7: Typecheck the mapper**
 
 Run: `pnpm --filter @plot-fig/origin-compat typecheck`
 
@@ -1378,7 +1389,7 @@ Expected: exit 0; mapper has no filesystem, process, browser or Origin runtime i
 - Modify: `packages/origin-compat/src/index.ts`
 - Modify: `packages/origin-compat/package.json`
 
-- [ ] **Step 1: Implement the orchestration entry point**
+- [x] **Step 1: Implement the orchestration entry point**
 
 `packages/origin-compat/src/import.ts`:
 
@@ -1477,7 +1488,7 @@ export function importOriginSnapshot(
 }
 ```
 
-- [ ] **Step 2: Export only stable public symbols**
+- [x] **Step 2: Export only stable public symbols**
 
 `packages/origin-compat/src/index.ts`:
 
@@ -1493,7 +1504,7 @@ export type {
 } from './types.js';
 ```
 
-- [ ] **Step 3: Create the versioned Snapshot port and then publish the subpath export**
+- [x] **Step 3: Create the versioned Snapshot port and then publish the subpath export**
 
 `packages/origin-compat/src/snapshot-v1.ts`:
 
@@ -1521,7 +1532,7 @@ Then update `packages/origin-compat/package.json`:
 
 The root export remains limited to the importer and result contracts until this Task 6 step lands. Bridge/Reader implementations opt into `@plot-fig/origin-compat/snapshot-v1` only after the file and subpath export are introduced together.
 
-- [ ] **Step 4: Run Golden tests and commit**
+- [x] **Step 4: Run Golden tests and commit**
 
 Run: `pnpm vitest run tests/origin/golden.test.ts && pnpm --filter @plot-fig/origin-compat typecheck`
 
@@ -1540,7 +1551,7 @@ git commit -m "feat(origin): 映射 Snapshot 并输出兼容报告"
 - Create: `docs/origin-compatibility-matrix.md`
 - Modify: `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`
 
-- [ ] **Step 1: Write bounded fuzz tests**
+- [x] **Step 1: Write bounded fuzz tests**
 
 `tests/origin/fuzz.test.ts`:
 
@@ -1590,7 +1601,7 @@ describe('Origin importer fuzz properties', () => {
 });
 ```
 
-- [ ] **Step 2: Write the mapping matrix**
+- [x] **Step 2: Write the mapping matrix**
 
 `docs/origin-compatibility-matrix.md`:
 
@@ -1613,7 +1624,7 @@ describe('Origin importer fuzz properties', () => {
 V1 不读取 OTP/OTPU，不执行 LabTalk、Origin C、Python 或宏，不保存脚本文本。
 ```
 
-- [ ] **Step 3: Run the complete verification gate**
+- [x] **Step 3: Run the complete verification gate**
 
 Run:
 
@@ -1631,7 +1642,7 @@ if ($LASTEXITCODE -gt 1) { throw 'dependency scan failed' }
 
 Expected: all pnpm commands exit 0; fuzz tests run 700 total cases; the forbidden-runtime assertion does not throw.
 
-- [ ] **Step 4: Update implementation status in the approved spec**
+- [x] **Step 4: Update implementation status in the approved spec**
 
 In `docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md`, replace:
 
@@ -1646,7 +1657,7 @@ with:
 - Native OTP/OTPU reader and live Origin Bridge remain outside milestone 1
 ```
 
-- [ ] **Step 5: Commit the verified compatibility layer**
+- [x] **Step 5: Commit the verified compatibility layer**
 
 ```powershell
 git add packages/origin-compat tests/origin docs/origin-compatibility-matrix.md docs/superpowers/specs/2026-09-02-figure-template-origin-compat-design.md
