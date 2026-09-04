@@ -13,6 +13,13 @@ import App from './App.js';
 describe('web editor data pipeline', () => {
   afterEach(cleanup);
 
+  function renderedPlot(preview: HTMLElement) {
+    return {
+      paths: preview.querySelectorAll('svg path'),
+      markers: preview.querySelectorAll('[data-role="marker"]'),
+    };
+  }
+
   async function uploadCsv(csv: string) {
     const file = new File([csv], 'xy.csv', { type: 'text/csv' });
     Object.defineProperty(file, 'text', {
@@ -83,5 +90,54 @@ describe('web editor data pipeline', () => {
 
     expect(screen.getByLabelText('X 数据列')).toHaveValue('time');
     expect(screen.getByLabelText('Y 数据列')).toHaveValue('signal');
+  });
+
+  it('switches SVG output among markers, line, and line-markers', async () => {
+    render(<App />);
+    await uploadCsv('X,Y\n0,1\n1,2');
+    const preview = screen.getByTestId('svg-preview');
+    const mode = screen.getByLabelText('绘制方式');
+
+    await waitFor(() => expect(renderedPlot(preview).paths).toHaveLength(1));
+    expect(renderedPlot(preview).markers).toHaveLength(2);
+
+    fireEvent.change(mode, { target: { value: 'markers' } });
+    await waitFor(() => expect(renderedPlot(preview).paths).toHaveLength(0));
+    expect(renderedPlot(preview).markers).toHaveLength(2);
+
+    fireEvent.change(mode, { target: { value: 'line' } });
+    await waitFor(() => expect(renderedPlot(preview).paths).toHaveLength(1));
+    expect(renderedPlot(preview).markers).toHaveLength(0);
+
+    fireEvent.change(mode, { target: { value: 'line-markers' } });
+    await waitFor(() => expect(renderedPlot(preview).paths).toHaveLength(1));
+    expect(renderedPlot(preview).markers).toHaveLength(2);
+  });
+
+  it('preserves DataSlot overrides while changing plot mode', async () => {
+    render(<App />);
+    await uploadCsv('X,Y,Time,Signal\n0,1,10,7\n1,2,20,5');
+    fireEvent.change(screen.getByLabelText('X 数据列'), {
+      target: { value: 'time' },
+    });
+    fireEvent.change(screen.getByLabelText('绘制方式'), {
+      target: { value: 'line' },
+    });
+
+    expect(screen.getByLabelText('X 数据列')).toHaveValue('time');
+    expect(screen.getByLabelText('绘制方式')).toHaveValue('line');
+    expect(screen.getByTestId('svg-preview')).toContainElement(
+      screen.getByRole('img', { name: 'XY 图形预览' }),
+    );
+  });
+
+  it('allows selecting a mode before CSV load', () => {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('绘制方式'), {
+      target: { value: 'markers' },
+    });
+
+    expect(screen.getByLabelText('绘制方式')).toHaveValue('markers');
+    expect(screen.getByTestId('svg-preview').querySelector('svg')).toBeNull();
   });
 });

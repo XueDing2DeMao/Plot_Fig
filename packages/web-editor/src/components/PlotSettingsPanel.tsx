@@ -26,8 +26,8 @@ export function PlotSettingsPanel({
   onModeChange: (mode: PlotMode) => void;
 }) {
   const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextMode = isPlotMode(event.target.value);
-    if (nextMode) onModeChange(event.target.value);
+    const nextMode = event.target.value;
+    if (isPlotMode(nextMode)) onModeChange(nextMode);
   };
 
   return (

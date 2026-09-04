@@ -4,27 +4,32 @@ import { ColumnSummary } from './components/ColumnSummary.js';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel.js';
 import { FigurePreview } from './components/FigurePreview.js';
 import { FilePicker } from './components/FilePicker.js';
+import { PlotSettingsPanel } from './components/PlotSettingsPanel.js';
 import {
   defaultTemplate,
   loadCsvFile,
   rebindEditorData,
+  updatePlotMode,
   type EditorState,
+  type PlotMode,
 } from './state/editor-state.js';
 
 const initialState: EditorState = {
   diagnostics: [],
   overrides: {},
+  plotMode: 'line-markers',
   status: 'empty',
 };
 
 export default function App() {
-  const [template] = useState(defaultTemplate);
+  const [template, setTemplate] = useState(defaultTemplate);
   const [state, setState] = useState(initialState);
   const onFile = async (file: File) => {
     setState({
       fileName: file.name,
       diagnostics: [],
       overrides: {},
+      plotMode: state.plotMode,
       status: 'parsing',
     });
     setState(await loadCsvFile(file, template));
@@ -37,6 +42,15 @@ export default function App() {
       else delete overrides[dataSlotId];
       return rebindEditorData(template, current.data, overrides);
     });
+  };
+  const onPlotModeChange = (plotMode: PlotMode) => {
+    const nextTemplate = updatePlotMode(template, plotMode);
+    setTemplate(nextTemplate);
+    setState((current) =>
+      current.data
+        ? rebindEditorData(nextTemplate, current.data, current.overrides)
+        : { ...current, plotMode },
+    );
   };
   return (
     <main className="workspace">
@@ -59,6 +73,10 @@ export default function App() {
             data={state.data}
             overrides={state.overrides}
             onBindingChange={onBindingChange}
+          />
+          <PlotSettingsPanel
+            mode={state.plotMode}
+            onModeChange={onPlotModeChange}
           />
           <ColumnSummary data={state.data} />
           <DiagnosticsPanel diagnostics={state.diagnostics} />

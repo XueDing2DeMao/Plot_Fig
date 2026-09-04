@@ -12,6 +12,10 @@ describe('web editor shell', () => {
       screen.getByRole('region', { name: '数据绑定' }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('region', { name: '图形设置' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('绘制方式')).toHaveValue('line-markers');
+    expect(
       screen.getByRole('region', { name: '诊断信息' }),
     ).toBeInTheDocument();
     expect(
