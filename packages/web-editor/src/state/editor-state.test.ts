@@ -1,6 +1,11 @@
 import { inferDataBindingSet, parseCsvText } from '@plot-fig/data-binding';
 import { describe, expect, it } from 'vitest';
-import { defaultTemplate, rebindEditorData } from './editor-state.js';
+import {
+  defaultTemplate,
+  rebindEditorData,
+  updatePlotMode,
+} from './editor-state.js';
+import type { PlotMode } from './editor-state.js';
 
 function sourceData() {
   const parsed = parseCsvText(
@@ -12,6 +17,41 @@ function sourceData() {
 }
 
 describe('editor rebinding', () => {
+  it('updates only the first PlotSlot mode without mutating the template', () => {
+    const template = defaultTemplate();
+    const before = structuredClone(template);
+
+    const updated = updatePlotMode(template, 'markers');
+
+    expect(updated.panels[0]?.plotSlots[0]?.mode).toBe('markers');
+    expect(template).toEqual(before);
+    expect(template.panels[0]?.plotSlots[0]?.mode).toBe('line-markers');
+  });
+
+  it.each<PlotMode>(['markers', 'line', 'line-markers'])(
+    'includes %s in the derived editor state',
+    (plotMode) => {
+      const template = updatePlotMode(defaultTemplate(), plotMode);
+      const state = rebindEditorData(template, sourceData(), {});
+
+      expect(state.plotMode).toBe(plotMode);
+    },
+  );
+
+  it('keeps the selected mode and overrides together during rebinding', () => {
+    const template = updatePlotMode(defaultTemplate(), 'line');
+    const state = rebindEditorData(template, sourceData(), {
+      'slot-x': 'time',
+      'slot-y': 'signal',
+    });
+
+    expect(state.plotMode).toBe('line');
+    expect(state.overrides).toEqual({
+      'slot-x': 'time',
+      'slot-y': 'signal',
+    });
+  });
+
   it('applies the complete override map without mutating inputs', () => {
     const template = defaultTemplate();
     const data = sourceData();

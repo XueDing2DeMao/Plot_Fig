@@ -8,11 +8,15 @@ import {
 import type { FigureTemplate } from '@plot-fig/figure-schema';
 import { renderFigureSvg, type RenderDiagnostic } from '@plot-fig/svg-renderer';
 
+export type PlotMode =
+  FigureTemplate['panels'][number]['plotSlots'][number]['mode'];
+
 export type EditorState = {
   fileName?: string;
   data?: DataBindingSet;
   svg?: string;
   overrides: Record<string, string>;
+  plotMode: PlotMode;
   diagnostics: Array<DataDiagnostic | RenderDiagnostic>;
   status: 'empty' | 'parsing' | 'ready' | 'error';
 };
@@ -153,6 +157,23 @@ const bindingDiagnosticCodes = new Set<DataDiagnostic['code']>([
   'SLOT_VALUE_INVALID',
 ]);
 
+function templatePlotMode(template: FigureTemplate): PlotMode {
+  const plotMode = template.panels[0]?.plotSlots[0]?.mode;
+  if (!plotMode) throw new Error('Figure template must contain a PlotSlot');
+  return plotMode;
+}
+
+export function updatePlotMode(
+  template: FigureTemplate,
+  plotMode: PlotMode,
+): FigureTemplate {
+  const next = structuredClone(template);
+  const plotSlot = next.panels[0]?.plotSlots[0];
+  if (!plotSlot) throw new Error('Figure template must contain a PlotSlot');
+  plotSlot.mode = plotMode;
+  return next;
+}
+
 function cleanSourceData(data: DataBindingSet): DataBindingSet {
   return {
     ...structuredClone(data),
@@ -168,6 +189,7 @@ export function rebindEditorData(
   source: DataBindingSet,
   overrides: Record<string, string>,
 ): EditorState {
+  const plotMode = templatePlotMode(template);
   const data = bindDataSlots(template, cleanSourceData(source), overrides);
   const rendered = renderFigureSvg(template, data);
   const diagnostics = [...data.diagnostics, ...rendered.diagnostics];
@@ -176,6 +198,7 @@ export function rebindEditorData(
       fileName: data.source.name,
       data,
       overrides: { ...overrides },
+      plotMode,
       diagnostics,
       status: 'error',
     };
@@ -184,6 +207,7 @@ export function rebindEditorData(
     data,
     svg: rendered.svg,
     overrides: { ...overrides },
+    plotMode,
     diagnostics,
     status: 'ready',
   };
@@ -198,6 +222,7 @@ export async function loadCsvFile(
     return {
       fileName: file.name,
       overrides: {},
+      plotMode: templatePlotMode(template),
       diagnostics: parsed.diagnostics,
       status: 'error',
     };
