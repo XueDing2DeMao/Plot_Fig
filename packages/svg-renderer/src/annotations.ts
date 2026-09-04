@@ -13,7 +13,12 @@ function panelPoint(point: Point, rect: Rect): Point {
   };
 }
 
-function dataPoint(point: Point, rect: Rect, xScale: PlotScale, yScale: PlotScale): Point {
+function dataPoint(
+  point: Point,
+  rect: Rect,
+  xScale: PlotScale,
+  yScale: PlotScale,
+): Point {
   return {
     x: rect.x + xScale.map(point.x) * rect.width,
     y: rect.y + (1 - yScale.map(point.y)) * rect.height,
@@ -32,11 +37,17 @@ function pointFor(
     : panelPoint(point, rect);
 }
 
-function renderText(annotation: Extract<Annotation, { kind: 'text' }>, point: Point): string {
+function renderText(
+  annotation: Extract<Annotation, { kind: 'text' }>,
+  point: Point,
+): string {
   return `<text data-role="annotation-text" x="${formatNumber(point.x)}" y="${formatNumber(point.y)}">${escapeXml(annotation.text)}</text>`;
 }
 
-function renderLegend(annotation: Extract<Annotation, { kind: 'legend' }>, point: Point): string {
+function renderLegend(
+  annotation: Extract<Annotation, { kind: 'legend' }>,
+  point: Point,
+): string {
   if (!annotation.visible) return '';
   return `<text data-role="annotation-legend" x="${formatNumber(point.x)}" y="${formatNumber(point.y)}">Legend</text>`;
 }
@@ -79,9 +90,15 @@ function renderOne(
   if (annotation.kind === 'reference-line')
     return renderReferenceLine(annotation, rect, xScale, yScale);
   if (annotation.kind === 'text')
-    return renderText(annotation, pointFor(annotation, annotation.position, rect, xScale, yScale));
+    return renderText(
+      annotation,
+      pointFor(annotation, annotation.position, rect, xScale, yScale),
+    );
   if (annotation.kind === 'legend')
-    return renderLegend(annotation, pointFor(annotation, annotation.position, rect, xScale, yScale));
+    return renderLegend(
+      annotation,
+      pointFor(annotation, annotation.position, rect, xScale, yScale),
+    );
   return renderSegment(annotation, rect, xScale, yScale);
 }
 
@@ -93,7 +110,11 @@ export function renderPanelAnnotations(
   yScale: PlotScale,
 ): string {
   return annotations
-    .filter((annotation) => annotation.coordinateSpace !== 'page' && annotation.panelId === panel.panelId)
+    .filter(
+      (annotation) =>
+        annotation.coordinateSpace !== 'page' &&
+        annotation.panelId === panel.panelId,
+    )
     .map((annotation) => renderOne(annotation, rect, xScale, yScale))
     .join('');
 }
@@ -105,10 +126,23 @@ export function renderPageAnnotations(
   return annotations
     .filter((annotation) => annotation.coordinateSpace === 'page')
     .map((annotation) => {
-      if (annotation.kind === 'text') return renderText(annotation, panelPoint(annotation.position, viewport));
-      if (annotation.kind === 'legend') return renderLegend(annotation, panelPoint(annotation.position, viewport));
+      if (annotation.kind === 'text')
+        return renderText(
+          annotation,
+          panelPoint(annotation.position, viewport),
+        );
+      if (annotation.kind === 'legend')
+        return renderLegend(
+          annotation,
+          panelPoint(annotation.position, viewport),
+        );
       if (annotation.kind === 'arrow' || annotation.kind === 'rectangle') {
-        const identity = { min: 0, max: 1, scale: 'linear' as const, map: (value: number) => value };
+        const identity = {
+          min: 0,
+          max: 1,
+          scale: 'linear' as const,
+          map: (value: number) => value,
+        };
         return renderSegment(annotation, viewport, identity, identity);
       }
       return '';

@@ -7,10 +7,7 @@ type AxisLike = Pick<
   'scale' | 'reverse'
 >;
 
-function axisWith(
-  scale: AxisLike['scale'],
-  reverse = false,
-): AxisLike {
+function axisWith(scale: AxisLike['scale'], reverse = false): AxisLike {
   return { scale, reverse };
 }
 

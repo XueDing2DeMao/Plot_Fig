@@ -19,7 +19,9 @@ export function renderPlot(
   xScale: LinearScale,
   yScale: LinearScale,
   rect: Rect,
-): { svg: string; skipped: number; diagnostics: RenderDiagnostic[] } | undefined {
+):
+  | { svg: string; skipped: number; diagnostics: RenderDiagnostic[] }
+  | undefined {
   const x = column(data, plot.bindings.x);
   const y = column(data, plot.bindings.y);
   if (!x || !y) return undefined;
@@ -89,7 +91,10 @@ export function renderPlot(
 
 type ErrorDirection = 'x' | 'y';
 
-function finiteAt(columnData: ReturnType<typeof column>, index: number): number | undefined {
+function finiteAt(
+  columnData: ReturnType<typeof column>,
+  index: number,
+): number | undefined {
   const value = columnData?.values[index];
   return typeof value === 'number' && Number.isFinite(value) && value >= 0
     ? value
@@ -105,10 +110,16 @@ function resolveError(
 ): { lower: number; upper: number } | undefined {
   const bindings = plot.bindings;
   const symmetricId = direction === 'x' ? bindings.xError : bindings.yError;
-  const lowerId = direction === 'x' ? bindings.xErrorLower : bindings.yErrorLower;
-  const upperId = direction === 'x' ? bindings.xErrorUpper : bindings.yErrorUpper;
-  const symmetric = finiteAt(symmetricId ? column(data, symmetricId) : undefined, index);
-  if (symmetric !== undefined) return { lower: base - symmetric, upper: base + symmetric };
+  const lowerId =
+    direction === 'x' ? bindings.xErrorLower : bindings.yErrorLower;
+  const upperId =
+    direction === 'x' ? bindings.xErrorUpper : bindings.yErrorUpper;
+  const symmetric = finiteAt(
+    symmetricId ? column(data, symmetricId) : undefined,
+    index,
+  );
+  if (symmetric !== undefined)
+    return { lower: base - symmetric, upper: base + symmetric };
   const lower = finiteAt(lowerId ? column(data, lowerId) : undefined, index);
   const upper = finiteAt(upperId ? column(data, upperId) : undefined, index);
   if (lower !== undefined && upper !== undefined)
@@ -143,7 +154,13 @@ function renderErrorBars(
     const baseX = x.values[index];
     const baseY = y.values[index];
     if (typeof baseX !== 'number' || typeof baseY !== 'number') continue;
-    const resolved = resolveError(plot, data, direction, index, direction === 'x' ? baseX : baseY);
+    const resolved = resolveError(
+      plot,
+      data,
+      direction,
+      index,
+      direction === 'x' ? baseX : baseY,
+    );
     if (!resolved) {
       if (hasErrorBinding(plot, direction))
         diagnostics.push({

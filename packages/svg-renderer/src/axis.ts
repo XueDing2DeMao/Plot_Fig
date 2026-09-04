@@ -8,7 +8,8 @@ function tickValues(axis: Axis, scale: PlotScale): number[] {
   if (scale.scale === 'linear')
     return generateMajorTicks(scale.min, scale.max, 6);
   const transform = scale.scale === 'log10' ? Math.log10 : Math.log;
-  const inverse = scale.scale === 'log10' ? (value: number) => 10 ** value : Math.exp;
+  const inverse =
+    scale.scale === 'log10' ? (value: number) => 10 ** value : Math.exp;
   const low = Math.ceil(transform(scale.min));
   const high = Math.floor(transform(scale.max));
   const values: number[] = [];
@@ -27,7 +28,12 @@ function axisLine(axis: Axis, rect: Rect): string {
   return `<line data-role="axis-line" x1="${formatNumber(x)}" y1="${formatNumber(rect.y)}" x2="${formatNumber(x)}" y2="${formatNumber(rect.y + rect.height)}" stroke="${escapeXml(axis.line.color)}" stroke-width="${formatNumber(axis.line.widthPt)}" />`;
 }
 
-function renderTick(axis: Axis, rect: Rect, scale: PlotScale, value: number): string {
+function renderTick(
+  axis: Axis,
+  rect: Rect,
+  scale: PlotScale,
+  value: number,
+): string {
   const ratio = scale.map(value);
   const label = formatNumber(value);
   if (axis.dimension === 'x') {
@@ -45,7 +51,8 @@ function renderTick(axis: Axis, rect: Rect, scale: PlotScale, value: number): st
 function renderTitle(axis: Axis, rect: Rect): string {
   if (!axis.title) return '';
   if (axis.dimension === 'x') {
-    const y = axis.position === 'bottom' ? rect.y + rect.height + 38 : rect.y - 28;
+    const y =
+      axis.position === 'bottom' ? rect.y + rect.height + 38 : rect.y - 28;
     return `<text data-role="axis-title" x="${formatNumber(rect.x + rect.width / 2)}" y="${formatNumber(y)}" text-anchor="middle" fill="${escapeXml(axis.title.color)}" font-family="${escapeXml(axis.title.fontFamily)}" font-size="${formatNumber(axis.title.fontSizePt)}">${escapeXml(axis.title.text)}</text>`;
   }
   const x = axis.position === 'left' ? rect.x - 42 : rect.x + rect.width + 42;

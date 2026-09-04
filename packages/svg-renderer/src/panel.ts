@@ -98,7 +98,9 @@ export function renderPanel(
     };
   const plots = renderPlots(panel, data, rect, xScale, yScale);
   const axes = panel.axes
-    .map((axis) => renderAxis(axis, rect, axis.dimension === 'x' ? xScale : yScale))
+    .map((axis) =>
+      renderAxis(axis, rect, axis.dimension === 'x' ? xScale : yScale),
+    )
     .join('');
   const annotations = renderPanelAnnotations(
     template.annotations,

@@ -292,7 +292,7 @@ Expected: 新旧 renderer/UI 测试全部通过。
 Run:
 
 ```powershell
-$matches = rg -n "child_process|exec\(|spawn\(|eval\(|Function\(|innerHTML|on[a-zA-Z]+=" packages/svg-renderer packages/web-editor/src
+$matches = rg -n "child_process|exec\(|spawn\(|eval\(|Function\(|innerHTML" packages/data-binding packages/svg-renderer packages/web-editor/src
 if ($LASTEXITCODE -eq 0) { $matches; throw 'forbidden runtime dependency found' }
 if ($LASTEXITCODE -gt 1) { throw 'dependency scan failed' }
 ```

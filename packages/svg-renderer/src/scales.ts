@@ -68,7 +68,8 @@ function niceStep(rawStep: number): number {
   const exponent = Math.floor(Math.log10(rawStep));
   const magnitude = 10 ** exponent;
   const fraction = rawStep / magnitude;
-  const niceFraction = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+  const niceFraction =
+    fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
   return niceFraction * magnitude;
 }
 
@@ -77,8 +78,7 @@ export function generateMajorTicks(
   max: number,
   count = 6,
 ): number[] {
-  if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max)
-    return [];
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max) return [];
   const target = Math.max(2, Math.floor(count));
   const step = niceStep((max - min) / (target - 1));
   const start = Math.ceil(min / step - 1e-12) * step;
@@ -94,8 +94,5 @@ export function createLinearScale(
   axis: Axis,
   values: number[],
 ): LinearScale | undefined {
-  return createScaleFromValues(
-    { ...axis, scale: 'linear' },
-    values,
-  );
+  return createScaleFromValues({ ...axis, scale: 'linear' }, values);
 }
