@@ -1,9 +1,18 @@
 import { useState } from 'react';
-import { BindingPanel } from './components/BindingPanel.js';
+import {
+  BindingPanel,
+  type BindingChange,
+} from './components/BindingPanel.js';
+import { ColumnSummary } from './components/ColumnSummary.js';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel.js';
 import { FigurePreview } from './components/FigurePreview.js';
 import { FilePicker } from './components/FilePicker.js';
-import { loadCsvFile, type EditorState } from './state/editor-state.js';
+import {
+  defaultTemplate,
+  loadCsvFile,
+  rebindEditorData,
+  type EditorState,
+} from './state/editor-state.js';
 
 const initialState: EditorState = {
   diagnostics: [],
@@ -12,6 +21,7 @@ const initialState: EditorState = {
 };
 
 export default function App() {
+  const [template] = useState(defaultTemplate);
   const [state, setState] = useState(initialState);
   const onFile = async (file: File) => {
     setState({
@@ -20,7 +30,16 @@ export default function App() {
       overrides: {},
       status: 'parsing',
     });
-    setState(await loadCsvFile(file));
+    setState(await loadCsvFile(file, template));
+  };
+  const onBindingChange = ({ dataSlotId, columnId }: BindingChange) => {
+    setState((current) => {
+      if (!current.data) return current;
+      const overrides = { ...current.overrides };
+      if (columnId) overrides[dataSlotId] = columnId;
+      else delete overrides[dataSlotId];
+      return rebindEditorData(template, current.data, overrides);
+    });
   };
   return (
     <main className="workspace">
@@ -38,7 +57,13 @@ export default function App() {
             <FilePicker onFile={onFile} />
             {state.fileName && <p className="file-name">{state.fileName}</p>}
           </section>
-          <BindingPanel data={state.data} />
+          <BindingPanel
+            template={template}
+            data={state.data}
+            overrides={state.overrides}
+            onBindingChange={onBindingChange}
+          />
+          <ColumnSummary data={state.data} />
           <DiagnosticsPanel diagnostics={state.diagnostics} />
         </aside>
         <FigurePreview svg={state.svg} />

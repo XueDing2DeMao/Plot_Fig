@@ -189,7 +189,10 @@ export function rebindEditorData(
   };
 }
 
-export async function loadCsvFile(file: File): Promise<EditorState> {
+export async function loadCsvFile(
+  file: File,
+  template: FigureTemplate = defaultTemplate(),
+): Promise<EditorState> {
   const parsed = parseCsvText(await readFileText(file), file.name);
   if (!parsed.ok)
     return {
@@ -199,7 +202,7 @@ export async function loadCsvFile(file: File): Promise<EditorState> {
       status: 'error',
     };
   return rebindEditorData(
-    defaultTemplate(),
+    template,
     inferDataBindingSet(parsed.rows, file.name),
     {},
   );
