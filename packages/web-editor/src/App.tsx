@@ -1,4 +1,18 @@
+import { useState } from 'react';
+import { BindingPanel } from './components/BindingPanel.js';
+import { DiagnosticsPanel } from './components/DiagnosticsPanel.js';
+import { FigurePreview } from './components/FigurePreview.js';
+import { FilePicker } from './components/FilePicker.js';
+import { loadCsvFile, type EditorState } from './state/editor-state.js';
+
+const initialState: EditorState = { diagnostics: [], status: 'empty' };
+
 export default function App() {
+  const [state, setState] = useState(initialState);
+  const onFile = async (file: File) => {
+    setState({ fileName: file.name, diagnostics: [], status: 'parsing' });
+    setState(await loadCsvFile(file));
+  };
   return (
     <main className="workspace">
       <header className="topbar">
@@ -12,36 +26,13 @@ export default function App() {
         <aside className="control-column">
           <section className="card file-card">
             <p className="section-kicker">01 · 数据源</p>
-            <label htmlFor="csv-file">选择 CSV 文件</label>
-            <input id="csv-file" type="file" accept=".csv,text/csv" />
+            <FilePicker onFile={onFile} />
+            {state.fileName && <p className="file-name">{state.fileName}</p>}
           </section>
-          <section className="card" aria-label="数据绑定">
-            <p className="section-kicker">02 · 数据绑定</p>
-            <p className="empty-copy">
-              选择文件后，这里会显示可用列与 DataSlot。
-            </p>
-          </section>
-          <section className="card diagnostics" aria-label="诊断信息">
-            <p className="section-kicker">03 · 诊断信息</p>
-            <p className="empty-copy">当前没有诊断信息。</p>
-          </section>
+          <BindingPanel data={state.data} />
+          <DiagnosticsPanel diagnostics={state.diagnostics} />
         </aside>
-        <section className="card preview-card" aria-label="图形预览">
-          <div className="preview-head">
-            <div>
-              <p className="section-kicker">FIGURE TEMPLATE / PREVIEW</p>
-              <h2>XY 预览</h2>
-            </div>
-            <span className="preview-meta">等待 CSV</span>
-          </div>
-          <div className="preview-stage">
-            <div className="preview-placeholder">
-              <span className="axis-mark">＋</span>
-              <p>上传 CSV 开始绘图</p>
-              <small>数据只在浏览器内存中处理</small>
-            </div>
-          </div>
-        </section>
+        <FigurePreview svg={state.svg} />
       </section>
     </main>
   );

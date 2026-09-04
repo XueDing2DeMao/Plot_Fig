@@ -5,7 +5,12 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@plot-fig/data-binding": ["../data-binding/src/index.ts"],
+      "@plot-fig/figure-schema": ["../figure-schema/src/index.ts"],
+      "@plot-fig/svg-renderer": ["../svg-renderer/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
 }

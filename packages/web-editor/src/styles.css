@@ -120,6 +120,59 @@ input[type='file'] {
   font-size: 14px;
   line-height: 1.5;
 }
+.file-name {
+  margin: 12px 0 0;
+  color: #bbf7d0;
+  font:
+    500 12px 'Fira Code',
+    monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.column-list {
+  display: grid;
+  gap: 8px;
+}
+.column-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 1px solid #dcfce7;
+  border-radius: 8px;
+  background: #fbfffc;
+}
+.column-row code {
+  color: #15803d;
+  font:
+    500 11px 'Fira Code',
+    monospace;
+}
+.diagnostics ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.diagnostics li {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border-left: 3px solid #d97706;
+  background: #fffbeb;
+  font-size: 12px;
+}
+.diagnostics li strong {
+  font:
+    600 10px 'Fira Code',
+    monospace;
+  color: #92400e;
+}
+.diagnostics li span {
+  color: #78350f;
+}
 .preview-card {
   min-height: 620px;
   padding: 22px;
@@ -160,6 +213,14 @@ input[type='file'] {
 }
 .preview-placeholder small {
   color: #6b8f76;
+}
+.preview-stage > svg {
+  width: min(100%, 900px);
+  height: auto;
+  max-height: 560px;
+}
+.preview-stage > svg + .preview-placeholder {
+  display: none;
 }
 @media (max-width: 800px) {
   .workspace {

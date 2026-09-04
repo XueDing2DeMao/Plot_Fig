@@ -18,7 +18,7 @@ function failure(
 }
 
 function openSvg(template: FigureTemplate): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${formatNumber(template.page.size.width.value)}${template.page.size.width.unit}" height="${formatNumber(template.page.size.height.value)}${template.page.size.height.unit}" viewBox="0 0 1000 800" data-role="figure"><rect data-role="page-background" width="1000" height="800" fill="${escapeXml(template.page.background)}" />`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${formatNumber(template.page.size.width.value)}${template.page.size.width.unit}" height="${formatNumber(template.page.size.height.value)}${template.page.size.height.unit}" viewBox="0 0 1000 800" role="img" aria-label="XY 图形预览" data-role="figure"><rect data-role="page-background" width="1000" height="800" fill="${escapeXml(template.page.background)}" />`;
 }
 
 export function renderTemplateSvg(
