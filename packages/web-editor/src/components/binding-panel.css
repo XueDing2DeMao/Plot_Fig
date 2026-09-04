@@ -1,0 +1,69 @@
+.binding-card {
+  padding: 18px;
+}
+.slot-list {
+  display: grid;
+  gap: 12px;
+}
+.slot-row {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #dcfce7;
+  border-radius: 10px;
+  background: #fbfffc;
+}
+.slot-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+.slot-heading strong {
+  display: block;
+  color: #14532d;
+}
+.slot-role,
+.slot-meta {
+  display: block;
+  color: #4d7c5c;
+  font: 500 11px 'Fira Code', monospace;
+}
+.slot-status {
+  color: #15803d;
+  font: 600 10px 'Fira Code', monospace;
+  white-space: nowrap;
+}
+.slot-status.invalid,
+.slot-error {
+  color: #b45309;
+}
+.slot-label {
+  margin: 2px 0 0;
+  color: #166534;
+  font-size: 12px;
+}
+.slot-select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  color: #14532d;
+  background: #fff;
+  font: inherit;
+}
+.slot-select:focus-visible {
+  outline: 3px solid rgba(34, 197, 94, 0.35);
+  outline-offset: 2px;
+}
+.slot-select[aria-invalid='true'] {
+  border-color: #d97706;
+}
+.slot-error {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.column-summary {
+  padding: 18px;
+}
