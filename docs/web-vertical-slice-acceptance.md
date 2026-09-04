@@ -32,7 +32,7 @@ pnpm test:coverage
 pnpm build
 ```
 
-2026-09-04 验证结果：42 个测试文件、263 个测试全部通过；Statements 92.4%、Branches 85.76%；格式、类型检查和全 workspace 构建均通过。
+2026-09-04 验证结果：43 个测试文件、274 个测试全部通过；Statements 92.4%、Branches 85.78%；格式、类型检查和全 workspace 构建均通过。
 
 ## 浏览器烟测
 
