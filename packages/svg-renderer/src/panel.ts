@@ -43,6 +43,7 @@ function renderPlots(
       });
     else {
       svg += rendered.svg;
+      diagnostics.push(...rendered.diagnostics);
       if (rendered.skipped > 0)
         diagnostics.push({
           code: 'RENDER_DATA_INVALID',

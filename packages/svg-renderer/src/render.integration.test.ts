@@ -129,6 +129,89 @@ describe('XY SVG rendering', () => {
     expect(svg).toContain('A &amp; B');
   });
 
+  it('renders asymmetric error bars with caps', () => {
+    const template = createCurrentTemplate();
+    template.dataSlots.push(
+      {
+        dataSlotId: 'slot-y-lower',
+        name: 'YLower',
+        role: 'yErrorLower',
+        valueType: 'number',
+        required: false,
+      },
+      {
+        dataSlotId: 'slot-y-upper',
+        name: 'YUpper',
+        role: 'yErrorUpper',
+        valueType: 'number',
+        required: false,
+      },
+    );
+    template.panels[0]!.plotSlots[0]!.bindings.yErrorLower = 'slot-y-lower';
+    template.panels[0]!.plotSlots[0]!.bindings.yErrorUpper = 'slot-y-upper';
+    template.panels[0]!.plotSlots[0]!.errorBarStyle = {
+      visible: true,
+      color: '#111111',
+      widthPt: 1,
+      capWidthPt: 4,
+    };
+    const data = bindDataSlots(
+      template,
+      inferDataBindingSet(
+        [
+          ['X', 'Y', 'YLower', 'YUpper'],
+          ['0', '1', '0.1', '0.2'],
+          ['1', '3', '0.2', '0.3'],
+        ],
+        'error.csv',
+      ),
+    );
+    const result = renderFigureSvg(template, data);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error('error fixture render failed');
+    expect(result.svg.match(/data-role="error-bar"/g)?.length).toBe(2);
+    expect(result.svg).toContain('data-role="error-cap"');
+  });
+
+  it('warns when configured error values are invalid', () => {
+    const template = createCurrentTemplate();
+    template.dataSlots.push({
+      dataSlotId: 'slot-y-error',
+      name: 'YError',
+      role: 'yError',
+      valueType: 'number',
+      required: false,
+    });
+    template.panels[0]!.plotSlots[0]!.bindings.yError = 'slot-y-error';
+    template.panels[0]!.plotSlots[0]!.errorBarStyle = {
+      visible: true,
+      color: '#111111',
+      widthPt: 1,
+      capWidthPt: 4,
+    };
+    const data = bindDataSlots(
+      template,
+      inferDataBindingSet(
+        [
+          ['X', 'Y', 'YError'],
+          ['0', '1', 'bad'],
+          ['1', '3', 'bad'],
+        ],
+        'invalid-error.csv',
+      ),
+    );
+    const result = renderFigureSvg(template, data);
+    expect(result.ok).toBe(true);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'RENDER_DATA_INVALID',
+          severity: 'warning',
+        }),
+      ]),
+    );
+  });
+
   it('is deterministic and rejects invalid templates without throwing', () => {
     const template = createCurrentTemplate();
     expect(renderFixture(template)).toBe(renderFixture(template));
