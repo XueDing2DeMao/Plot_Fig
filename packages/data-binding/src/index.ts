@@ -2,6 +2,8 @@ import type { DataBindingSet } from './types.js';
 
 export { parseCsvText } from './csv/parse.js';
 export type { CsvParseResult } from './csv/parse.js';
+export { bindDataSlots } from './bind.js';
+export { inferDataBindingSet } from './infer.js';
 
 export type {
   DataBindingSet,
