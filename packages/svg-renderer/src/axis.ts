@@ -19,6 +19,13 @@ function tickValues(axis: Axis, scale: PlotScale): number[] {
   return values;
 }
 
+function formatTick(axis: Axis, value: number): string {
+  const { notation, precision } = axis.tickLabels;
+  if (notation === 'fixed') return value.toFixed(precision);
+  if (notation === 'scientific') return value.toExponential(precision);
+  return formatNumber(value);
+}
+
 function axisLine(axis: Axis, rect: Rect): string {
   if (axis.dimension === 'x') {
     const y = axis.position === 'bottom' ? rect.y + rect.height : rect.y;
@@ -35,7 +42,7 @@ function renderTick(
   value: number,
 ): string {
   const ratio = scale.map(value);
-  const label = formatNumber(value);
+  const label = formatTick(axis, value);
   if (axis.dimension === 'x') {
     const x = rect.x + ratio * rect.width;
     const y = axis.position === 'bottom' ? rect.y + rect.height : rect.y;
@@ -46,6 +53,41 @@ function renderTick(
   const x = axis.position === 'left' ? rect.x : rect.x + rect.width;
   const direction = axis.position === 'left' ? -1 : 1;
   return `<line data-role="major-tick" x1="${formatNumber(x)}" y1="${formatNumber(y)}" x2="${formatNumber(x + direction * axis.majorTicks.lengthPt)}" y2="${formatNumber(y)}" stroke="${escapeXml(axis.line.color)}" stroke-width="${formatNumber(axis.majorTicks.widthPt)}" /><text data-role="tick-label" x="${formatNumber(x + direction * (axis.majorTicks.lengthPt + 2))}" y="${formatNumber(y + axis.tickLabels.fontSizePt / 3)}" text-anchor="${axis.position === 'left' ? 'end' : 'start'}" fill="${escapeXml(axis.tickLabels.color)}" font-family="${escapeXml(axis.tickLabels.fontFamily)}" font-size="${formatNumber(axis.tickLabels.fontSizePt)}">${escapeXml(label)}</text>`;
+}
+
+function renderMinorTicks(
+  axis: Axis,
+  rect: Rect,
+  scale: PlotScale,
+  major: number[],
+): string {
+  if (!axis.minorTicks.visible || axis.minorTicks.count <= 0) return '';
+  const parts: string[] = [];
+  const count = axis.minorTicks.count;
+  for (let index = 0; index < major.length - 1; index += 1) {
+    const start = scale.map(major[index]!);
+    const end = scale.map(major[index + 1]!);
+    for (let minor = 1; minor <= count; minor += 1) {
+      const ratio = minor / (count + 1);
+      const position = start + (end - start) * ratio;
+      if (axis.dimension === 'x') {
+        const x = rect.x + position * rect.width;
+        const y = axis.position === 'bottom' ? rect.y + rect.height : rect.y;
+        const direction = axis.position === 'bottom' ? 1 : -1;
+        parts.push(
+          `<line data-role="minor-tick" x1="${formatNumber(x)}" y1="${formatNumber(y)}" x2="${formatNumber(x)}" y2="${formatNumber(y + direction * axis.minorTicks.lengthPt)}" stroke="${escapeXml(axis.line.color)}" stroke-width="${formatNumber(axis.minorTicks.widthPt)}" />`,
+        );
+      } else {
+        const y = rect.y + (1 - position) * rect.height;
+        const x = axis.position === 'left' ? rect.x : rect.x + rect.width;
+        const direction = axis.position === 'left' ? -1 : 1;
+        parts.push(
+          `<line data-role="minor-tick" x1="${formatNumber(x)}" y1="${formatNumber(y)}" x2="${formatNumber(x + direction * axis.minorTicks.lengthPt)}" y2="${formatNumber(y)}" stroke="${escapeXml(axis.line.color)}" stroke-width="${formatNumber(axis.minorTicks.widthPt)}" />`,
+        );
+      }
+    }
+  }
+  return parts.join('');
 }
 
 function renderTitle(axis: Axis, rect: Rect): string {
@@ -65,5 +107,8 @@ export function renderAxis(axis: Axis, rect: Rect, scale: PlotScale): string {
   const ticksSvg = axis.majorTicks.visible
     ? ticks.map((value) => renderTick(axis, rect, scale, value)).join('')
     : '';
-  return `<g data-role="axis-${axis.dimension}">${axis.visible ? axisLine(axis, rect) : ''}${ticksSvg}${renderTitle(axis, rect)}</g>`;
+  const minorSvg = axis.majorTicks.visible
+    ? renderMinorTicks(axis, rect, scale, ticks)
+    : '';
+  return `<g data-role="axis-${axis.dimension}">${axis.visible ? axisLine(axis, rect) : ''}${axis.visible ? minorSvg : ''}${axis.visible ? ticksSvg : ''}${axis.visible ? renderTitle(axis, rect) : ''}</g>`;
 }

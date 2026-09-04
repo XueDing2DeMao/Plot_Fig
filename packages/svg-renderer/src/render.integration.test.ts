@@ -49,12 +49,18 @@ describe('XY SVG rendering', () => {
       fontSizePt: 8,
       color: '#111111',
     };
+    xAxis.minorTicks.visible = true;
+    xAxis.minorTicks.count = 2;
+    xAxis.tickLabels.notation = 'fixed';
+    xAxis.tickLabels.precision = 2;
     const svg = renderFixture(template);
     expect(svg).toContain('data-role="axis-x"');
     expect(svg).toContain('data-role="major-tick"');
     expect(svg).toContain('data-role="tick-label"');
     expect(svg).toContain('data-role="axis-title"');
     expect(svg).toContain('X axis');
+    expect(svg).toContain('data-role="minor-tick"');
+    expect(svg).toContain('0.50');
   });
 
   it('renders panel annotations and maps data reference lines by value', () => {
