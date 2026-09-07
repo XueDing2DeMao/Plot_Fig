@@ -130,6 +130,52 @@ input[type='file'] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.project-controls {
+  padding: 16px 18px !important;
+}
+.project-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.project-actions button,
+.project-open-label {
+  display: inline-grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #86efac;
+  border-radius: 9px;
+  background: #166534;
+  color: #f0fdf4;
+  font:
+    600 13px 'Fira Sans',
+    sans-serif;
+  cursor: pointer;
+}
+.project-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.project-actions button:focus-visible,
+.project-open-label:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+.project-open-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.project-status {
+  margin: 10px 0 0;
+  color: #4d7c5c;
+  font-size: 12px;
+}
+.project-status[role='alert'] {
+  color: #b91c1c;
+}
 .column-list {
   display: grid;
   gap: 8px;
