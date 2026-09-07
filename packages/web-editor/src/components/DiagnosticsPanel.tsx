@@ -1,9 +1,10 @@
 import type { DataDiagnostic } from '@plot-fig/data-binding';
 import type { RenderDiagnostic } from '@plot-fig/svg-renderer';
+import type { ProjectDiagnostic } from '../state/project-file.js';
 export function DiagnosticsPanel({
   diagnostics,
 }: {
-  diagnostics: Array<DataDiagnostic | RenderDiagnostic>;
+  diagnostics: Array<DataDiagnostic | RenderDiagnostic | ProjectDiagnostic>;
 }) {
   return (
     <section className="card diagnostics" aria-label="诊断信息">

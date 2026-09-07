@@ -7,17 +7,19 @@ import {
 } from '@plot-fig/data-binding';
 import type { FigureTemplate } from '@plot-fig/figure-schema';
 import { renderFigureSvg, type RenderDiagnostic } from '@plot-fig/svg-renderer';
+import { parseProjectFile, type ProjectDiagnostic } from './project-file.js';
 
 export type PlotMode =
   FigureTemplate['panels'][number]['plotSlots'][number]['mode'];
 
 export type EditorState = {
   fileName?: string;
+  sourceText?: string;
   data?: DataBindingSet;
   svg?: string;
   overrides: Record<string, string>;
   plotMode: PlotMode;
-  diagnostics: Array<DataDiagnostic | RenderDiagnostic>;
+  diagnostics: Array<DataDiagnostic | RenderDiagnostic | ProjectDiagnostic>;
   status: 'empty' | 'parsing' | 'ready' | 'error';
 };
 
@@ -188,6 +190,7 @@ export function rebindEditorData(
   template: FigureTemplate,
   source: DataBindingSet,
   overrides: Record<string, string>,
+  sourceText?: string,
 ): EditorState {
   const plotMode = templatePlotMode(template);
   const data = bindDataSlots(template, cleanSourceData(source), overrides);
@@ -196,6 +199,7 @@ export function rebindEditorData(
   if (!rendered.ok)
     return {
       fileName: data.source.name,
+      ...(sourceText === undefined ? {} : { sourceText }),
       data,
       overrides: { ...overrides },
       plotMode,
@@ -204,6 +208,7 @@ export function rebindEditorData(
     };
   return {
     fileName: data.source.name,
+    ...(sourceText === undefined ? {} : { sourceText }),
     data,
     svg: rendered.svg,
     overrides: { ...overrides },
@@ -213,22 +218,64 @@ export function rebindEditorData(
   };
 }
 
-export async function loadCsvFile(
-  file: File,
+export function loadCsvText(
+  text: string,
+  sourceName: string,
   template: FigureTemplate = defaultTemplate(),
-): Promise<EditorState> {
-  const parsed = parseCsvText(await readFileText(file), file.name);
+  overrides: Record<string, string> = {},
+): EditorState {
+  const parsed = parseCsvText(text, sourceName);
   if (!parsed.ok)
     return {
-      fileName: file.name,
-      overrides: {},
+      fileName: sourceName,
+      sourceText: text,
+      overrides: { ...overrides },
       plotMode: templatePlotMode(template),
       diagnostics: parsed.diagnostics,
       status: 'error',
     };
   return rebindEditorData(
     template,
-    inferDataBindingSet(parsed.rows, file.name),
-    {},
+    inferDataBindingSet(parsed.rows, sourceName),
+    overrides,
+    text,
   );
+}
+
+export function restoreProjectState(
+  text: string,
+):
+  | { ok: true; template: FigureTemplate; state: EditorState }
+  | { ok: false; state: EditorState } {
+  const parsed = parseProjectFile(text);
+  if (!parsed.ok)
+    return {
+      ok: false,
+      state: {
+        overrides: {},
+        plotMode: templatePlotMode(defaultTemplate()),
+        diagnostics: parsed.diagnostics,
+        status: 'error',
+      },
+    };
+  const overrides = Object.fromEntries(
+    parsed.document.bindingSet.map((binding) => [
+      binding.dataSlotId,
+      binding.columnId,
+    ]),
+  );
+  const state = loadCsvText(
+    parsed.csvText,
+    parsed.sourceName,
+    parsed.document.templateSnapshot,
+    overrides,
+  );
+  return { ok: true, template: parsed.document.templateSnapshot, state };
+}
+
+export async function loadCsvFile(
+  file: File,
+  template: FigureTemplate = defaultTemplate(),
+): Promise<EditorState> {
+  return loadCsvText(await readFileText(file), file.name, template);
 }

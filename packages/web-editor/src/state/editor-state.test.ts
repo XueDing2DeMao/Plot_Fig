@@ -2,10 +2,13 @@ import { inferDataBindingSet, parseCsvText } from '@plot-fig/data-binding';
 import { describe, expect, it } from 'vitest';
 import {
   defaultTemplate,
+  loadCsvText,
   rebindEditorData,
+  restoreProjectState,
   updatePlotMode,
 } from './editor-state.js';
 import type { PlotMode } from './editor-state.js';
+import { serializeProjectFile } from './project-file.js';
 
 function sourceData() {
   const parsed = parseCsvText(
@@ -99,6 +102,40 @@ describe('editor rebinding', () => {
     expect(recovered.diagnostics).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ code: 'COLUMN_TYPE_CONFLICT' }),
+      ]),
+    );
+  });
+
+  it('keeps source text and restores a serialized project immutably', () => {
+    const csvText = 'X,Y\n0,1\n1,3\n';
+    const template = updatePlotMode(defaultTemplate(), 'line');
+    const state = loadCsvText(csvText, 'sample.csv', template, {});
+    expect(state.sourceText).toBe(csvText);
+    expect(state.status).toBe('ready');
+    const serialized = serializeProjectFile(template, state.data!, csvText);
+    const before = structuredClone(serialized);
+
+    const restored = restoreProjectState(serialized);
+
+    expect(restored.ok).toBe(true);
+    if (!restored.ok) throw new Error('project restore failed');
+    expect(restored.template).toEqual(template);
+    expect(restored.state.sourceText).toBe(csvText);
+    expect(restored.state.plotMode).toBe('line');
+    expect(restored.state.svg).toBe(state.svg);
+    expect(serialized).toBe(before);
+  });
+
+  it('returns an error state without stale SVG for invalid project text', () => {
+    const restored = restoreProjectState('{"kind":"bad"}');
+
+    expect(restored.ok).toBe(false);
+    if (restored.ok) throw new Error('invalid project unexpectedly restored');
+    expect(restored.state.status).toBe('error');
+    expect(restored.state.svg).toBeUndefined();
+    expect(restored.state.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'PROJECT_INVALID' }),
       ]),
     );
   });
