@@ -7,7 +7,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App.js';
 
 describe('web editor data pipeline', () => {
@@ -138,6 +138,65 @@ describe('web editor data pipeline', () => {
     });
 
     expect(screen.getByLabelText('绘制方式')).toHaveValue('markers');
+    expect(screen.getByTestId('svg-preview').querySelector('svg')).toBeNull();
+  });
+
+  it('saves and reopens a project with the current mode and bindings', async () => {
+    render(<App />);
+    await uploadCsv('X,Y,Time\n0,1,10\n1,2,20');
+    fireEvent.change(screen.getByLabelText('X 数据列'), {
+      target: { value: 'time' },
+    });
+    fireEvent.change(screen.getByLabelText('绘制方式'), {
+      target: { value: 'markers' },
+    });
+    expect(screen.getByRole('button', { name: '保存项目' })).toBeEnabled();
+
+    const createObjectURL = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockReturnValue('blob:project');
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL');
+    const blobConstructor = vi.spyOn(globalThis, 'Blob');
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    fireEvent.click(screen.getByRole('button', { name: '保存项目' }));
+
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:project');
+    const blob = createObjectURL.mock.calls[0]![0] as Blob;
+    const serialized = String(blobConstructor.mock.calls[0]![0]![0]);
+    expect(serialized).toContain('"kind": "plot-fig-project"');
+    expect(serialized).toContain('"mode": "markers"');
+
+    const projectFile = new File([serialized], 'saved.plotfig.json', {
+      type: 'application/json',
+    });
+    fireEvent.change(screen.getByLabelText('打开项目文件'), {
+      target: { files: [projectFile] },
+    });
+    await waitFor(() =>
+      expect(screen.getByLabelText('绘制方式')).toHaveValue('markers'),
+    );
+    expect(screen.getByLabelText('X 数据列')).toHaveValue('time');
+    expect(
+      screen.getByTestId('svg-preview').querySelector('svg'),
+    ).not.toBeNull();
+  });
+
+  it('clears the preview and shows a diagnostic for an invalid project', async () => {
+    render(<App />);
+    await uploadCsv('X,Y\n0,1\n1,2');
+    const invalid = new File(['{"kind":"bad"}'], 'bad.plotfig.json', {
+      type: 'application/json',
+    });
+    fireEvent.change(screen.getByLabelText('打开项目文件'), {
+      target: { files: [invalid] },
+    });
+    await waitFor(() =>
+      expect(screen.getByText('PROJECT_INVALID')).toBeInTheDocument(),
+    );
     expect(screen.getByTestId('svg-preview').querySelector('svg')).toBeNull();
   });
 });
