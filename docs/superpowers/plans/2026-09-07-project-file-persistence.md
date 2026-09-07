@@ -33,7 +33,7 @@
 - Create: `packages/web-editor/src/state/project-file.test.ts`
 - Modify: `pnpm-lock.yaml`
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 测试期望 API：
 
@@ -53,13 +53,13 @@ expect(parsed).toMatchObject({ ok: true });
 
 另测非法 JSON、错误 kind、未来项目版本、超过 10 MB、非 FigureDocument 和被篡改绑定，均返回 `{ ok: false, diagnostics }` 而非抛异常。
 
-- [ ] **Step 2: 运行测试确认 RED**
+- [x] **Step 2: 运行测试确认 RED**
 
 Run: `pnpm vitest run packages/web-editor/src/state/project-file.test.ts`
 
 Expected: FAIL because `project-file.ts` does not exist.
 
-- [ ] **Step 3: 增加迁移依赖并实现项目文件模块**
+- [x] **Step 3: 增加迁移依赖并实现项目文件模块**
 
 公共类型和结果：
 
@@ -80,7 +80,7 @@ export type ProjectLoadResult =
 
 `parseProjectFile` 先按 UTF-16 字符长度限制 10 MB，再 `JSON.parse`；只接受精确 `kind/version/data/document` 契约，调用 `loadFigurePayload` 并要求结果为 `figure-document`。
 
-- [ ] **Step 4: 安装 workspace 链接并验证 GREEN**
+- [x] **Step 4: 安装 workspace 链接并验证 GREEN**
 
 Run:
 
@@ -92,7 +92,7 @@ pnpm --filter @plot-fig/web-editor typecheck
 
 Expected: 项目文件测试和 Web Editor typecheck 全部通过。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add packages/web-editor/package.json packages/web-editor/src/state/project-file.ts packages/web-editor/src/state/project-file.test.ts pnpm-lock.yaml
@@ -106,7 +106,7 @@ git commit -m "feat(web): 建立项目文件格式"
 - Modify: `packages/web-editor/src/state/editor-state.ts`
 - Modify: `packages/web-editor/src/state/editor-state.test.ts`
 
-- [ ] **Step 1: 写失败状态测试**
+- [x] **Step 1: 写失败状态测试**
 
 ```ts
 const loaded = await loadCsvFile(new File([csvText], 'xy.csv'));
@@ -123,13 +123,13 @@ if (restored.ok) {
 
 另测导入失败返回错误状态且无 `svg`；恢复函数不修改解析出的 FigureDocument、DataBindingSet 或调用方输入。
 
-- [ ] **Step 2: 运行测试确认 RED**
+- [x] **Step 2: 运行测试确认 RED**
 
 Run: `pnpm vitest run packages/web-editor/src/state/editor-state.test.ts`
 
 Expected: FAIL because `sourceText` and `restoreProjectState` are missing.
 
-- [ ] **Step 3: 实现原始文本保留和恢复**
+- [x] **Step 3: 实现原始文本保留和恢复**
 
 `EditorState` 增加 `sourceText?: string`。提取同步纯函数：
 
@@ -148,7 +148,7 @@ export function restoreProjectState(text: string):
 
 `loadCsvFile` 只负责读 File 后调用 `loadCsvText`。恢复时将 `FigureDocument.bindingSet` 转换为 `dataSlotId -> columnId` overrides，再使用文档模板和 CSV 文本重新推断、绑定、渲染。
 
-- [ ] **Step 4: 运行状态测试和 Web 回归**
+- [x] **Step 4: 运行状态测试和 Web 回归**
 
 Run:
 
@@ -159,7 +159,7 @@ pnpm --filter @plot-fig/web-editor typecheck
 
 Expected: 新状态测试和既有 Web 集成测试全部通过。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add packages/web-editor/src/state/editor-state.ts packages/web-editor/src/state/editor-state.test.ts
@@ -174,7 +174,7 @@ git commit -m "feat(web): 恢复项目编辑状态"
 - Create: `packages/web-editor/src/components/ProjectControls.test.tsx`
 - Modify: `packages/web-editor/src/styles.css`
 
-- [ ] **Step 1: 写失败组件测试**
+- [x] **Step 1: 写失败组件测试**
 
 ```tsx
 render(
@@ -191,17 +191,17 @@ expect(screen.getByLabelText('打开项目文件')).toHaveAttribute('accept', '.
 
 触发按钮和文件输入后分别断言回调；`canSave=false` 时保存按钮禁用；状态文本使用 `aria-live="polite"`，错误使用 `role="alert"`。
 
-- [ ] **Step 2: 运行测试确认 RED**
+- [x] **Step 2: 运行测试确认 RED**
 
 Run: `pnpm vitest run packages/web-editor/src/components/ProjectControls.test.tsx`
 
 Expected: FAIL because component is missing.
 
-- [ ] **Step 3: 实现可访问控件**
+- [x] **Step 3: 实现可访问控件**
 
 组件使用可见文本按钮和关联 `<label htmlFor>`；控件最小高度 44px、保留 `:focus-visible`、不使用图标字体或 emoji。文件 input 接受 `.plotfig.json,application/json`，选择后把第一个文件传给回调。
 
-- [ ] **Step 4: 运行组件测试和格式检查**
+- [x] **Step 4: 运行组件测试和格式检查**
 
 Run:
 
@@ -213,7 +213,7 @@ pnpm format:check
 
 Expected: 全部通过，控件具备键盘和屏幕阅读器标签。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add packages/web-editor/src/components/ProjectControls.tsx packages/web-editor/src/components/ProjectControls.test.tsx packages/web-editor/src/styles.css
@@ -227,25 +227,25 @@ git commit -m "feat(web): 增加项目文件控件"
 - Modify: `packages/web-editor/src/App.tsx`
 - Modify: `packages/web-editor/src/App.integration.test.tsx`
 
-- [ ] **Step 1: 写失败集成测试**
+- [x] **Step 1: 写失败集成测试**
 
 加载 CSV 后点击“保存项目”，拦截 `URL.createObjectURL` 和 anchor click，断言下载文件名为 `xy.plotfig.json` 且 Blob JSON 包含当前绘图模式和绑定。随后把该 JSON 作为项目文件触发“打开项目”，断言 CSV 文件名、选择器、绘图模式和 SVG 恢复。
 
 增加非法项目测试：诊断区出现 `PROJECT_INVALID`，预览中不存在 SVG。
 
-- [ ] **Step 2: 运行测试确认 RED**
+- [x] **Step 2: 运行测试确认 RED**
 
 Run: `pnpm vitest run packages/web-editor/src/App.integration.test.tsx -t "项目"`
 
 Expected: FAIL because App has no project controls or callbacks.
 
-- [ ] **Step 3: 实现浏览器适配**
+- [x] **Step 3: 实现浏览器适配**
 
 `onSaveProject` 调用 `serializeProjectFile`，创建 JSON Blob 和临时 object URL，通过临时 `<a download>` 触发下载，并在同步 click 后调用 `URL.revokeObjectURL`。
 
 `onOpenProject` 异步读取项目 File，调用 `restoreProjectState`；成功时一次性设置 template/state，失败时清除旧 template-derived preview 并展示项目诊断。所有读文件和状态派生都在事件处理器内，不新增 effect。
 
-- [ ] **Step 4: 运行 Web 集成与构建**
+- [x] **Step 4: 运行 Web 集成与构建**
 
 Run:
 
@@ -257,7 +257,7 @@ pnpm --filter @plot-fig/web-editor build
 
 Expected: 项目保存/打开、既有绑定和 plot mode 测试全部通过，生产构建成功。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add packages/web-editor/src/App.tsx packages/web-editor/src/App.integration.test.tsx
@@ -271,15 +271,15 @@ git commit -m "feat(web): 接入项目保存与打开"
 - Modify: `docs/web-vertical-slice-acceptance.md`
 - Modify: `docs/superpowers/plans/2026-09-07-project-file-persistence.md`
 
-- [ ] **Step 1: 执行浏览器烟测**
+- [x] **Step 1: 执行浏览器烟测**（真实浏览器自动化入口未安装；由 jsdom 集成测试覆盖交互流程）
 
 启动本地 Vite，加载 `tests/fixtures/web/xy-binding.csv`，修改 Y 绑定和 plot mode，保存项目；重新打开项目并确认文件名、绑定、mode 和 SVG。导入损坏 JSON，确认显示错误且旧 SVG 被清除。窄屏下确认两个项目按钮可见、可聚焦且无横向溢出。
 
-- [ ] **Step 2: 更新验收记录**
+- [x] **Step 2: 更新验收记录**
 
 记录 `.plotfig.json` 格式、10 MB 限制、本地处理行为、浏览器烟测步骤和仍不支持的 IndexedDB/云同步/多数据源。
 
-- [ ] **Step 3: 执行安全扫描**
+- [x] **Step 3: 执行安全扫描**
 
 ```powershell
 $matches = rg -n "child_process|exec\(|spawn\(|eval\(|Function\(|innerHTML" packages/data-binding packages/svg-renderer packages/web-editor/src
@@ -289,7 +289,7 @@ if ($LASTEXITCODE -gt 1) { throw 'dependency scan failed' }
 
 Expected: no matches.
 
-- [ ] **Step 4: 执行完整验证**
+- [x] **Step 4: 执行完整验证**
 
 ```powershell
 pnpm format:check
@@ -299,9 +299,9 @@ pnpm build
 pnpm schema:check
 ```
 
-Expected: 所有命令退出码为 0，测试数量不低于 44 files / 283 tests 基线。
+Expected: 所有命令退出码为 0，测试数量不低于 46 files / 291 tests 基线。
 
-- [ ] **Step 5: 提交验收记录**
+- [x] **Step 5: 提交验收记录**
 
 ```powershell
 git add docs/web-vertical-slice-acceptance.md docs/superpowers/plans/2026-09-07-project-file-persistence.md
@@ -315,4 +315,3 @@ git commit -m "test(web): 验收项目文件持久化"
 - 核心包不引入浏览器依赖；React 只负责事件和 DOM 下载适配。
 - 每项行为改动均先运行失败测试，再实现最小代码。
 - IndexedDB、云同步、多数据源和任意模板编辑明确不在本阶段范围内。
-
