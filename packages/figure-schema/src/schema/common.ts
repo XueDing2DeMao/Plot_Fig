@@ -1,6 +1,6 @@
 import Type from 'typebox';
 
-export const CURRENT_SCHEMA_VERSION = '1.0.0' as const;
+export const CURRENT_SCHEMA_VERSION = '1.22.0' as const;
 
 export const IdentifierSchema = Type.String({
   minLength: 1,

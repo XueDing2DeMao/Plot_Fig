@@ -5,7 +5,7 @@ import { validTemplate } from './fixtures.js';
 
 const validDocument = {
   kind: 'figure-document',
-  schemaVersion: '1.0.0',
+  schemaVersion: '1.22.0',
   documentId: 'document-1',
   templateSnapshot: validTemplate,
   dataSources: [

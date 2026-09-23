@@ -1,4 +1,5 @@
 import {
+  CURRENT_SCHEMA_VERSION,
   canonicalizeFigurePayload,
   type FigureDocument,
   type FigureTemplate,
@@ -12,9 +13,24 @@ export const cloneCanonical = <T>(value: T): T =>
 export const createCurrentTemplate = () =>
   cloneCanonical(validTemplate) as FigureTemplate;
 
+// 旧阶段回归仍逐字段比较原内容；1.8 专有兼容规则由独立迁移测试覆盖。
+export function withoutLegacyAxisRangeFlags<T>(value: T): T {
+  const copy = cloneCanonical(value);
+  const payload = copy as FigureTemplate | FigureDocument;
+  const template =
+    payload.kind === 'figure-document' ? payload.templateSnapshot : payload;
+  for (const panel of template.panels)
+    for (const axis of panel.axes) {
+      if (axis.compatibility)
+        expect(axis.compatibility).toEqual({ unboundRange: 'panel-v1.7' });
+      delete axis.compatibility;
+    }
+  return withoutMigratedPlainText(copy);
+}
+
 export const createCurrentDocument = (): FigureDocument => ({
   kind: 'figure-document',
-  schemaVersion: '1.0.0',
+  schemaVersion: CURRENT_SCHEMA_VERSION,
   documentId: 'document-1',
   templateSnapshot: createCurrentTemplate(),
   dataSources: [
@@ -55,4 +71,37 @@ export function expectNoSharedFigureRefs(
     expect(output.dataSources[0]).not.toBe(input.dataSources[0]);
     expect(output.bindingSet).not.toBe(input.bindingSet);
   }
+}
+
+// F7.1 的旧文字迁移有意显式写 plain。先断言该兼容值，再从历史内容比较中移除。
+export function withoutMigratedPlainText<T>(value: T): T {
+  const copy = structuredClone(value);
+  const payload = copy as unknown as FigureTemplate | FigureDocument;
+  const template =
+    payload.kind === 'figure-document' ? payload.templateSnapshot : payload;
+  if (!template?.panels) return copy;
+  for (const panel of template.panels) {
+    for (const axis of panel.axes)
+      if (axis.tickLabels.textFormat !== undefined) {
+        expect(axis.tickLabels.textFormat).toBe('plain');
+        delete axis.tickLabels.textFormat;
+      }
+    for (const plot of panel.plotSlots)
+      if (plot.legendEntry.format !== undefined) {
+        expect(plot.legendEntry.format).toBe('plain');
+        delete plot.legendEntry.format;
+      }
+  }
+  return copy;
+}
+
+// 仅移除不含绘制属性的轴身份容器；旧视觉 hash 仍逐字节检查全部几何/文字/样式。
+export function withoutAxisIdentityGroups(svg: string): string {
+  const stack: boolean[] = [];
+  return svg.replace(/<g\b[^>]*>|<\/g>/g, (tag) => {
+    if (tag === '</g>') return stack.pop() ? '' : tag;
+    const identity = /^<g data-axis-id="[^"]+">$/.test(tag);
+    stack.push(identity);
+    return identity ? '' : tag;
+  });
 }

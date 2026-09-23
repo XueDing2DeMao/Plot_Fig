@@ -1,0 +1,74 @@
+.origin-menu-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 30px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+  color: var(--ui-heading);
+  font:
+    12px 'Microsoft YaHei',
+    sans-serif;
+}
+.origin-menu > button {
+  min-height: 28px;
+  padding: 3px 7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.origin-menu > button:hover,
+.origin-menu > button[aria-expanded='true'] {
+  background: var(--ui-selected);
+}
+.origin-menu-popup {
+  position: fixed;
+  z-index: 90;
+  width: max-content;
+  min-width: 210px;
+  max-width: calc(100vw - 8px);
+  max-height: calc(100vh - 8px);
+  overflow: auto;
+  padding: 3px;
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-dialog);
+}
+.origin-menu-popup button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 25px;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ui-heading);
+  text-align: left;
+  font: inherit;
+  white-space: nowrap;
+}
+.origin-menu-shortcut {
+  margin-left: auto;
+  color: inherit;
+}
+.origin-submenu {
+  z-index: 91;
+}
+.origin-menu-popup button:hover:not(:disabled),
+.origin-menu-popup button:focus-visible:not(:disabled) {
+  background: var(--ui-selected);
+  outline: 1px solid var(--ui-border-strong);
+}
+.origin-menu-popup button:disabled {
+  color: var(--ui-muted);
+}
+.origin-menu-separator {
+  height: 1px;
+  margin: 3px 0;
+  background: var(--ui-border);
+}

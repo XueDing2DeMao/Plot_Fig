@@ -9,6 +9,8 @@ import {
   createCurrentDocument,
   createCurrentTemplate,
   expectNoSharedFigureRefs,
+  withoutLegacyAxisRangeFlags,
+  withoutMigratedPlainText,
 } from '../../../tests/helpers/figure-payloads.js';
 import { loadFigurePayload } from './load.js';
 import { migrateV010ToV100 } from './migrations/v0.1.0-to-v1.0.0.js';
@@ -70,9 +72,17 @@ describe('loadFigurePayload current and versioned flows', () => {
       diagnostics: [],
     });
     if (result.ok) {
-      expect(canonicalizeFigurePayload(result.value)).toBe(
-        canonicalizeFigurePayload(migrateV010ToV100(input)),
-      );
+      const expected: any = {
+        ...(migrateV010ToV100(input) as object),
+        schemaVersion: '1.22.0',
+      };
+      for (const panel of expected.panels) {
+        for (const axis of panel.axes) axis.tickLabels.textFormat = 'plain';
+        for (const plot of panel.plotSlots) plot.legendEntry.format = 'plain';
+      }
+      expect(
+        canonicalizeFigurePayload(withoutLegacyAxisRangeFlags(result.value)),
+      ).toBe(canonicalizeFigurePayload(withoutMigratedPlainText(expected)));
       expect(result.value).not.toBe(input);
       expect((result.value as FigureTemplate).page).not.toBe(
         (input as FigureTemplate).page,
@@ -104,7 +114,7 @@ describe('loadFigurePayload current and versioned flows', () => {
     },
   );
 
-  it.each(['1.0.1', '1.1.0', '2.0.0'])(
+  it.each(['1.22.1', '1.23.0', '2.0.0'])(
     'rejects future schemaVersion %s using full semver ordering',
     (schemaVersion) => {
       expectSingleDiagnostic(
@@ -118,6 +128,7 @@ describe('loadFigurePayload current and versioned flows', () => {
 
   it.each([
     { kind: 'figure-template', schemaVersion: '0.0.9' },
+    { kind: 'figure-template', schemaVersion: '1.2.1' },
     { kind: 'figure-document', schemaVersion: '0.1.0' },
   ] as const)('rejects unsupported historical payload %j', (input) => {
     expectSingleDiagnostic(

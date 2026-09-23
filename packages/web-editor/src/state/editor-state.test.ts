@@ -1,3 +1,4 @@
+import { xyPlot } from '../test-utils/xy-plot.js';
 import { inferDataBindingSet, parseCsvText } from '@plot-fig/data-binding';
 import { describe, expect, it } from 'vitest';
 import {
@@ -26,9 +27,9 @@ describe('editor rebinding', () => {
 
     const updated = updatePlotMode(template, 'markers');
 
-    expect(updated.panels[0]?.plotSlots[0]?.mode).toBe('markers');
+    expect(xyPlot(updated, 0).mode).toBe('markers');
     expect(template).toEqual(before);
-    expect(template.panels[0]?.plotSlots[0]?.mode).toBe('line-markers');
+    expect(xyPlot(template, 0).mode).toBe('line-markers');
   });
 
   it.each<PlotMode>(['markers', 'line', 'line-markers'])(

@@ -4,6 +4,15 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.replaceAll('\\', '/').includes('/@mathjax/')) return 'mathjax';
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@plot-fig/data-binding': fileURLToPath(

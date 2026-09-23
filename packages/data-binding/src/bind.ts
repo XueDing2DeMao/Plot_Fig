@@ -1,25 +1,5 @@
-import type { FigureTemplate } from '@plot-fig/figure-schema';
+import { roleAcceptsType, type FigureTemplate } from '@plot-fig/figure-schema';
 import type { DataBindingSet, DataDiagnostic, SlotBinding } from './types.js';
-
-function compatible(role: string, valueType: string): boolean {
-  if (
-    [
-      'x',
-      'y',
-      'xError',
-      'xErrorLower',
-      'xErrorUpper',
-      'yError',
-      'yErrorLower',
-      'yErrorUpper',
-      'size',
-    ].includes(role)
-  )
-    return valueType === 'number';
-  return (
-    valueType === 'number' || valueType === 'category' || valueType === 'string'
-  );
-}
 
 function findColumn(
   templateSlot: FigureTemplate['dataSlots'][number],
@@ -48,6 +28,7 @@ export function bindDataSlots(
   const bindings: SlotBinding[] = [];
   for (const slot of template.dataSlots) {
     const column = findColumn(slot, data, overrides[slot.dataSlotId]);
+    if (!column && !slot.required) continue;
     if (!column) {
       diagnostics.push({
         code: 'SLOT_COLUMN_MISSING',
@@ -57,7 +38,7 @@ export function bindDataSlots(
       });
       continue;
     }
-    if (!compatible(slot.role, column.valueType)) {
+    if (!roleAcceptsType(slot.role, column.valueType)) {
       diagnostics.push({
         code: 'COLUMN_TYPE_CONFLICT',
         severity: 'error',

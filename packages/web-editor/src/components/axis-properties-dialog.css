@@ -1,0 +1,171 @@
+.axis-properties-dialog {
+  width: min(880px, calc(100vw - 32px));
+  height: min(660px, calc(100dvh - 32px));
+  border: 0;
+  border-radius: 0;
+  color: var(--text, #202124);
+  background: var(--surface, #fff);
+}
+.axis-properties-dialog.has-preview {
+  width: min(1280px, calc(100vw - 32px));
+}
+.axis-properties-dialog[open] {
+  height: min(660px, calc(100dvh - 32px));
+}
+.axis-properties-dialog::backdrop {
+  background: rgb(0 0 0 / 35%);
+}
+.axis-properties-dialog__header,
+.axis-properties-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+}
+.axis-properties-dialog__header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.axis-properties-dialog__header p {
+  margin: 3px 0 0;
+  color: #666;
+  font-size: 12px;
+}
+.axis-properties-dialog__header > button {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+}
+.axis-properties-dialog__body {
+  grid-template-columns: minmax(0, 1fr);
+}
+.axis-properties-dialog.has-preview .axis-properties-dialog__body {
+  grid-template-columns: minmax(440px, 1fr) minmax(260px, 1fr);
+}
+.axis-properties-dialog__editor {
+  min-height: 0;
+  min-width: 0;
+  padding: 16px 18px;
+  overflow-y: auto;
+  align-content: start;
+  overscroll-behavior: contain;
+  border-right: 1px solid var(--ui-border);
+}
+.axis-properties-dialog__batch {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.axis-properties-dialog .property-dialog-preview[hidden] {
+  display: none;
+}
+.axis-properties-dialog .property-dialog-preview {
+  padding: 20px;
+}
+.axis-properties-dialog .property-draft-stage {
+  padding: 8px;
+}
+.axis-properties-dialog__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #ddd;
+}
+.axis-properties-dialog__tabs button {
+  border: 0;
+  background: transparent;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.axis-properties-dialog__tabs button[aria-selected='true'] {
+  color: #0759a8;
+  border-bottom: 2px solid currentColor;
+  font-weight: 600;
+}
+.axis-properties-dialog__footer {
+  justify-content: flex-end;
+  border-top: 1px solid #ddd;
+  border-bottom: 0;
+}
+.axis-properties-dialog__footer button {
+  padding: 7px 16px;
+}
+.origin-axis-layout {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+.origin-axis-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #ddd;
+  padding: 6px;
+  align-self: start;
+}
+.origin-axis-selector button {
+  padding: 10px 6px;
+  background: transparent;
+  border: 1px solid transparent;
+}
+.origin-axis-selector button[aria-pressed='true'] {
+  background: var(--ui-selected);
+  border-color: var(--ui-border-strong);
+}
+.axis-properties-dialog__error {
+  color: #b42318;
+  margin: 10px 0 0;
+}
+.axis-properties-dialog .origin-preview-toggle {
+  margin: 2px 18px 0 auto;
+  min-width: 40px;
+  padding: 1px 8px;
+}
+@media (min-width: 801px) and (max-width: 1100px) {
+  .axis-properties-dialog.has-preview .axis-properties-dialog__body {
+    grid-template-columns: minmax(440px, 1fr) minmax(0, 1fr);
+  }
+  .axis-properties-dialog .property-dialog-preview {
+    padding: 12px;
+  }
+}
+@media (max-width: 800px) {
+  .axis-properties-dialog {
+    width: calc(100vw - 16px);
+    height: calc(100dvh - 16px);
+  }
+  .axis-properties-dialog__body {
+    display: flex;
+    flex-direction: column;
+  }
+  .axis-properties-dialog .property-dialog-preview {
+    order: -1;
+    height: 210px;
+    flex-shrink: 0;
+    padding: 10px;
+    gap: 6px;
+  }
+  .axis-properties-dialog .property-dialog-preview .svg-surface > svg {
+    max-height: 145px;
+  }
+  .axis-properties-dialog .property-dialog-preview h3 {
+    display: none;
+  }
+  .axis-properties-dialog__editor {
+    flex: 1;
+    border-right: 0;
+  }
+  .axis-properties-dialog__batch {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .axis-properties-dialog__footer {
+    flex-wrap: wrap;
+  }
+}

@@ -14,9 +14,11 @@
     "@plot-fig/figure-schema": "workspace:*",
     "@plot-fig/svg-renderer": "workspace:*",
     "@vitejs/plugin-react": "5.0.0",
+    "fflate": "0.8.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "vite": "7.1.0"
+    "vite": "7.1.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "6.6.3",

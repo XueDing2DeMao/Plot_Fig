@@ -227,8 +227,22 @@ describe('FigureTemplate domain invariants', () => {
     expect(templateIssuePaths(value)).toEqual([]);
   });
 
-  it.each(['group', 'label', 'color'] as const)(
-    'rejects numeric %s slots',
+  it.each(['color', 'shape'] as const)(
+    'accepts numeric %s mapping slots',
+    (role) => {
+      const value = cloneTemplate();
+      value.dataSlots.push({
+        dataSlotId: 'slot-' + role,
+        name: role,
+        role,
+        valueType: 'number',
+        required: false,
+      });
+      expect(templateIssuePaths(value)).toEqual([]);
+    },
+  );
+  it.each(['group', 'label'] as const)(
+    'accepts numeric %s slots for F4 subsets and labels',
     (role) => {
       const value = cloneTemplate();
 
@@ -240,7 +254,7 @@ describe('FigureTemplate domain invariants', () => {
         required: false,
       });
 
-      expect(templateIssuePaths(value)).toContain('/dataSlots/2/valueType');
+      expect(templateIssuePaths(value)).toEqual([]);
     },
   );
 
@@ -249,10 +263,10 @@ describe('FigureTemplate domain invariants', () => {
     value.annotations = [pageTextAnnotation('axis-x')];
     value.dataSlots[0]!.valueType = 'category';
     value.dataSlots.push({
-      dataSlotId: 'slot-group',
-      name: 'group',
-      role: 'group',
-      valueType: 'number',
+      dataSlotId: 'slot-size',
+      name: 'size',
+      role: 'size',
+      valueType: 'string',
       required: false,
     });
     value.panels[0]!.frame.x = 0.3;

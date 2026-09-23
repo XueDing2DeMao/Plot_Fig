@@ -1,0 +1,38 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`preserves existing SVG line and label bytes for automatic ticks on all supported scales and axis sides 1`] = `
+{
+  "category/false/bottom": "0f33a1d5bded697532a651205ff2def54684743ec851f68fe7d78a8a964f4e3a",
+  "category/false/left": "beef4504c71b89d7d6a5d55b880c3c4e8c6eebc046e39455ffacd61f080ca39e",
+  "category/false/right": "d2ec46bd4bedbdf9bc21f0ad6e20f1855fae2fe882a0b60902064820913fba12",
+  "category/false/top": "049a3ec53d31a509fd6c3a3edcc3d557d7c9627c22215276c87fe4dcf7a51438",
+  "category/true/bottom": "b19b63c1747953f64b587a19e5c71ed6b5075a8befd564f77fbf59b1527ed616",
+  "category/true/left": "95c49d80766da54ef19b031a6331e001d6971ffc5a7ef4497aa4e6af112e9f17",
+  "category/true/right": "2d67d8a2a92493e7890d03bd25493fa327ffb0859b8e13c6cab12fa0bf573297",
+  "category/true/top": "94609f5e69659e3635fbde3ac1d0bf9ad1cccd405f4ffc865dff4544dc45fbb6",
+  "linear/false/bottom": "2eb9a4e218ccb348163fe75be6ba780948d907c0bd37ee35b0537b5c1e4a4b7b",
+  "linear/false/left": "9e6298b506edda8df0d04389760dcbbbe29212523aceb90da8fe7144f5957e76",
+  "linear/false/right": "10698746ec781a5f7b990ec9d8235ee7dab550b32c86e7f42c12b255bd3f16f6",
+  "linear/false/top": "f1ba829a4134073e1c467fe7648aba718197c2a3a03c3e73629f06140ac9005d",
+  "linear/true/bottom": "a76cee607da083405abfd787f6960f67a6de24a61abadcbf79feadb4b2790668",
+  "linear/true/left": "a45a921c1069f48830f3768638dbf3621a8f736015cb9e4cdabcd7e4ad1bcda1",
+  "linear/true/right": "6e905077b109b67a550bfc3cca1c0a6273b5ac7ffd9b6b520dd5df7a08d2b709",
+  "linear/true/top": "1b6243062a4402e7a89b62d96885227fc706bd58de43621d0feb2615c1b80ba8",
+  "ln/false/bottom": "fbec67579b3de43ba5ba9289af18e3a5b7e3df9d619166711cc220894a5cef94",
+  "ln/false/left": "754c189bb59cadbc563faf576e32831b1788f84bd80160492c481d7976fef236",
+  "ln/false/right": "e237789143ae0e22013681fdac633a5314bd33620abe2e4c1e9a3b1b178c4385",
+  "ln/false/top": "dc12d3f7dd56fdcc7e1a586ed212379c28b7e4355861ff7a3834ad6976c5cf45",
+  "ln/true/bottom": "ae08c6de63bac47aa9add8901dd29e571a1904cf63e7600235f2c3fde51beb59",
+  "ln/true/left": "67a297d7a7e6a6341ff7fbb53cfe14d57900e29a92b747fd98abe4ee690a9805",
+  "ln/true/right": "ec0985a5fd1ad34f341c5efd0b63f17801c2595de029dccd9dbe259db6431c2b",
+  "ln/true/top": "a18049e5496e95b7c26399989ca5e66f983edfe48a6f5ed7fcef87e95fde3875",
+  "log10/false/bottom": "8be15b473ed711b547212f8885d78af65066b3e3787f4dcb0f5f832e9a5d9efb",
+  "log10/false/left": "ea7d617f5ba6dc3c48ebe159a166e828ed395939a2b5a1423dba36a78a1643c3",
+  "log10/false/right": "0eb4143fd5ae3cf7a84bb064972c556a2cc7c8abd3d09a565b7d19a518687092",
+  "log10/false/top": "3b3165dbbe6278f8332347d60e8a9551a4ea19603760e63ed83b5a349bed0413",
+  "log10/true/bottom": "0d18f5d3de58477c61895ba1c99016086a776f41ea776b2c0f8aa72519881fb1",
+  "log10/true/left": "8614ea026c0b2e77132306f7ae6fb63c024b2adad447dc1166ae6d447d820454",
+  "log10/true/right": "bb0aa2003c071a7d8b3a16418a1c95bb08b7f3b5d49136e8cf44cc504eee1ce0",
+  "log10/true/top": "79f3aebb0284b471607cc04e5f5cb7cdb2d481b9db61ff872a159d12af8e8dfe",
+}
+`;

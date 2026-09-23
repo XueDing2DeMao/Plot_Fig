@@ -5,6 +5,8 @@ export type ProjectControlsProps = {
   canSave: boolean;
   status: ProjectControlStatus;
   statusMessage?: string;
+  hasUnsavedChanges?: boolean;
+  pendingChanges?: boolean;
   onSave: () => void;
   onOpenFile: (file: File) => void;
 };
@@ -15,11 +17,28 @@ export function ProjectControls({
   statusMessage,
   onSave,
   onOpenFile,
+  hasUnsavedChanges = false,
+  pendingChanges = false,
 }: ProjectControlsProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [openingFile, setOpeningFile] = useState<File | null>(null);
+  useEffect(() => {
+    const save = () => onSave();
+    const open = () => inputRef.current?.click();
+    window.addEventListener('plotfig:project-save', save);
+    window.addEventListener('plotfig:project-open', open);
+    return () => {
+      window.removeEventListener('plotfig:project-save', save);
+      window.removeEventListener('plotfig:project-open', open);
+    };
+  }, [onSave]);
   const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0];
     event.currentTarget.value = '';
-    if (file) onOpenFile(file);
+    if (file) {
+      if (hasUnsavedChanges) setOpeningFile(file);
+      else onOpenFile(file);
+    }
   };
   const message =
     statusMessage ??
@@ -27,7 +46,13 @@ export function ProjectControls({
       ? '正在打开项目…'
       : status === 'saving'
         ? '正在保存项目…'
-        : '项目文件保存在本地');
+        : '尚未保存项目');
+  const displayedMessage =
+    status === 'error' || status === 'opening' || status === 'saving'
+      ? message
+      : hasUnsavedChanges
+        ? `有未保存修改${pendingChanges ? '，保存时将先应用待绘图设置' : '，请下载项目文件'}`
+        : message;
   return (
     <section className="card project-controls" aria-label="项目文件">
       <p className="section-kicker">项目文件</p>
@@ -43,6 +68,7 @@ export function ProjectControls({
           打开项目
         </label>
         <input
+          ref={inputRef}
           id="project-file-input"
           className="project-open-input"
           aria-label="打开项目文件"
@@ -53,14 +79,39 @@ export function ProjectControls({
       </div>
       {status === 'error' ? (
         <p className="project-status" role="alert">
-          {message}
+          {displayedMessage}
         </p>
       ) : (
         <p className="project-status" aria-live="polite">
-          {message}
+          {displayedMessage}
         </p>
+      )}
+      {openingFile && (
+        <WorkspaceDialog
+          title="打开其他项目"
+          onClose={() => setOpeningFile(null)}
+        >
+          <p>当前有未保存修改。打开“{openingFile.name}”会替换当前工作区。</p>
+          <p>需要保留时，请先继续编辑并保存项目。</p>
+          <footer className="workspace-actions">
+            <button type="button" onClick={() => setOpeningFile(null)}>
+              继续编辑
+            </button>
+            <button
+              type="button"
+              className="danger-action"
+              onClick={() => {
+                onOpenFile(openingFile);
+                setOpeningFile(null);
+              }}
+            >
+              放弃修改并打开
+            </button>
+          </footer>
+        </WorkspaceDialog>
       )}
     </section>
   );
 }
-import type { ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { WorkspaceDialog } from './WorkspaceDialog.js';

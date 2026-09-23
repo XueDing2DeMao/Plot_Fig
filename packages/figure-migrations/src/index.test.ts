@@ -7,7 +7,10 @@ import {
   type LoadResult,
   type MigrationDiagnostic,
 } from '@plot-fig/figure-migrations';
-import { createCurrentTemplate } from '../../../tests/helpers/figure-payloads.js';
+import {
+  createCurrentTemplate,
+  withoutLegacyAxisRangeFlags,
+} from '../../../tests/helpers/figure-payloads.js';
 import { loadFigurePayload as internalLoadFigurePayload } from './load.js';
 import { migrateV010ToV100 } from './migrations/v0.1.0-to-v1.0.0.js';
 
@@ -54,8 +57,15 @@ describe('root package entry', () => {
       diagnostics: [],
     });
     if (legacyResult.ok) {
-      expect(canonicalizeFigurePayload(legacyResult.value)).toBe(
-        canonicalizeFigurePayload(migrateV010ToV100(legacy)),
+      expect(
+        canonicalizeFigurePayload(
+          withoutLegacyAxisRangeFlags(legacyResult.value),
+        ),
+      ).toBe(
+        canonicalizeFigurePayload({
+          ...(migrateV010ToV100(legacy) as object),
+          schemaVersion: '1.22.0',
+        }),
       );
     }
   });

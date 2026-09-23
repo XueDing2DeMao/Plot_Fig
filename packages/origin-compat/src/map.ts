@@ -1,4 +1,8 @@
-import type { FigureTemplate } from '@plot-fig/figure-schema';
+import {
+  CURRENT_SCHEMA_VERSION,
+  type FigureTemplate,
+  type XyPlot,
+} from '@plot-fig/figure-schema';
 import type { NormalizedOriginSnapshot } from './normalize.js';
 import type { CompatibilityItem, ImportDiagnostic } from './types.js';
 import {
@@ -181,7 +185,7 @@ export function mapOriginSnapshot(
               role,
               req.slotId,
             ]),
-          ) as FigureTemplate['panels'][number]['plotSlots'][number]['bindings'],
+          ) as XyPlot['bindings'],
           ...(plot.line ? { lineStyle: plot.line } : {}),
           ...(plot.symbol ? { markerStyle: plot.symbol } : {}),
           ...(plot.errorBar ? { errorBarStyle: plot.errorBar } : {}),
@@ -198,7 +202,7 @@ export function mapOriginSnapshot(
   const rootExtensions = extension(input.unknownProperties);
   const value: FigureTemplate = {
     kind: 'figure-template',
-    schemaVersion: '1.0.0',
+    schemaVersion: CURRENT_SCHEMA_VERSION,
     templateId: input.templateId,
     metadata: { name: input.name, tags: ['origin-import'] },
     page: {

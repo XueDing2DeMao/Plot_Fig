@@ -1,189 +1,320 @@
+import { renderLineExtras } from './xy-line-extras.js';
+import { prepareSeriesRows, type SeriesRow } from './series-rows.js';
+import { xyBoundColumns } from './xy-data-view.js';
+import { renderXyErrors } from './xy-errors.js';
+import type { ChartContext } from './charts/chart-point.js';
 import type { DataBindingSet } from '@plot-fig/data-binding';
-import type { FigureTemplate } from '@plot-fig/figure-schema';
-import { escapeXml, formatNumber, type Rect } from './geometry.js';
-import type { LinearScale } from './scales.js';
+import type { XyPlot } from '@plot-fig/figure-schema';
+import { escapeXml } from './geometry.js';
 import type { RenderDiagnostic } from './types.js';
-
-function column(data: DataBindingSet, slotId: string) {
-  const binding = data.bindings.find(
-    (item) => item.dataSlotId === slotId && item.status === 'valid',
-  );
-  return binding
-    ? data.columns.find((item) => item.columnId === binding.columnId)
-    : undefined;
-}
-
+import {
+  createMarkerRenderer,
+  type AdvancedMarker,
+} from './marker-appearance.js';
+import { xyLinePath } from './xy-line-path.js';
+import { resolveLineMapping } from './line-mapping.js';
+import { prepareCurveSubset } from './curve-groups.js';
+import { renderDataLabels } from './data-labels.js';
+import { renderAdvancedErrors } from './error-details.js';
+import { advancedMarkerRadius } from './marker-appearance.js';
+import { errorRange } from './error-values.js';
+import type { CurveRenderGeometry } from './curve-render-geometry.js';
+import { renderCurveDropLines } from './advanced-drop-lines.js';
+import { clipDataPolyline, containsDataPoint } from './data-clip.js';
 export function renderPlot(
-  plot: FigureTemplate['panels'][number]['plotSlots'][number],
+  plot: XyPlot,
   data: DataBindingSet,
-  xScale: LinearScale,
-  yScale: LinearScale,
-  rect: Rect,
+  context: ChartContext,
+  purpose: 'display' | 'export' = 'display',
+  prepared?: ReturnType<typeof prepareSeriesRows>,
+  markerForRow?: (row: SeriesRow) => AdvancedMarker,
+  markerPositionForRow?: (row: SeriesRow) => { x: number; y: number },
+  geometry?: CurveRenderGeometry,
 ):
-  | { svg: string; skipped: number; diagnostics: RenderDiagnostic[] }
+  | {
+      svg: string;
+      skipped: number;
+      diagnostics: RenderDiagnostic[];
+      lineColorForRow?: (row: SeriesRow) => string;
+      markerForRow?: (row: SeriesRow) => AdvancedMarker;
+    }
   | undefined {
-  const x = column(data, plot.bindings.x);
-  const y = column(data, plot.bindings.y);
-  if (!x || !y) return undefined;
-  const points: Array<{ x: number; y: number }> = [];
-  let skipped = 0;
-  const diagnostics: RenderDiagnostic[] = [];
-  const count = Math.min(x.values.length, y.values.length);
-  for (let index = 0; index < count; index += 1) {
-    const xv = x.values[index];
-    const yv = y.values[index];
-    if (
-      typeof xv !== 'number' ||
-      typeof yv !== 'number' ||
-      !Number.isFinite(xv) ||
-      !Number.isFinite(yv)
-    ) {
-      skipped += 1;
-      continue;
-    }
-    points.push({
-      x: rect.x + xScale.map(xv) * rect.width,
-      y: rect.y + (1 - yScale.map(yv)) * rect.height,
-    });
-  }
-  const path = points
-    .map(
-      (point, index) =>
-        `${index === 0 ? 'M' : 'L'}${formatNumber(point.x)} ${formatNumber(point.y)}`,
-    )
-    .join(' ');
-  let svg = '';
-  if (plot.mode !== 'markers' && plot.lineStyle?.visible && path)
-    svg += `<path d="${path}" fill="none" stroke="${escapeXml(plot.lineStyle.color)}" stroke-width="${formatNumber(plot.lineStyle.widthPt)}" />`;
-  if (plot.mode !== 'line' && plot.markerStyle?.visible)
-    for (const point of points)
-      svg += `<circle data-role="marker" cx="${formatNumber(point.x)}" cy="${formatNumber(point.y)}" r="${formatNumber(plot.markerStyle.sizePt / 2)}" fill="${escapeXml(plot.markerStyle.fill)}" stroke="${escapeXml(plot.markerStyle.stroke)}" stroke-width="${formatNumber(plot.markerStyle.strokeWidthPt)}" />`;
-  if (plot.errorBarStyle?.visible) {
-    const xError = renderErrorBars(
-      plot,
-      data,
-      x,
-      y,
-      points,
-      xScale,
-      yScale,
-      rect,
-      'x',
-    );
-    const yError = renderErrorBars(
-      plot,
-      data,
-      x,
-      y,
-      points,
-      xScale,
-      yScale,
-      rect,
-      'y',
-    );
-    svg += xError.svg + yError.svg;
-    diagnostics.push(...xError.diagnostics, ...yError.diagnostics);
-  }
-  if (plot.legendEntry.visible)
-    svg += `<text data-role="legend" x="${formatNumber(rect.x + rect.width)}" y="${formatNumber(rect.y - 8)}">${escapeXml(plot.legendEntry.text)}</text>`;
-  return { svg, skipped, diagnostics };
-}
-
-type ErrorDirection = 'x' | 'y';
-
-function finiteAt(
-  columnData: ReturnType<typeof column>,
-  index: number,
-): number | undefined {
-  const value = columnData?.values[index];
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0
-    ? value
-    : undefined;
-}
-
-function resolveError(
-  plot: FigureTemplate['panels'][number]['plotSlots'][number],
-  data: DataBindingSet,
-  direction: ErrorDirection,
-  index: number,
-  base: number,
-): { lower: number; upper: number } | undefined {
-  const bindings = plot.bindings;
-  const symmetricId = direction === 'x' ? bindings.xError : bindings.yError;
-  const lowerId =
-    direction === 'x' ? bindings.xErrorLower : bindings.yErrorLower;
-  const upperId =
-    direction === 'x' ? bindings.xErrorUpper : bindings.yErrorUpper;
-  const symmetric = finiteAt(
-    symmetricId ? column(data, symmetricId) : undefined,
-    index,
+  const { x, y } = xyBoundColumns(plot, data);
+  const inDomain = (row: { x: number; y: number }) =>
+    Number.isFinite(context.xScale.map(row.x)) &&
+    Number.isFinite(context.yScale.map(row.y));
+  const rows = prepared ?? prepareSeriesRows(x, y, plot.dataView, inDomain);
+  const sourceRows = geometry?.sourceRows ?? rows;
+  const subset = prepareCurveSubset(plot, data, sourceRows);
+  const rawByIndex = new Map(
+    sourceRows.rawRows.map((row) => [row.sourceIndex, row]),
   );
-  if (symmetric !== undefined)
-    return { lower: base - symmetric, upper: base + symmetric };
-  const lower = finiteAt(lowerId ? column(data, lowerId) : undefined, index);
-  const upper = finiteAt(upperId ? column(data, upperId) : undefined, index);
-  if (lower !== undefined && upper !== undefined)
-    return { lower: base - lower, upper: base + upper };
-  return undefined;
-}
-
-function hasErrorBinding(
-  plot: FigureTemplate['panels'][number]['plotSlots'][number],
-  direction: ErrorDirection,
-): boolean {
-  const bindings = plot.bindings;
-  return direction === 'x'
-    ? Boolean(bindings.xError || bindings.xErrorLower || bindings.xErrorUpper)
-    : Boolean(bindings.yError || bindings.yErrorLower || bindings.yErrorUpper);
-}
-
-function renderErrorBars(
-  plot: FigureTemplate['panels'][number]['plotSlots'][number],
-  data: DataBindingSet,
-  x: NonNullable<ReturnType<typeof column>>,
-  y: NonNullable<ReturnType<typeof column>>,
-  points: Array<{ x: number; y: number }>,
-  xScale: LinearScale,
-  yScale: LinearScale,
-  rect: Rect,
-  direction: ErrorDirection,
-): { svg: string; diagnostics: RenderDiagnostic[] } {
-  const diagnostics: RenderDiagnostic[] = [];
-  let svg = '';
-  for (let index = 0; index < points.length; index += 1) {
-    const baseX = x.values[index];
-    const baseY = y.values[index];
-    if (typeof baseX !== 'number' || typeof baseY !== 'number') continue;
-    const resolved = resolveError(
-      plot,
-      data,
-      direction,
-      index,
-      direction === 'x' ? baseX : baseY,
+  if (!markerForRow && plot.subset && plot.markerStyle)
+    markerForRow = (row) => ({
+      ...plot.markerStyle!,
+      ...subset.style(row).marker,
+    });
+  const hasMarkers =
+    plot.mode !== 'line' &&
+    !!plot.markerStyle &&
+    (!!markerForRow || plot.markerStyle.visible);
+  const lineBinding = data.bindings.find(
+    (b) => b.dataSlotId === plot.bindings.lineColor && b.status === 'valid',
+  );
+  const mappedLine =
+    plot.lineMapping && plot.lineStyle
+      ? resolveLineMapping(
+          plot.lineStyle,
+          sourceRows.rawRows,
+          plot.lineMapping,
+          data.columns.find((c) => c.columnId === lineBinding?.columnId),
+        )
+      : undefined;
+  const lineColorForRow =
+    mappedLine || plot.subset
+      ? (row: SeriesRow) =>
+          mappedLine?.color(rawByIndex.get(row.sourceIndex) ?? row) ??
+          subset.style(row).line?.color ??
+          plot.lineStyle?.color ??
+          '#000000'
+      : undefined;
+  // 抽样不得掩盖完整样条在实际坐标中的重合或数值不稳定。
+  if (
+    plot.mode !== 'markers' &&
+    plot.lineStyle?.visible &&
+    plot.lineConnection === 'spline'
+  )
+    for (const segment of subset.segments(
+      geometry?.lineSegments ?? rows.segments,
+    ))
+      xyLinePath(
+        segment.map((row) => ({
+          x: context.rect.x + context.xScale.map(row.x) * context.rect.width,
+          y:
+            context.rect.y +
+            (1 - context.yScale.map(row.y)) * context.rect.height,
+        })),
+        'spline',
+      );
+  const selected = subset.segments(
+    purpose === 'export' ? rows.exportSegments : rows.displaySegments,
+  );
+  let skipped = rows.invalidCount;
+  const screenSegments = (input: SeriesRow[][], lineOnly = false) =>
+    input.map((segment) =>
+      segment.flatMap((row) => {
+        const x =
+          context.rect.x + context.xScale.map(row.x) * context.rect.width;
+        const y =
+          context.rect.y +
+          (1 - context.yScale.map(row.y)) * context.rect.height;
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+          skipped++;
+          return [];
+        }
+        return [
+          {
+            x,
+            y,
+            sourceIndex: row.sourceIndex,
+            row,
+            marker: lineOnly ? undefined : markerForRow?.(row),
+            symbolPoint: lineOnly ? undefined : markerPositionForRow?.(row),
+          },
+        ];
+      }),
     );
-    if (!resolved) {
-      if (hasErrorBinding(plot, direction))
-        diagnostics.push({
-          code: 'RENDER_DATA_INVALID',
-          severity: 'warning',
-          sourcePath: '/',
-          message: `Invalid ${direction}-error value skipped`,
-        });
-      continue;
-    }
-    const point = points[index]!;
-    const style = plot.errorBarStyle!;
-    if (direction === 'x') {
-      const left = rect.x + xScale.map(resolved.lower) * rect.width;
-      const right = rect.x + xScale.map(resolved.upper) * rect.width;
-      const cap = style.capWidthPt / 2;
-      svg += `<line data-role="error-bar" x1="${formatNumber(left)}" y1="${formatNumber(point.y)}" x2="${formatNumber(right)}" y2="${formatNumber(point.y)}" stroke="${escapeXml(style.color)}" stroke-width="${formatNumber(style.widthPt)}" /><line data-role="error-cap" x1="${formatNumber(left)}" y1="${formatNumber(point.y - cap)}" x2="${formatNumber(left)}" y2="${formatNumber(point.y + cap)}" stroke="${escapeXml(style.color)}" stroke-width="${formatNumber(style.widthPt)}" /><line data-role="error-cap" x1="${formatNumber(right)}" y1="${formatNumber(point.y - cap)}" x2="${formatNumber(right)}" y2="${formatNumber(point.y + cap)}" stroke="${escapeXml(style.color)}" stroke-width="${formatNumber(style.widthPt)}" />`;
-    } else {
-      const top = rect.y + (1 - yScale.map(resolved.upper)) * rect.height;
-      const bottom = rect.y + (1 - yScale.map(resolved.lower)) * rect.height;
-      const cap = style.capWidthPt / 2;
-      svg += `<line data-role="error-bar" x1="${formatNumber(point.x)}" y1="${formatNumber(top)}" x2="${formatNumber(point.x)}" y2="${formatNumber(bottom)}" stroke="${escapeXml(style.color)}" stroke-width="${formatNumber(style.widthPt)}" /><line data-role="error-cap" x1="${formatNumber(point.x - cap)}" y1="${formatNumber(top)}" x2="${formatNumber(point.x + cap)}" y2="${formatNumber(top)}" stroke="${escapeXml(style.color)}" stroke-width="${formatNumber(style.widthPt)}" /><line data-role="error-cap" x1="${formatNumber(point.x - cap)}" y1="${formatNumber(bottom)}" x2="${formatNumber(point.x + cap)}" y2="${formatNumber(bottom)}" stroke="${escapeXml(style.color)}" stroke-width="${formatNumber(style.widthPt)}" />`;
+  const segments = screenSegments(
+    context.dataClip
+      ? selected.map((s) =>
+          s.filter((p) => containsDataPoint(p, context.dataClip)),
+        )
+      : selected,
+  );
+  const lineSource = subset.segments(geometry?.lineSegments ?? selected);
+  const needsClip =
+    !!context.dataClip && lineSource.some((s) => s.some((p) => !inDomain(p)));
+  const step =
+    plot.lineConnection === 'step-h' || plot.lineConnection === 'step-v';
+  const expanded = (s: SeriesRow[]) =>
+    step
+      ? s.flatMap((p, i) =>
+          i
+            ? [
+                {
+                  ...p,
+                  x: plot.lineConnection === 'step-h' ? p.x : s[i - 1]!.x,
+                  y: plot.lineConnection === 'step-h' ? s[i - 1]!.y : p.y,
+                },
+                p,
+              ]
+            : [p],
+        )
+      : s;
+  const lineSegments = needsClip
+    ? screenSegments(
+        lineSource.flatMap((s) =>
+          clipDataPolyline(expanded(s), context.dataClip!),
+        ),
+        true,
+      )
+    : context.dataClip
+      ? screenSegments(lineSource, true)
+      : geometry?.lineSegments
+        ? screenSegments(subset.segments(geometry.lineSegments), true)
+        : segments;
+  const points = segments.flat();
+  const diagnostics: RenderDiagnostic[] = [];
+  if (mappedLine?.diagnostics.length)
+    diagnostics.push({
+      code: 'RENDER_DATA_INVALID',
+      severity: 'warning',
+      sourcePath: '/plotSlots/' + plot.plotSlotId + '/lineMapping',
+      message: `${mappedLine.diagnostics.length} 行线色数据无效，保留基础线色`,
+    });
+  let svg = plot.dropLines
+    ? renderCurveDropLines(
+        plot,
+        subset.segments(geometry?.lineSegments ?? rows.segments),
+        selected,
+        context,
+        geometry,
+      )
+    : '';
+  let lines = '';
+  if (plot.mode !== 'markers' && plot.lineStyle?.visible)
+    for (const segment of lineSegments)
+      lines += renderLineExtras({
+        points: segment,
+        connection:
+          needsClip && step ? 'straight' : (plot.lineConnection ?? 'straight'),
+        line: plot.lineStyle,
+        ...(lineColorForRow
+          ? { lineColors: segment.map((p) => lineColorForRow(p.row)) }
+          : {}),
+        ...(plot.subset
+          ? {
+              lineStyles: segment.map((p) => {
+                const style = {
+                  ...plot.lineStyle!,
+                  ...subset.style(p.row).line,
+                };
+                if (subset.style(p.row).line?.dash) delete style.customDash;
+                return style;
+              }),
+            }
+          : {}),
+        ...(plot.mode !== 'line' && plot.markerStyle
+          ? { marker: plot.markerStyle }
+          : {}),
+        ...(markerForRow && hasMarkers
+          ? {
+              symbolStyles: (geometry?.lineSegments || context.dataClip
+                ? points
+                : segment
+              ).map((p) => p.marker!),
+            }
+          : {}),
+        ...((markerPositionForRow ||
+          geometry?.lineSegments ||
+          context.dataClip) &&
+        hasMarkers
+          ? {
+              symbols: (geometry?.lineSegments || context.dataClip
+                ? points
+                : segment
+              ).map((p) => p.symbolPoint ?? p),
+            }
+          : {}),
+        extras: plot,
+      });
+  if (!plot.lineInFront) svg += lines;
+  if (hasMarkers && plot.markerStyle) {
+    const renderMarker = createMarkerRenderer(
+      plot.markerStyle,
+      plot.lineStyle?.opacity,
+    );
+    const renderers = new Map<
+      string,
+      ReturnType<typeof createMarkerRenderer>
+    >();
+    for (const point of points) {
+      if (!point.marker) {
+        svg += renderMarker(point.symbolPoint ?? point);
+        continue;
+      }
+      if (!point.marker.visible) continue;
+      const key = JSON.stringify(point.marker);
+      let renderer = renderers.get(key);
+      if (!renderer) {
+        renderer = createMarkerRenderer(point.marker, plot.lineStyle?.opacity);
+        renderers.set(key, renderer);
+      }
+      svg += `<g data-role="mapped-symbol" data-source-index="${point.sourceIndex}">${renderer(point.symbolPoint ?? point)}</g>`;
     }
   }
-  return { svg, diagnostics };
+  if (plot.lineInFront) svg += lines;
+  const errors =
+    plot.errorDetails || geometry?.errorTransform
+      ? renderAdvancedErrors(plot, data, {
+          context,
+          segments: selected,
+          allSegments: subset.segments(rows.segments),
+          sourceRows: sourceRows.rawRows,
+          ...(geometry?.errorTransform
+            ? { errorTransform: geometry.errorTransform }
+            : {}),
+          ...(lineColorForRow ? { lineColorForRow } : {}),
+          markerRadius: (row: SeriesRow) => {
+            const marker = markerForRow?.(row) ?? plot.markerStyle;
+            return hasMarkers && marker?.visible
+              ? advancedMarkerRadius(marker)
+              : 0;
+          },
+        })
+      : renderXyErrors(plot, data, {
+          context,
+          indices: context.dataClip
+            ? selected.flat().map((p) => p.sourceIndex)
+            : points.map((p) => p.sourceIndex),
+        });
+  svg += errors.svg;
+  diagnostics.push(...errors.diagnostics);
+  if (plot.dataLabels) {
+    const labels = renderDataLabels({
+      plot,
+      data,
+      context,
+      rows: rows.segments
+        .flat()
+        .filter((p) => containsDataPoint(p, context.dataClip)),
+      rawRowForRow: (row) => rawByIndex.get(row.sourceIndex) ?? row,
+      ...(markerForRow ? { markerForRow } : {}),
+      ...(markerPositionForRow ? { pointForRow: markerPositionForRow } : {}),
+      ...(lineColorForRow ? { lineColorForRow } : {}),
+      errorBounds: (prefix, index, base) => {
+        const raw = rawByIndex.get(index);
+        const range = errorRange(plot, data, {
+          prefix,
+          index,
+          base: raw?.[prefix] ?? base,
+        });
+        const transform = raw && geometry?.errorTransform?.(raw);
+        return range && transform
+          ? (range.map((v) =>
+              prefix === 'x' ? v + transform.xOffset : transform.mapY(v),
+            ) as [number, number])
+          : range;
+      },
+    });
+    svg += labels.svg;
+    diagnostics.push(...labels.diagnostics);
+  }
+  return {
+    svg: `<g data-role="plot-slot" data-plot-slot-id="${escapeXml(plot.plotSlotId)}">${svg}</g>`,
+    skipped,
+    diagnostics,
+    ...(lineColorForRow ? { lineColorForRow } : {}),
+    ...(markerForRow ? { markerForRow } : {}),
+  };
 }

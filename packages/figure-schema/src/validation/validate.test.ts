@@ -7,7 +7,7 @@ const cloneTemplate = () => structuredClone(validTemplate);
 const createDocument = () =>
   ({
     kind: 'figure-document',
-    schemaVersion: '1.0.0',
+    schemaVersion: '1.22.0',
     documentId: 'document-1',
     templateSnapshot: cloneTemplate(),
     dataSources: [

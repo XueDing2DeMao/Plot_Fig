@@ -1,3 +1,4 @@
+import { PaintSchema } from './paint.js';
 import Type from 'typebox';
 import {
   ExtensionBagSchema,
@@ -25,6 +26,7 @@ export const PageSchema = Type.Object(
       { additionalProperties: false },
     ),
     background: Type.String({ minLength: 1 }),
+    backgroundPaint: Type.Optional(PaintSchema),
     margins: Type.Object(
       {
         top: PointLengthSchema,

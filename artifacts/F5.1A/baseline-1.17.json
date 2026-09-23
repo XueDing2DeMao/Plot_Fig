@@ -1,0 +1,734 @@
+[
+  {
+    "scale": "linear",
+    "template": {
+      "kind": "figure-template",
+      "schemaVersion": "1.17.0",
+      "templateId": "template-basic-xy",
+      "metadata": {
+        "name": "Basic XY",
+        "tags": [
+          "xy"
+        ]
+      },
+      "page": {
+        "size": {
+          "width": {
+            "value": 89,
+            "unit": "mm"
+          },
+          "height": {
+            "value": 65,
+            "unit": "mm"
+          }
+        },
+        "background": "#ffffff",
+        "margins": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "panels": [
+        {
+          "panelId": "panel-main",
+          "frame": {
+            "x": 0.12,
+            "y": 0.08,
+            "width": 0.8,
+            "height": 0.82
+          },
+          "coordinateSystem": "cartesian-2d",
+          "clip": true,
+          "axes": [
+            {
+              "axisId": "axis-x",
+              "dimension": "x",
+              "position": "bottom",
+              "scale": "linear",
+              "range": {
+                "mode": "auto"
+              },
+              "reverse": false,
+              "visible": true,
+              "line": {
+                "color": "#111111",
+                "widthPt": 1
+              },
+              "majorTicks": {
+                "visible": true,
+                "lengthPt": 4,
+                "widthPt": 1
+              },
+              "minorTicks": {
+                "visible": false,
+                "count": 0,
+                "lengthPt": 2,
+                "widthPt": 0.8
+              },
+              "tickLabels": {
+                "visible": true,
+                "fontFamily": "Arial",
+                "fontSizePt": 8,
+                "color": "#111111",
+                "notation": "auto",
+                "precision": 6
+              }
+            },
+            {
+              "axisId": "axis-y",
+              "dimension": "y",
+              "position": "left",
+              "scale": "linear",
+              "range": {
+                "mode": "auto"
+              },
+              "reverse": false,
+              "visible": true,
+              "line": {
+                "color": "#111111",
+                "widthPt": 1
+              },
+              "majorTicks": {
+                "visible": true,
+                "lengthPt": 4,
+                "widthPt": 1
+              },
+              "minorTicks": {
+                "visible": true,
+                "count": 2,
+                "lengthPt": 2,
+                "widthPt": 0.8
+              },
+              "tickLabels": {
+                "visible": true,
+                "fontFamily": "Arial",
+                "fontSizePt": 8,
+                "color": "#111111",
+                "notation": "auto",
+                "precision": 6
+              }
+            }
+          ],
+          "plotSlots": [
+            {
+              "plotSlotId": "series-1",
+              "kind": "xy",
+              "xAxisId": "axis-x",
+              "yAxisId": "axis-y",
+              "legendEntry": {
+                "visible": true,
+                "text": "Series 1"
+              },
+              "mode": "line-markers",
+              "bindings": {
+                "x": "slot-x",
+                "y": "slot-y"
+              },
+              "lineStyle": {
+                "visible": true,
+                "color": "#111111",
+                "widthPt": 1.2,
+                "dash": "solid"
+              },
+              "markerStyle": {
+                "visible": true,
+                "shape": "circle",
+                "sizePt": 4,
+                "fill": "#ffffff",
+                "stroke": "#111111",
+                "strokeWidthPt": 0.8
+              }
+            }
+          ]
+        }
+      ],
+      "dataSlots": [
+        {
+          "dataSlotId": "slot-x",
+          "name": "x",
+          "role": "x",
+          "valueType": "number",
+          "required": true
+        },
+        {
+          "dataSlotId": "slot-y",
+          "name": "y",
+          "role": "y",
+          "valueType": "number",
+          "required": true
+        }
+      ],
+      "annotations": [],
+      "theme": {
+        "font": {
+          "family": "Arial",
+          "sizePt": 8,
+          "color": "#111111"
+        },
+        "line": {
+          "color": "#111111",
+          "widthPt": 1
+        },
+        "marker": {
+          "shape": "circle",
+          "sizePt": 4,
+          "fill": "#ffffff",
+          "stroke": "#111111"
+        },
+        "palette": [
+          "#0072B2",
+          "#D55E00"
+        ],
+        "background": "#ffffff"
+      },
+      "provenance": {
+        "sourceKind": "origin-snapshot",
+        "sourceHash": "sha256:fixture-basic-xy",
+        "importerVersion": "0.1.0"
+      },
+      "extensions": {
+        "origin": {
+          "layer": "Layer1"
+        }
+      }
+    },
+    "data": {
+      "kind": "data-binding-set",
+      "version": "1.0.0",
+      "source": {
+        "kind": "session",
+        "name": "fixture",
+        "rowCount": 3
+      },
+      "columns": [
+        {
+          "columnId": "x",
+          "name": "x",
+          "index": 0,
+          "valueType": "number",
+          "values": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "columnId": "y",
+          "name": "y",
+          "index": 1,
+          "valueType": "number",
+          "values": [
+            1,
+            2,
+            4,
+            8
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "dataSlotId": "slot-x",
+          "columnId": "x",
+          "status": "valid"
+        },
+        {
+          "dataSlotId": "slot-y",
+          "columnId": "y",
+          "status": "valid"
+        }
+      ],
+      "diagnostics": []
+    }
+  },
+  {
+    "scale": "log10",
+    "template": {
+      "kind": "figure-template",
+      "schemaVersion": "1.17.0",
+      "templateId": "template-basic-xy",
+      "metadata": {
+        "name": "Basic XY",
+        "tags": [
+          "xy"
+        ]
+      },
+      "page": {
+        "size": {
+          "width": {
+            "value": 89,
+            "unit": "mm"
+          },
+          "height": {
+            "value": 65,
+            "unit": "mm"
+          }
+        },
+        "background": "#ffffff",
+        "margins": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "panels": [
+        {
+          "panelId": "panel-main",
+          "frame": {
+            "x": 0.12,
+            "y": 0.08,
+            "width": 0.8,
+            "height": 0.82
+          },
+          "coordinateSystem": "cartesian-2d",
+          "clip": true,
+          "axes": [
+            {
+              "axisId": "axis-x",
+              "dimension": "x",
+              "position": "bottom",
+              "scale": "linear",
+              "range": {
+                "mode": "auto"
+              },
+              "reverse": false,
+              "visible": true,
+              "line": {
+                "color": "#111111",
+                "widthPt": 1
+              },
+              "majorTicks": {
+                "visible": true,
+                "lengthPt": 4,
+                "widthPt": 1
+              },
+              "minorTicks": {
+                "visible": false,
+                "count": 0,
+                "lengthPt": 2,
+                "widthPt": 0.8
+              },
+              "tickLabels": {
+                "visible": true,
+                "fontFamily": "Arial",
+                "fontSizePt": 8,
+                "color": "#111111",
+                "notation": "auto",
+                "precision": 6
+              }
+            },
+            {
+              "axisId": "axis-y",
+              "dimension": "y",
+              "position": "left",
+              "scale": "log10",
+              "range": {
+                "mode": "auto"
+              },
+              "reverse": false,
+              "visible": true,
+              "line": {
+                "color": "#111111",
+                "widthPt": 1
+              },
+              "majorTicks": {
+                "visible": true,
+                "lengthPt": 4,
+                "widthPt": 1
+              },
+              "minorTicks": {
+                "visible": true,
+                "count": 2,
+                "lengthPt": 2,
+                "widthPt": 0.8
+              },
+              "tickLabels": {
+                "visible": true,
+                "fontFamily": "Arial",
+                "fontSizePt": 8,
+                "color": "#111111",
+                "notation": "auto",
+                "precision": 6
+              }
+            }
+          ],
+          "plotSlots": [
+            {
+              "plotSlotId": "series-1",
+              "kind": "xy",
+              "xAxisId": "axis-x",
+              "yAxisId": "axis-y",
+              "legendEntry": {
+                "visible": true,
+                "text": "Series 1"
+              },
+              "mode": "line-markers",
+              "bindings": {
+                "x": "slot-x",
+                "y": "slot-y"
+              },
+              "lineStyle": {
+                "visible": true,
+                "color": "#111111",
+                "widthPt": 1.2,
+                "dash": "solid"
+              },
+              "markerStyle": {
+                "visible": true,
+                "shape": "circle",
+                "sizePt": 4,
+                "fill": "#ffffff",
+                "stroke": "#111111",
+                "strokeWidthPt": 0.8
+              }
+            }
+          ]
+        }
+      ],
+      "dataSlots": [
+        {
+          "dataSlotId": "slot-x",
+          "name": "x",
+          "role": "x",
+          "valueType": "number",
+          "required": true
+        },
+        {
+          "dataSlotId": "slot-y",
+          "name": "y",
+          "role": "y",
+          "valueType": "number",
+          "required": true
+        }
+      ],
+      "annotations": [],
+      "theme": {
+        "font": {
+          "family": "Arial",
+          "sizePt": 8,
+          "color": "#111111"
+        },
+        "line": {
+          "color": "#111111",
+          "widthPt": 1
+        },
+        "marker": {
+          "shape": "circle",
+          "sizePt": 4,
+          "fill": "#ffffff",
+          "stroke": "#111111"
+        },
+        "palette": [
+          "#0072B2",
+          "#D55E00"
+        ],
+        "background": "#ffffff"
+      },
+      "provenance": {
+        "sourceKind": "origin-snapshot",
+        "sourceHash": "sha256:fixture-basic-xy",
+        "importerVersion": "0.1.0"
+      },
+      "extensions": {
+        "origin": {
+          "layer": "Layer1"
+        }
+      }
+    },
+    "data": {
+      "kind": "data-binding-set",
+      "version": "1.0.0",
+      "source": {
+        "kind": "session",
+        "name": "fixture",
+        "rowCount": 3
+      },
+      "columns": [
+        {
+          "columnId": "x",
+          "name": "x",
+          "index": 0,
+          "valueType": "number",
+          "values": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "columnId": "y",
+          "name": "y",
+          "index": 1,
+          "valueType": "number",
+          "values": [
+            1,
+            2,
+            4,
+            8
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "dataSlotId": "slot-x",
+          "columnId": "x",
+          "status": "valid"
+        },
+        {
+          "dataSlotId": "slot-y",
+          "columnId": "y",
+          "status": "valid"
+        }
+      ],
+      "diagnostics": []
+    }
+  },
+  {
+    "scale": "ln",
+    "template": {
+      "kind": "figure-template",
+      "schemaVersion": "1.17.0",
+      "templateId": "template-basic-xy",
+      "metadata": {
+        "name": "Basic XY",
+        "tags": [
+          "xy"
+        ]
+      },
+      "page": {
+        "size": {
+          "width": {
+            "value": 89,
+            "unit": "mm"
+          },
+          "height": {
+            "value": 65,
+            "unit": "mm"
+          }
+        },
+        "background": "#ffffff",
+        "margins": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "panels": [
+        {
+          "panelId": "panel-main",
+          "frame": {
+            "x": 0.12,
+            "y": 0.08,
+            "width": 0.8,
+            "height": 0.82
+          },
+          "coordinateSystem": "cartesian-2d",
+          "clip": true,
+          "axes": [
+            {
+              "axisId": "axis-x",
+              "dimension": "x",
+              "position": "bottom",
+              "scale": "linear",
+              "range": {
+                "mode": "auto"
+              },
+              "reverse": false,
+              "visible": true,
+              "line": {
+                "color": "#111111",
+                "widthPt": 1
+              },
+              "majorTicks": {
+                "visible": true,
+                "lengthPt": 4,
+                "widthPt": 1
+              },
+              "minorTicks": {
+                "visible": false,
+                "count": 0,
+                "lengthPt": 2,
+                "widthPt": 0.8
+              },
+              "tickLabels": {
+                "visible": true,
+                "fontFamily": "Arial",
+                "fontSizePt": 8,
+                "color": "#111111",
+                "notation": "auto",
+                "precision": 6
+              }
+            },
+            {
+              "axisId": "axis-y",
+              "dimension": "y",
+              "position": "left",
+              "scale": "ln",
+              "range": {
+                "mode": "auto"
+              },
+              "reverse": false,
+              "visible": true,
+              "line": {
+                "color": "#111111",
+                "widthPt": 1
+              },
+              "majorTicks": {
+                "visible": true,
+                "lengthPt": 4,
+                "widthPt": 1
+              },
+              "minorTicks": {
+                "visible": true,
+                "count": 2,
+                "lengthPt": 2,
+                "widthPt": 0.8
+              },
+              "tickLabels": {
+                "visible": true,
+                "fontFamily": "Arial",
+                "fontSizePt": 8,
+                "color": "#111111",
+                "notation": "auto",
+                "precision": 6
+              }
+            }
+          ],
+          "plotSlots": [
+            {
+              "plotSlotId": "series-1",
+              "kind": "xy",
+              "xAxisId": "axis-x",
+              "yAxisId": "axis-y",
+              "legendEntry": {
+                "visible": true,
+                "text": "Series 1"
+              },
+              "mode": "line-markers",
+              "bindings": {
+                "x": "slot-x",
+                "y": "slot-y"
+              },
+              "lineStyle": {
+                "visible": true,
+                "color": "#111111",
+                "widthPt": 1.2,
+                "dash": "solid"
+              },
+              "markerStyle": {
+                "visible": true,
+                "shape": "circle",
+                "sizePt": 4,
+                "fill": "#ffffff",
+                "stroke": "#111111",
+                "strokeWidthPt": 0.8
+              }
+            }
+          ]
+        }
+      ],
+      "dataSlots": [
+        {
+          "dataSlotId": "slot-x",
+          "name": "x",
+          "role": "x",
+          "valueType": "number",
+          "required": true
+        },
+        {
+          "dataSlotId": "slot-y",
+          "name": "y",
+          "role": "y",
+          "valueType": "number",
+          "required": true
+        }
+      ],
+      "annotations": [],
+      "theme": {
+        "font": {
+          "family": "Arial",
+          "sizePt": 8,
+          "color": "#111111"
+        },
+        "line": {
+          "color": "#111111",
+          "widthPt": 1
+        },
+        "marker": {
+          "shape": "circle",
+          "sizePt": 4,
+          "fill": "#ffffff",
+          "stroke": "#111111"
+        },
+        "palette": [
+          "#0072B2",
+          "#D55E00"
+        ],
+        "background": "#ffffff"
+      },
+      "provenance": {
+        "sourceKind": "origin-snapshot",
+        "sourceHash": "sha256:fixture-basic-xy",
+        "importerVersion": "0.1.0"
+      },
+      "extensions": {
+        "origin": {
+          "layer": "Layer1"
+        }
+      }
+    },
+    "data": {
+      "kind": "data-binding-set",
+      "version": "1.0.0",
+      "source": {
+        "kind": "session",
+        "name": "fixture",
+        "rowCount": 3
+      },
+      "columns": [
+        {
+          "columnId": "x",
+          "name": "x",
+          "index": 0,
+          "valueType": "number",
+          "values": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "columnId": "y",
+          "name": "y",
+          "index": 1,
+          "valueType": "number",
+          "values": [
+            1,
+            2,
+            4,
+            8
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "dataSlotId": "slot-x",
+          "columnId": "x",
+          "status": "valid"
+        },
+        {
+          "dataSlotId": "slot-y",
+          "columnId": "y",
+          "status": "valid"
+        }
+      ],
+      "diagnostics": []
+    }
+  }
+]

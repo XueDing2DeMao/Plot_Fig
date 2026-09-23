@@ -26,6 +26,25 @@ function renderFixture(template = createCurrentTemplate()): string {
   return result.svg;
 }
 
+function appendSeries(
+  template: FigureTemplate,
+  bindings = { x: 'slot-x', y: 'slot-y' },
+): void {
+  const source = template.panels[0]!.plotSlots[0]!;
+  template.panels[0]!.plotSlots.push({
+    ...structuredClone(source),
+    plotSlotId: 'series-2',
+    bindings,
+    lineStyle: {
+      visible: true,
+      color: '#d62728',
+      widthPt: 1.5,
+      dash: 'solid',
+    },
+    legendEntry: { visible: true, text: 'Series 2' },
+  });
+}
+
 describe('XY SVG rendering', () => {
   it('renders the stable page/panel/axes/plot hierarchy', () => {
     const svg = renderFixture();
@@ -35,6 +54,117 @@ describe('XY SVG rendering', () => {
     expect(svg).toContain('data-role="plot-slot"');
     expect(svg).toContain('<circle');
     expect(svg).toContain('<path');
+  });
+
+  it('renders each series as an ordered group with a stacked legend', () => {
+    const template = createCurrentTemplate();
+    appendSeries(template);
+
+    const svg = renderFixture(template);
+
+    expect(svg.match(/data-role="plot-slot"/g)).toHaveLength(2);
+    expect(svg.indexOf('data-plot-slot-id="series-1"')).toBeLessThan(
+      svg.indexOf('data-plot-slot-id="series-2"'),
+    );
+    expect(svg.match(/data-role="legend-entry"/g)).toHaveLength(2);
+    expect(svg).toContain('data-legend-index="0"');
+    expect(svg).toContain('data-legend-index="1"');
+  });
+
+  it('renders two bound Y axes with independent ranges and a shared zero height', () => {
+    const template = createCurrentTemplate();
+    const panel = template.panels[0]!;
+    const left = panel.axes.find((axis) => axis.position === 'left')!;
+    const right = {
+      ...structuredClone(left),
+      axisId: 'right-y',
+      position: 'right' as const,
+      tickLabels: { ...left.tickLabels, visible: true },
+    };
+    panel.axes.push(right);
+    panel.yAxisAlignment = {
+      leftAxisId: left.axisId,
+      rightAxisId: right.axisId,
+      value: 0,
+    };
+    template.dataSlots.push({
+      dataSlotId: 'slot-right-y',
+      name: 'RightY',
+      role: 'y',
+      valueType: 'number',
+      required: true,
+    });
+    appendSeries(template, { x: 'slot-x', y: 'slot-right-y' });
+    panel.plotSlots[1]!.yAxisId = right.axisId;
+    const data = bindDataSlots(
+      template,
+      inferDataBindingSet(
+        [
+          ['X', 'Y', 'RightY'],
+          ['0', '0', '0'],
+          ['1', '0.5', '500'],
+          ['2', '1', '1000'],
+        ],
+        'dual-y.csv',
+      ),
+    );
+
+    const result = renderFigureSvg(template, data);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error('dual-axis render failed');
+    const pathFor = (plotSlotId: string) =>
+      result.svg.match(
+        new RegExp(`data-plot-slot-id="${plotSlotId}"[^>]*><path d="([^"]+)"`),
+      )?.[1];
+    expect(pathFor('series-1')).toBeDefined();
+    expect(pathFor('series-2')).toBe(pathFor('series-1'));
+    expect(result.svg.match(/data-role="axis-y"/g)).toHaveLength(2);
+  });
+
+  it('keeps valid series visible when another series is unbound', () => {
+    const template = createCurrentTemplate();
+    template.dataSlots.push(
+      {
+        dataSlotId: 'missing-x',
+        name: 'MissingX',
+        role: 'x',
+        valueType: 'number',
+        required: true,
+      },
+      {
+        dataSlotId: 'missing-y',
+        name: 'MissingY',
+        role: 'y',
+        valueType: 'number',
+        required: true,
+      },
+    );
+    appendSeries(template, { x: 'missing-x', y: 'missing-y' });
+    const data = bindDataSlots(
+      template,
+      inferDataBindingSet(
+        [
+          ['X', 'Y'],
+          ['0', '1'],
+          ['1', '3'],
+        ],
+        'partial.csv',
+      ),
+    );
+
+    const result = renderFigureSvg(template, data);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.svg.match(/data-role="plot-slot"/g)).toHaveLength(1);
+    expect(result.svg.match(/data-role="legend-entry"/g)).toHaveLength(1);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        severity: 'warning',
+        sourcePath: expect.stringContaining('series-2'),
+      }),
+    );
   });
 
   it('renders axis ticks, labels and optional titles', () => {
@@ -114,8 +244,11 @@ describe('XY SVG rendering', () => {
     expect(svg).toContain('data-role="annotation-text"');
     expect(svg).toContain('data-role="annotation-arrow"');
     expect(svg).toContain('data-role="annotation-rectangle"');
-    expect(svg).toContain('data-role="annotation-legend"');
-    expect(svg).toContain('y1="720" y2="720"');
+    expect(svg).toContain('data-role="legend-entry"');
+    // Y=1 位于图层底部：65 mm × 72/25.4 pt/mm × (0.08+0.82)。
+    expect(svg).toMatch(
+      /data-role="annotation-reference-line"[^>]*y1="165.826772"[^>]*y2="165.826772"/,
+    );
   });
 
   it('renders page annotations with escaped text', () => {

@@ -1,0 +1,369 @@
+{
+  "template": {
+    "kind": "figure-template",
+    "schemaVersion": "1.15.0",
+    "templateId": "template-basic-xy",
+    "metadata": {
+      "name": "Basic XY",
+      "tags": [
+        "xy"
+      ]
+    },
+    "page": {
+      "size": {
+        "width": {
+          "value": 180,
+          "unit": "mm"
+        },
+        "height": {
+          "value": 110,
+          "unit": "mm"
+        }
+      },
+      "background": "#ffffff",
+      "margins": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "panels": [
+      {
+        "panelId": "panel-main",
+        "frame": {
+          "x": 0.12,
+          "y": 0.08,
+          "width": 0.8,
+          "height": 0.82
+        },
+        "coordinateSystem": "cartesian-2d",
+        "clip": true,
+        "axes": [
+          {
+            "axisId": "axis-x",
+            "dimension": "x",
+            "position": "bottom",
+            "scale": "linear",
+            "range": {
+              "mode": "fixed",
+              "min": 0.30000000000000004,
+              "max": 8.7
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#111111",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 8,
+              "color": "#111111",
+              "notation": "auto",
+              "precision": 6
+            },
+            "rescale": {
+              "mode": "auto",
+              "margin": {
+                "minPercent": 10,
+                "maxPercent": 10
+              }
+            }
+          },
+          {
+            "axisId": "axis-y",
+            "dimension": "y",
+            "position": "left",
+            "scale": "linear",
+            "range": {
+              "mode": "fixed",
+              "min": 1.3,
+              "max": 9.7
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#111111",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 8,
+              "color": "#111111",
+              "notation": "auto",
+              "precision": 6
+            },
+            "rescale": {
+              "mode": "auto",
+              "margin": {
+                "minPercent": 10,
+                "maxPercent": 10
+              }
+            }
+          }
+        ],
+        "plotSlots": [
+          {
+            "plotSlotId": "series-1",
+            "kind": "xy",
+            "mode": "line-markers",
+            "xAxisId": "axis-x",
+            "yAxisId": "axis-y",
+            "bindings": {
+              "x": "slot-x",
+              "y": "slot-y",
+              "color": "slot-signal"
+            },
+            "lineStyle": {
+              "visible": true,
+              "color": "#729096",
+              "widthPt": 0.8,
+              "dash": "solid",
+              "opacity": 0.75
+            },
+            "markerStyle": {
+              "visible": true,
+              "shape": "circle",
+              "sizePt": 14,
+              "fill": "#4492b5",
+              "stroke": "#253b4d",
+              "strokeWidthPt": 1,
+              "opacity": 0.45,
+              "followLineOpacity": false
+            },
+            "legendEntry": {
+              "visible": false,
+              "text": "Series 1"
+            },
+            "symbolGapPct": 10,
+            "dataView": {
+              "sort": "x-ascending",
+              "sampleExport": false
+            },
+            "markerMapping": {
+              "color": {
+                "mode": "continuous",
+                "target": "fill",
+                "colors": [
+                  "#2166ac",
+                  "#f7f7f7",
+                  "#b2182b"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "dataSlots": [
+      {
+        "dataSlotId": "slot-x",
+        "name": "X",
+        "role": "x",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "slot-y",
+        "name": "Y",
+        "role": "y",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "slot-signal",
+        "name": "强度",
+        "role": "color",
+        "valueType": "number",
+        "required": false
+      },
+      {
+        "dataSlotId": "slot-weight",
+        "name": "大小值",
+        "role": "size",
+        "valueType": "number",
+        "required": false
+      }
+    ],
+    "annotations": [],
+    "theme": {
+      "font": {
+        "family": "Arial",
+        "sizePt": 8,
+        "color": "#111111"
+      },
+      "line": {
+        "color": "#111111",
+        "widthPt": 1
+      },
+      "marker": {
+        "shape": "circle",
+        "sizePt": 4,
+        "fill": "#ffffff",
+        "stroke": "#111111"
+      },
+      "palette": [
+        "#0072B2",
+        "#D55E00"
+      ],
+      "background": "#ffffff"
+    },
+    "provenance": {
+      "sourceKind": "origin-snapshot",
+      "sourceHash": "sha256:fixture-basic-xy",
+      "importerVersion": "0.1.0"
+    },
+    "extensions": {
+      "origin": {
+        "layer": "Layer1"
+      }
+    }
+  },
+  "data": {
+    "kind": "data-binding-set",
+    "version": "1.0.0",
+    "source": {
+      "kind": "session",
+      "name": "符号细节示例",
+      "rowCount": 9
+    },
+    "columns": [
+      {
+        "columnId": "x",
+        "name": "X",
+        "values": [
+          1,
+          2,
+          3,
+          3,
+          3,
+          5,
+          6,
+          7,
+          8
+        ],
+        "index": 0,
+        "valueType": "number",
+        "source": {
+          "tableId": "detail-demo",
+          "tableName": "样本数据",
+          "dataStartRow": 1
+        }
+      },
+      {
+        "columnId": "y",
+        "name": "Y",
+        "values": [
+          2,
+          5,
+          4,
+          4,
+          4,
+          7,
+          6,
+          9,
+          8
+        ],
+        "index": 1,
+        "valueType": "number",
+        "source": {
+          "tableId": "detail-demo",
+          "tableName": "样本数据",
+          "dataStartRow": 1
+        }
+      },
+      {
+        "columnId": "signal",
+        "name": "强度",
+        "values": [
+          -3,
+          -2,
+          -1,
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "index": 2,
+        "valueType": "number",
+        "source": {
+          "tableId": "detail-demo",
+          "tableName": "样本数据",
+          "dataStartRow": 1
+        }
+      },
+      {
+        "columnId": "weight",
+        "name": "大小值",
+        "values": [
+          0,
+          null,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "index": 3,
+        "valueType": "number",
+        "source": {
+          "tableId": "detail-demo",
+          "tableName": "样本数据",
+          "dataStartRow": 1
+        }
+      }
+    ],
+    "bindings": [
+      {
+        "dataSlotId": "slot-x",
+        "columnId": "x",
+        "status": "valid"
+      },
+      {
+        "dataSlotId": "slot-y",
+        "columnId": "y",
+        "status": "valid"
+      },
+      {
+        "dataSlotId": "slot-signal",
+        "columnId": "signal",
+        "status": "valid"
+      },
+      {
+        "dataSlotId": "slot-weight",
+        "columnId": "weight",
+        "status": "valid"
+      }
+    ],
+    "diagnostics": []
+  }
+}

@@ -1,5 +1,6 @@
 import type { DataBindingSet } from '@plot-fig/data-binding';
 import { loadFigurePayload } from '@plot-fig/figure-migrations';
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import type {
   DataSourceDescriptor,
   FigureDocument,
@@ -75,7 +76,7 @@ export function createProjectFile(
     version: PROJECT_VERSION,
     document: {
       kind: 'figure-document',
-      schemaVersion: '1.0.0',
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       documentId: `${template.templateId}-document`,
       templateSnapshot: structuredClone(template),
       dataSources: [source],
@@ -131,7 +132,17 @@ export function parseProjectFile(text: string): ProjectLoadResult {
       'Project file data envelope is invalid',
     );
   const loaded = loadFigurePayload(parsed.document);
-  if (!loaded.ok || loaded.value.kind !== 'figure-document')
+  if (!loaded.ok)
+    return {
+      ok: false,
+      diagnostics: loaded.diagnostics.map((issue) => ({
+        code: 'PROJECT_INVALID',
+        severity: 'error',
+        sourcePath: '/document' + (issue.path === '/' ? '' : issue.path),
+        message: issue.message,
+      })),
+    };
+  if (loaded.value.kind !== 'figure-document')
     return diagnostic('PROJECT_INVALID', 'Project document failed validation');
   return {
     ok: true,

@@ -1,0 +1,156 @@
+.preview-actions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.property-trigger,
+.property-cancel,
+.property-close {
+  min-height: var(--ui-control-height);
+  padding: 8px 14px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  color: var(--ui-heading);
+  background: var(--ui-surface);
+  font-size: var(--ui-font-small);
+}
+.property-trigger {
+  font-weight: 600;
+}
+.property-close {
+  padding: 0;
+  width: 40px;
+  font-size: 24px;
+}
+.property-dialog {
+  width: min(1180px, calc(100vw - 32px));
+  height: min(820px, calc(100dvh - 32px));
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-dialog);
+  background: var(--ui-surface);
+  color: var(--ui-heading);
+  box-shadow: var(--ui-shadow-dialog);
+  overflow: hidden;
+}
+.property-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.property-dialog::backdrop {
+  background: var(--ui-backdrop);
+}
+.property-dialog-head,
+.property-dialog-footer {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+}
+.property-dialog-head {
+  border-bottom: 1px solid var(--ui-border);
+}
+.property-dialog-head h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+.property-dialog-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 350px minmax(0, 1fr);
+  overflow: hidden;
+}
+.property-dialog-fields {
+  overflow-y: auto;
+  align-content: start;
+  overscroll-behavior: contain;
+  border-right: 1px solid var(--ui-border);
+}
+.property-dialog-preview {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  gap: 16px;
+  padding: 24px;
+  background: var(--ui-canvas);
+  overflow: auto;
+}
+.property-dialog-preview h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+.property-draft-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-surface);
+}
+.svg-surface {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 0;
+}
+.svg-surface > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 430px;
+}
+.property-dialog-footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--ui-border);
+}
+.property-dialog-footer button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.property-dialog :focus-visible,
+.property-trigger:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+@media (max-width: 780px) {
+  .property-dialog {
+    width: calc(100vw - 16px);
+    height: calc(100dvh - 16px);
+  }
+  .property-dialog-head,
+  .property-dialog-footer {
+    padding: 12px 16px;
+  }
+  .property-dialog-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .property-dialog-preview {
+    order: -1;
+    height: 260px;
+    flex-shrink: 0;
+    padding: 12px;
+    gap: 6px;
+  }
+  .property-dialog-preview .svg-surface > svg {
+    max-height: 170px;
+  }
+  .property-dialog-fields {
+    flex: 1;
+    min-height: 0;
+    border-right: 0;
+  }
+  .property-dialog-preview h3 {
+    display: none;
+  }
+}

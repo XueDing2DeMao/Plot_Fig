@@ -29,7 +29,7 @@ describe('project file', () => {
     expect(JSON.parse(first)).toMatchObject({
       kind: 'plot-fig-project',
       version: '1.0.0',
-      document: { kind: 'figure-document', schemaVersion: '1.0.0' },
+      document: { kind: 'figure-document', schemaVersion: '1.22.0' },
       data: { sourceName: 'xy.csv', csvText },
     });
     expect(parseProjectFile(first)).toMatchObject({

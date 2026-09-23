@@ -1,0 +1,130 @@
+.csv-dialog {
+  width: min(920px, calc(100vw - 32px));
+  max-height: min(820px, calc(100dvh - 32px));
+  padding: 24px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-dialog);
+  color: var(--ui-heading);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-dialog);
+}
+.csv-dialog::backdrop {
+  background: var(--ui-backdrop);
+}
+.csv-dialog-head,
+.csv-dialog-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.csv-dialog-head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.csv-dialog-head button {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  padding: 0;
+  color: var(--ui-heading);
+  font-size: 24px;
+  cursor: pointer;
+}
+.csv-options,
+.csv-binding {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+.csv-binding {
+  grid-template-columns: 1fr 1fr;
+}
+.csv-options label,
+.csv-binding label {
+  margin: 0;
+  font-size: var(--ui-font-small);
+}
+.csv-options select,
+.csv-binding select {
+  display: block;
+  width: 100%;
+  min-height: var(--ui-control-height);
+  margin-top: 5px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  color: var(--ui-heading);
+  background: var(--ui-subtle);
+}
+.csv-hint {
+  margin: 12px 0;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+}
+.csv-table-wrap {
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+}
+.csv-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ui-font-small);
+}
+.csv-table-wrap caption {
+  padding: 8px;
+  text-align: left;
+  color: var(--ui-muted);
+}
+.csv-table-wrap th,
+.csv-table-wrap td {
+  max-width: 220px;
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--ui-border);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.csv-table-wrap th {
+  position: sticky;
+  top: 0;
+  background: var(--ui-border);
+}
+.csv-dialog-actions {
+  justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-border);
+  flex-wrap: wrap;
+}
+.csv-dialog-actions button {
+  min-height: var(--ui-control-height);
+  padding: 8px 16px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  color: var(--ui-heading);
+  background: white;
+  cursor: pointer;
+}
+.csv-dialog-actions .primary {
+  border-color: var(--ui-primary);
+  color: var(--ui-on-primary);
+  background: var(--ui-primary);
+}
+.csv-dialog-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.csv-error {
+  padding: 10px;
+  color: var(--ui-danger);
+  background: var(--ui-danger-bg);
+}
+@media (max-width: 700px) {
+  .csv-options {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -8,6 +8,7 @@ import {
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defaultTemplate } from '../state/editor-state.js';
+import { addSeries } from '../state/series-operations.js';
 import { BindingPanel } from './BindingPanel.js';
 import { ColumnSummary } from './ColumnSummary.js';
 
@@ -22,6 +23,20 @@ function fixture() {
   return { template, data };
 }
 
+function twoSeriesFixture() {
+  const { template, data } = fixture();
+  const added = addSeries(template, {});
+  if (!added.ok) throw new Error(added.message);
+  return { template: added.value.template, data };
+}
+
+const noSeriesActions = {
+  onAddSeries: () => undefined,
+  onDuplicateSeries: () => undefined,
+  onRemoveSeries: () => undefined,
+  onMoveSeries: () => undefined,
+};
+
 describe('BindingPanel', () => {
   afterEach(cleanup);
 
@@ -30,6 +45,7 @@ describe('BindingPanel', () => {
     const { template, data } = fixture();
     render(
       <BindingPanel
+        {...noSeriesActions}
         template={template}
         data={data}
         overrides={{}}
@@ -37,7 +53,7 @@ describe('BindingPanel', () => {
       />,
     );
 
-    expect(screen.getByLabelText('X 数据列')).toHaveValue('');
+    expect(screen.getByLabelText('曲线 1 X 数据列')).toHaveValue('');
     expect(
       screen.getByRole('option', { name: '自动匹配（X）' }),
     ).toBeInTheDocument();
@@ -45,7 +61,7 @@ describe('BindingPanel', () => {
       screen.getAllByRole('option', { name: 'Group · category' }),
     ).toHaveLength(2);
 
-    fireEvent.change(screen.getByLabelText('Y 数据列'), {
+    fireEvent.change(screen.getByLabelText('曲线 1 Y 数据列'), {
       target: { value: 'group' },
     });
     expect(onBindingChange).toHaveBeenCalledWith({
@@ -59,6 +75,7 @@ describe('BindingPanel', () => {
     const invalid = bindDataSlots(template, data, { 'slot-y': 'group' });
     render(
       <BindingPanel
+        {...noSeriesActions}
         template={template}
         data={invalid}
         overrides={{ 'slot-y': 'group' }}
@@ -66,10 +83,63 @@ describe('BindingPanel', () => {
       />,
     );
 
-    const select = screen.getByLabelText('Y 数据列');
+    const select = screen.getByLabelText('曲线 1 Y 数据列');
     expect(select).toHaveAttribute('aria-invalid', 'true');
     expect(select).toHaveValue('group');
     expect(select).toHaveAccessibleDescription(/需要 number/);
+  });
+
+  it('groups bindings by series and emits series actions', () => {
+    const { template, data } = twoSeriesFixture();
+    const onAddSeries = vi.fn();
+    const onDuplicateSeries = vi.fn();
+    const onRemoveSeries = vi.fn();
+    const onMoveSeries = vi.fn();
+    render(
+      <BindingPanel
+        template={template}
+        data={data}
+        overrides={{}}
+        onBindingChange={() => undefined}
+        onAddSeries={onAddSeries}
+        onDuplicateSeries={onDuplicateSeries}
+        onRemoveSeries={onRemoveSeries}
+        onMoveSeries={onMoveSeries}
+      />,
+    );
+
+    expect(
+      screen.getByRole('group', { name: '曲线 1 数据绑定' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: '曲线 2 数据绑定' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '上移曲线 1' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '下移曲线 2' })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: '新增曲线' }));
+    fireEvent.click(screen.getByRole('button', { name: '复制曲线 2' }));
+    fireEvent.click(screen.getByRole('button', { name: '删除曲线 2' }));
+    fireEvent.click(screen.getByRole('button', { name: '上移曲线 2' }));
+
+    expect(onAddSeries).toHaveBeenCalledOnce();
+    expect(onDuplicateSeries).toHaveBeenCalledWith('series-2');
+    expect(onRemoveSeries).toHaveBeenCalledWith('series-2');
+    expect(onMoveSeries).toHaveBeenCalledWith('series-2', 'up');
+  });
+
+  it('disables deleting the last series', () => {
+    const { template, data } = fixture();
+    render(
+      <BindingPanel
+        {...noSeriesActions}
+        template={template}
+        data={data}
+        overrides={{}}
+        onBindingChange={() => undefined}
+      />,
+    );
+    expect(screen.getByRole('button', { name: '删除曲线 1' })).toBeDisabled();
   });
 
   it('shows the read-only column overview with bound roles', () => {

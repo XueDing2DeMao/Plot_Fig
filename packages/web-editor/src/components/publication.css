@@ -1,0 +1,210 @@
+.publication-dialog {
+  width: min(1240px, calc(100vw - 24px));
+  height: min(860px, calc(100dvh - 24px));
+  max-width: none;
+  max-height: none;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-dialog);
+  padding: 0;
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-dialog);
+  font-size: var(--ui-font-size);
+  overflow: hidden;
+}
+.publication-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.publication-dialog::backdrop {
+  background: var(--ui-backdrop);
+}
+.publication-dialog > header,
+.publication-dialog > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  gap: 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--ui-border);
+}
+.publication-dialog > footer {
+  border-top: 1px solid var(--ui-border);
+  border-bottom: 0;
+  justify-content: flex-end;
+}
+.publication-dialog h2 {
+  font-size: 18px;
+  color: var(--ui-heading);
+  margin: 0;
+}
+.publication-dialog > header > button {
+  width: 40px;
+  min-height: var(--ui-control-height);
+  flex-shrink: 0;
+  padding: 0;
+  font-size: 24px;
+}
+.publication-dialog button,
+.publication-dialog select,
+.publication-dialog input,
+.publication-dialog textarea {
+  max-width: 100%;
+  min-width: 0;
+}
+.publication-dialog button[aria-pressed='true'] {
+  color: var(--ui-heading);
+  background: var(--ui-selected);
+  border-color: var(--ui-primary);
+}
+.publication-body {
+  display: grid;
+  grid-template-columns: 180px minmax(260px, 340px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+.publication-nav,
+.publication-form,
+.publication-preview {
+  overflow: auto;
+  min-width: 0;
+  padding: 16px;
+  overscroll-behavior: contain;
+}
+.publication-nav {
+  background: var(--ui-subtle);
+  border-right: 1px solid var(--ui-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.publication-nav button {
+  text-align: left;
+}
+.publication-nav h3 {
+  font-size: var(--ui-font-small);
+  color: var(--ui-muted);
+  margin: 12px 0 4px;
+}
+.publication-form {
+  border-right: 1px solid var(--ui-border);
+}
+.publication-fields {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--ui-border);
+  margin: 0 0 16px;
+  padding: 12px;
+  border-radius: var(--ui-radius-control);
+  min-width: 0;
+}
+.publication-fields legend {
+  font-weight: 600;
+  font-size: var(--ui-font-size);
+}
+.publication-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+}
+.publication-fields label.property-check {
+  display: flex;
+  align-items: center;
+  color: var(--ui-text);
+}
+.publication-fields .property-select {
+  display: grid;
+  gap: 6px;
+}
+.publication-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+.publication-actions button {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: var(--ui-font-small);
+}
+.publication-preview {
+  background: var(--ui-canvas);
+}
+.publication-preview .svg-surface {
+  background: var(--ui-surface);
+  width: 100%;
+  box-shadow: var(--ui-shadow-card);
+}
+.publication-message {
+  font-size: var(--ui-font-small);
+  color: var(--ui-muted);
+  white-space: pre-wrap;
+}
+.template-thumbnail svg {
+  width: 100%;
+  max-height: 150px;
+}
+.publication-dialog small {
+  display: block;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+}
+.publication-dialog svg {
+  max-width: 100%;
+  height: auto;
+}
+.publication-form.publication-fields {
+  display: block;
+}
+.publication-form.publication-fields > * {
+  margin-bottom: 12px;
+}
+.publication-form.publication-fields fieldset {
+  display: grid;
+  gap: 8px;
+}
+.publication-form.publication-fields fieldset legend {
+  font-weight: 600;
+}
+@media (max-width: 850px) {
+  .publication-body {
+    display: block;
+    overflow: auto;
+  }
+  .publication-nav {
+    max-height: 140px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
+  .publication-nav h3 {
+    width: 100%;
+  }
+  .publication-form,
+  .publication-preview {
+    display: block;
+    overflow: visible;
+  }
+  .publication-preview {
+    min-height: 220px;
+  }
+  .publication-dialog > header,
+  .publication-dialog > footer {
+    padding: 10px 12px;
+  }
+  .publication-form.publication-fields {
+    margin: 0;
+  }
+  .publication-preview svg {
+    width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .publication-dialog footer {
+    flex-wrap: wrap;
+  }
+}

@@ -1,4 +1,5 @@
 import {
+  CURRENT_SCHEMA_VERSION,
   validateFigureDocument,
   validateFigureTemplate,
 } from '@plot-fig/figure-schema';
@@ -17,7 +18,6 @@ import {
   type SchemaVersion,
 } from './version.js';
 
-const CURRENT_SCHEMA_VERSION = '1.0.0';
 const CURRENT_VERSION = parseSchemaVersion(CURRENT_SCHEMA_VERSION);
 
 export type MigrationStep = {

@@ -1,6 +1,82 @@
 .binding-card {
   padding: 18px;
 }
+.series-list {
+  display: grid;
+  gap: 14px;
+}
+.series-card {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-subtle);
+}
+.series-card legend {
+  padding: 0 6px;
+  color: var(--ui-heading);
+  font-weight: 700;
+}
+.series-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  margin: -4px 0 10px;
+}
+.series-actions button,
+.chart-type-control button,
+.add-series {
+  min-height: 32px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  color: var(--ui-heading);
+  background: var(--ui-surface);
+  font: inherit;
+  cursor: pointer;
+}
+.series-actions button {
+  padding: 4px 9px;
+}
+.series-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+.chart-type-control {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.chart-type-control > label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: var(--ui-font-small);
+}
+.chart-type-control button {
+  padding: 5px 10px;
+  justify-self: end;
+}
+.chart-type-control button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.add-series {
+  min-height: var(--ui-control-height);
+  width: 100%;
+  margin-top: 14px;
+  padding: 7px 12px;
+  font-weight: 700;
+}
+.series-card .empty-copy {
+  padding: 8px 0 0;
+}
+.series-actions button:focus-visible,
+.add-series:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
 .slot-list {
   display: grid;
   gap: 12px;
@@ -9,9 +85,9 @@
   display: grid;
   gap: 6px;
   padding: 12px;
-  border: 1px solid #dcfce7;
-  border-radius: 10px;
-  background: #fbfffc;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
 }
 .slot-heading {
   display: flex;
@@ -21,18 +97,18 @@
 }
 .slot-heading strong {
   display: block;
-  color: #14532d;
+  color: var(--ui-heading);
 }
 .slot-role,
 .slot-meta {
   display: block;
-  color: #4d7c5c;
+  color: var(--ui-muted);
   font:
     500 11px 'Fira Code',
     monospace;
 }
 .slot-status {
-  color: #15803d;
+  color: var(--ui-success);
   font:
     600 10px 'Fira Code',
     monospace;
@@ -40,32 +116,32 @@
 }
 .slot-status.invalid,
 .slot-error {
-  color: #b45309;
+  color: var(--ui-warning);
 }
 .slot-label {
   margin: 2px 0 0;
-  color: #166534;
-  font-size: 12px;
+  color: var(--ui-heading);
+  font-size: var(--ui-font-small);
 }
 .slot-select {
   width: 100%;
-  min-height: 42px;
+  min-height: var(--ui-control-height);
   padding: 8px 10px;
-  border: 1px solid #86efac;
-  border-radius: 8px;
-  color: #14532d;
-  background: #fff;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  color: var(--ui-heading);
+  background: var(--ui-surface);
   font: inherit;
 }
 .slot-select:focus-visible {
-  outline: 3px solid rgba(34, 197, 94, 0.35);
+  outline: 2px solid var(--ui-focus);
   outline-offset: 2px;
 }
 .slot-select[aria-invalid='true'] {
-  border-color: #d97706;
+  border-color: var(--ui-warning);
 }
 .slot-error {
-  font-size: 12px;
+  font-size: var(--ui-font-small);
   line-height: 1.4;
 }
 .column-summary {

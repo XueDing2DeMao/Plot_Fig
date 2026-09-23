@@ -1,0 +1,512 @@
+{
+  "annotations": [
+    {
+      "annotationId": "legacy-caption",
+      "coordinateSpace": "page",
+      "extensions": {
+        "origin": {
+          "annotationIndex": 1
+        }
+      },
+      "format": "plain",
+      "kind": "text",
+      "position": {
+        "x": 0.06,
+        "y": 0.04
+      },
+      "text": "Legacy four-side axis appearance baseline"
+    }
+  ],
+  "dataSlots": [
+    {
+      "dataSlotId": "slot-x",
+      "name": "X",
+      "required": true,
+      "role": "x",
+      "valueType": "number"
+    },
+    {
+      "dataSlotId": "slot-y",
+      "name": "Y",
+      "required": true,
+      "role": "y",
+      "valueType": "number"
+    }
+  ],
+  "extensions": {
+    "origin": {
+      "format": "1.4.0",
+      "preserved": {
+        "array": ["text", 1, true, null],
+        "range": {
+          "mode": "auto",
+          "min": -7
+        },
+        "rescale": {
+          "mode": "vendor",
+          "margin": [3, 5]
+        }
+      }
+    }
+  },
+  "kind": "figure-template",
+  "metadata": {
+    "name": "Legacy 1.4 axis appearance",
+    "tags": ["legacy", "four-axes", "tick-generation", "axis-appearance"]
+  },
+  "page": {
+    "background": "#ffffff",
+    "extensions": {
+      "origin": {
+        "print": {
+          "orientation": "landscape"
+        }
+      }
+    },
+    "margins": {
+      "bottom": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0
+    },
+    "size": {
+      "height": {
+        "unit": "mm",
+        "value": 120
+      },
+      "width": {
+        "unit": "mm",
+        "value": 180
+      }
+    }
+  },
+  "panels": [
+    {
+      "axes": [
+        {
+          "axisId": "axis-x",
+          "dimension": "x",
+          "extensions": {
+            "origin": {
+              "axisObject": "axis-x",
+              "retained": {
+                "note": "legacy-auto",
+                "visible": true
+              }
+            }
+          },
+          "line": {
+            "color": "#111111",
+            "widthPt": 1
+          },
+          "majorTicks": {
+            "lengthPt": 4,
+            "visible": true,
+            "widthPt": 1,
+            "generation": {
+              "mode": "increment",
+              "step": 0.2,
+              "anchor": 0.1
+            },
+            "direction": "both",
+            "color": "#0072b2"
+          },
+          "minorTicks": {
+            "count": 2,
+            "lengthPt": 17,
+            "visible": true,
+            "widthPt": 0.8,
+            "direction": "in",
+            "color": "#56b4e9",
+            "lengthMode": "auto"
+          },
+          "position": "bottom",
+          "range": {
+            "max": 0.55,
+            "min": -0.25,
+            "mode": "fixed"
+          },
+          "reverse": false,
+          "scale": "linear",
+          "tickLabels": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 8,
+            "notation": "auto",
+            "precision": 6,
+            "visible": true,
+            "divisor": 0.1,
+            "prefix": "[",
+            "suffix": "] x 0.1",
+            "rotation": -25,
+            "bold": true,
+            "offsetPt": {
+              "x": 1,
+              "y": 2
+            },
+            "background": "white",
+            "anchor": "end",
+            "overlap": "hide"
+          },
+          "title": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 10,
+            "format": "plain",
+            "text": "bottom linear",
+            "position": 0.7,
+            "rotation": 5,
+            "offsetPt": {
+              "x": 2,
+              "y": 3
+            },
+            "bold": true
+          },
+          "visible": true,
+          "grid": {
+            "major": {
+              "visible": true,
+              "color": "#b8c9d8",
+              "widthPt": 0.5,
+              "dash": "dashed"
+            },
+            "minor": {
+              "visible": true,
+              "color": "#e0e8ef",
+              "widthPt": 0.25,
+              "dash": "dotted"
+            },
+            "layer": "back"
+          },
+          "placement": {
+            "mode": "frame",
+            "offsetPt": 3
+          }
+        },
+        {
+          "axisId": "axis-y",
+          "dimension": "y",
+          "extensions": {
+            "origin": {
+              "axisObject": "axis-y",
+              "retained": {
+                "note": "legacy-auto",
+                "visible": true
+              }
+            }
+          },
+          "line": {
+            "color": "#111111",
+            "widthPt": 1,
+            "visible": false
+          },
+          "majorTicks": {
+            "lengthPt": 4,
+            "visible": true,
+            "widthPt": 1,
+            "generation": {
+              "mode": "count",
+              "count": 6,
+              "anchor": 0.2
+            },
+            "direction": "in",
+            "color": "#d55e00"
+          },
+          "minorTicks": {
+            "count": 2,
+            "lengthPt": 2,
+            "visible": false,
+            "widthPt": 0.8
+          },
+          "position": "left",
+          "range": {
+            "max": 2.4,
+            "min": -1.2,
+            "mode": "fixed"
+          },
+          "reverse": false,
+          "scale": "linear",
+          "tickLabels": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 8,
+            "notation": "engineering",
+            "precision": 1,
+            "visible": true,
+            "suffix": " V",
+            "italic": true,
+            "rotation": 15,
+            "wrapWidthPt": 30,
+            "lineHeight": 1.4,
+            "offsetPt": {
+              "x": -2,
+              "y": 0
+            }
+          },
+          "title": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 10,
+            "format": "plain",
+            "text": "left linear",
+            "position": 0.25,
+            "italic": true,
+            "offsetPt": {
+              "x": -3,
+              "y": 1
+            }
+          },
+          "visible": true,
+          "grid": {
+            "minor": {
+              "visible": true,
+              "color": "#f0bca4",
+              "widthPt": 0.4,
+              "dash": "dash-dot"
+            },
+            "layer": "front"
+          },
+          "placement": {
+            "mode": "cross",
+            "axisId": "axis-x",
+            "value": 0,
+            "offsetPt": -2
+          }
+        },
+        {
+          "axisId": "axis-x-top",
+          "dimension": "x",
+          "extensions": {
+            "origin": {
+              "axisObject": "axis-x-top",
+              "retained": {
+                "note": "legacy-auto",
+                "visible": true
+              }
+            }
+          },
+          "line": {
+            "color": "#111111",
+            "widthPt": 1
+          },
+          "majorTicks": {
+            "lengthPt": 4,
+            "visible": true,
+            "widthPt": 1,
+            "generation": {
+              "mode": "increment",
+              "step": 1,
+              "anchor": 1
+            },
+            "direction": "both"
+          },
+          "minorTicks": {
+            "count": 2,
+            "lengthPt": 2,
+            "visible": true,
+            "widthPt": 0.8,
+            "lengthMode": "manual"
+          },
+          "position": "top",
+          "range": {
+            "max": 1000,
+            "min": 0.1,
+            "mode": "fixed"
+          },
+          "reverse": false,
+          "scale": "log10",
+          "tickLabels": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 8,
+            "notation": "engineering",
+            "precision": 2,
+            "visible": true,
+            "prefix": "log=",
+            "position": "interval",
+            "rotation": 20
+          },
+          "title": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 10,
+            "format": "plain",
+            "text": "top log10",
+            "position": 0.3,
+            "rotation": -5,
+            "offsetPt": {
+              "x": 1,
+              "y": -2
+            }
+          },
+          "visible": true,
+          "placement": {
+            "mode": "percent",
+            "percent": 15,
+            "offsetPt": 2
+          }
+        },
+        {
+          "axisId": "axis-y-right",
+          "dimension": "y",
+          "extensions": {
+            "origin": {
+              "axisObject": "axis-y-right",
+              "retained": {
+                "note": "legacy-auto",
+                "visible": true
+              }
+            }
+          },
+          "line": {
+            "color": "#111111",
+            "widthPt": 1
+          },
+          "majorTicks": {
+            "lengthPt": 4,
+            "visible": true,
+            "widthPt": 1,
+            "generation": {
+              "mode": "endpoints"
+            },
+            "direction": "out"
+          },
+          "minorTicks": {
+            "count": 2,
+            "lengthPt": 2,
+            "visible": true,
+            "widthPt": 0.8,
+            "direction": "both"
+          },
+          "position": "right",
+          "range": {
+            "max": 20,
+            "min": 0.2,
+            "mode": "fixed"
+          },
+          "reverse": true,
+          "scale": "ln",
+          "tickLabels": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 8,
+            "notation": "auto",
+            "precision": 6,
+            "visible": true,
+            "divisor": 2,
+            "prefix": "r:",
+            "italic": true,
+            "background": "white",
+            "offsetPt": {
+              "x": 2,
+              "y": -1
+            }
+          },
+          "title": {
+            "color": "#111111",
+            "fontFamily": "Arial",
+            "fontSizePt": 10,
+            "format": "plain",
+            "text": "right ln",
+            "position": 0.75,
+            "rotation": 90,
+            "bold": true,
+            "italic": true
+          },
+          "visible": true,
+          "grid": {
+            "major": {
+              "visible": true,
+              "color": "#999999",
+              "widthPt": 0.3,
+              "dash": "solid"
+            }
+          },
+          "placement": {
+            "mode": "frame",
+            "offsetPt": 4
+          }
+        }
+      ],
+      "clip": true,
+      "coordinateSystem": "cartesian-2d",
+      "extensions": {
+        "origin": {
+          "flags": [true, null, 1],
+          "layerName": "Layer1"
+        }
+      },
+      "frame": {
+        "height": 0.57,
+        "width": 0.64,
+        "x": 0.18,
+        "y": 0.2
+      },
+      "panelId": "panel-main",
+      "plotSlots": [
+        {
+          "bindings": {
+            "x": "slot-x",
+            "y": "slot-y"
+          },
+          "extensions": {
+            "origin": {
+              "style": {
+                "symbolInterior": "open"
+              }
+            }
+          },
+          "kind": "xy",
+          "legendEntry": {
+            "text": "Series 1",
+            "visible": true
+          },
+          "lineStyle": {
+            "color": "#111111",
+            "dash": "solid",
+            "visible": true,
+            "widthPt": 1.2
+          },
+          "markerStyle": {
+            "fill": "#ffffff",
+            "shape": "circle",
+            "sizePt": 4,
+            "stroke": "#111111",
+            "strokeWidthPt": 0.8,
+            "visible": true
+          },
+          "mode": "line-markers",
+          "plotSlotId": "series-1",
+          "xAxisId": "axis-x",
+          "yAxisId": "axis-y"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "importerVersion": "0.1.0",
+    "sourceHash": "sha256:fixture-basic-xy",
+    "sourceKind": "origin-snapshot"
+  },
+  "schemaVersion": "1.4.0",
+  "templateId": "legacy-v140-four-axes",
+  "theme": {
+    "background": "#ffffff",
+    "font": {
+      "color": "#111111",
+      "family": "Arial",
+      "sizePt": 8
+    },
+    "line": {
+      "color": "#111111",
+      "widthPt": 1
+    },
+    "marker": {
+      "fill": "#ffffff",
+      "shape": "circle",
+      "sizePt": 4,
+      "stroke": "#111111"
+    },
+    "palette": ["#0072B2", "#D55E00"]
+  }
+}

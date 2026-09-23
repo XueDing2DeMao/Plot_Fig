@@ -196,7 +196,10 @@ function validateBindingSourceColumn(args: {
       ),
     ];
   }
-  if (column.valueType !== args.slot.valueType) {
+  if (
+    args.slot.role !== 'category' &&
+    column.valueType !== args.slot.valueType
+  ) {
     return [
       domainIssue(
         `${args.path}/columnId`,
@@ -253,7 +256,10 @@ export function validateFigureDocumentDomain(
   value: FigureDocument,
 ): ValidationIssue[] {
   return [
-    ...validateFigureTemplateDomain(value.templateSnapshot),
+    ...validateFigureTemplateDomain(value.templateSnapshot).map((issue) => ({
+      ...issue,
+      path: `/templateSnapshot${issue.path}`,
+    })),
     ...validateDataSources(value),
     ...validateBindingSet(value),
     ...validateExtensionEntries([

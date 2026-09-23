@@ -1,0 +1,214 @@
+/* 编辑器 UI 的共享基线；图形本身的配色由绘图模板控制。 */
+:root {
+  --ui-text: #202428;
+  --ui-heading: #17191c;
+  --ui-muted: #626b75;
+  --ui-border: #dce1e6;
+  --ui-border-strong: #bcc4cc;
+  --ui-surface: #fff;
+  --ui-canvas: #f5f6f8;
+  --ui-subtle: #f8f9fb;
+  --ui-selected: #eef0f3;
+  --ui-primary: #202428;
+  --ui-primary-hover: #353b43;
+  --ui-on-primary: #fff;
+  --ui-success: #18745f;
+  --ui-success-bg: #edf7f2;
+  --ui-danger: #b42318;
+  --ui-danger-bg: #fff1f0;
+  --ui-danger-border: #efb6b0;
+  --ui-warning: #975a16;
+  --ui-focus: #52677f;
+  --ui-backdrop: rgb(23 25 28 / 40%);
+  --ui-shadow-dialog: 0 24px 80px rgb(23 25 28 / 18%);
+  --ui-shadow-card: 0 2px 8px rgb(23 25 28 / 4%);
+  --ui-radius-control: 8px;
+  --ui-radius-card: 12px;
+  --ui-radius-dialog: 14px;
+  --ui-control-height: 40px;
+  --ui-font-size: 13px;
+  --ui-font-small: 12px;
+  --ui-font-caption: 11px;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Microsoft YaHei',
+    sans-serif;
+  font-size: var(--ui-font-size);
+  line-height: 1.5;
+  color: var(--ui-text);
+  background: var(--ui-canvas);
+  color-scheme: light;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 0;
+}
+
+:where(button, input, select, textarea) {
+  font: inherit;
+  color: var(--ui-text);
+}
+
+:where(
+  button,
+  input:not([type='checkbox'], [type='radio'], [type='file']),
+  select,
+  textarea
+) {
+  min-width: 0;
+  min-height: var(--ui-control-height);
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-surface);
+}
+
+:where(button) {
+  font-size: var(--ui-font-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+:where(button, a, summary, input, select, label) {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 不覆盖各组件的选中态颜色，所有可点击控件仍有一致的悬停反馈。 */
+:where(
+  button:not(:disabled, .palette-swatch),
+  .icon-button,
+  .project-open-label
+):hover {
+  filter: brightness(0.96);
+}
+
+:where(
+  button:not(:disabled, .palette-swatch),
+  .icon-button,
+  .project-open-label
+):active {
+  filter: brightness(0.9);
+}
+
+:where(button, input, select, textarea):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+:where(input[type='checkbox'], input[type='radio']) {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 0;
+  accent-color: var(--ui-primary);
+}
+
+:where(input[type='color']) {
+  padding: 4px;
+  cursor: pointer;
+}
+
+:where(input[type='file']) {
+  min-width: 0;
+  max-width: 100%;
+  font-size: var(--ui-font-small);
+}
+
+input::file-selector-button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 5px;
+  color: var(--ui-text);
+  background: var(--ui-subtle);
+  font: inherit;
+  cursor: pointer;
+}
+
+:where(textarea) {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+:where(fieldset) {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+}
+
+:where(legend) {
+  padding: 0 6px;
+  color: var(--ui-heading);
+  font-weight: 600;
+}
+
+:where(summary) {
+  cursor: pointer;
+}
+
+:where(dialog) {
+  overscroll-behavior: contain;
+}
+
+:where(h1, h2, h3) {
+  color: var(--ui-heading);
+  text-wrap: balance;
+}
+
+:where(a) {
+  color: inherit;
+}
+
+:where(:focus-visible) {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+
+:where(input, select, textarea)[aria-invalid='true'] {
+  border-color: var(--ui-warning);
+}
+
+.ui-primary {
+  border-color: var(--ui-primary);
+  color: var(--ui-on-primary);
+  background: var(--ui-primary);
+}
+
+.ui-primary:hover:not(:disabled) {
+  background: var(--ui-primary-hover);
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 10;
+  top: 12px;
+  left: 12px;
+  padding: 10px 16px;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-primary);
+  color: var(--ui-on-primary);
+  transform: translateY(calc(-100% - 20px));
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+:where(#main-content, #preview, #binding, #style, #project) {
+  scroll-margin-top: 20px;
+}

@@ -1,4 +1,9 @@
 import { validateExtensionEntries } from './domain-extensions.js';
+import { validateAdvancedAxes } from './domain-axis-advanced.js';
+import { validatePanelFrameLinks } from '../panel-frame-links.js';
+import { validateYAxisAlignments } from './domain-axis-alignment.js';
+import { validateAxisLengthRatios } from './domain-axis-length-ratio.js';
+import { validatePublication } from './domain-publication.js';
 import { collectTemplateExtensionEntries } from './domain-template-extensions.js';
 import { validatePanelDomain } from './domain-template-plots.js';
 import type { FigureTemplate } from '../schema/figure-template.js';
@@ -7,6 +12,12 @@ import type { ValidationIssue } from './types.js';
 type IdentifierEntry = { path: string; value: string };
 
 const NUMERIC_ROLES = new Set([
+  'valueError',
+  'valueErrorLower',
+  'valueErrorUpper',
+  'value',
+  'values',
+  'z',
   'x',
   'y',
   'xError',
@@ -17,7 +28,7 @@ const NUMERIC_ROLES = new Set([
   'yErrorUpper',
   'size',
 ]);
-const TEXTUAL_ROLES = new Set(['group', 'label', 'color']);
+const TEXTUAL_ROLES = new Set<string>();
 
 function domainIssue(path: string, message: string): ValidationIssue {
   return {
@@ -71,7 +82,13 @@ function validateUniqueIds(value: FigureTemplate): ValidationIssue[] {
   const seen = new Set<string>();
   const issues: ValidationIssue[] = [];
 
-  for (const entry of collectIdentifierEntries(value)) {
+  for (const entry of [
+    ...collectIdentifierEntries(value),
+    ...(value.sharedAxisGroups ?? []).map((g, i) => ({
+      path: `/sharedAxisGroups/${i}/groupId`,
+      value: g.groupId,
+    })),
+  ]) {
     if (seen.has(entry.value)) {
       issues.push(
         domainIssue(entry.path, `duplicate identifier "${entry.value}"`),
@@ -161,8 +178,12 @@ export function validateFigureTemplateDomain(
 ): ValidationIssue[] {
   const slots = new Map(value.dataSlots.map((slot) => [slot.dataSlotId, slot]));
   const issues = [
+    ...validateAdvancedAxes(value),
     ...validateUniqueIds(value),
     ...validateSlotValueTypes(value),
+    ...validatePanelFrameLinks(value),
+    ...validateYAxisAlignments(value),
+    ...validateAxisLengthRatios(value),
   ];
 
   value.panels.forEach((panel, panelIndex) => {
@@ -170,6 +191,7 @@ export function validateFigureTemplateDomain(
   });
 
   issues.push(...validateAnnotations(value));
+  issues.push(...validatePublication(value));
   issues.push(
     ...validateExtensionEntries(collectTemplateExtensionEntries(value)),
   );

@@ -1,12 +1,19 @@
 import Type, { type TProperties } from 'typebox';
 import {
+  TextStyleSchema,
+  ShapeStyleSchema,
+  LegendLayoutSchema,
+} from './publication.js';
+import {
   DeclarativeTextSchema,
   ExtensionBagSchema,
   IdentifierSchema,
 } from './common.js';
+import { TextContentFormatSchema } from './text-layout.js';
 
 const BaseAnnotationFields = {
   annotationId: IdentifierSchema,
+  visible: Type.Optional(Type.Boolean()),
   extensions: Type.Optional(ExtensionBagSchema),
 } satisfies TProperties;
 
@@ -52,16 +59,20 @@ const LegendFields = {
   kind: Type.Literal('legend'),
   position: PointSchema,
   visible: Type.Boolean(),
+  textStyle: Type.Optional(TextStyleSchema),
+  layout: Type.Optional(LegendLayoutSchema),
 } satisfies TProperties;
 
 const TextFields = {
   kind: Type.Literal('text'),
   position: PointSchema,
   text: DeclarativeTextSchema,
-  format: Type.Union([Type.Literal('plain'), Type.Literal('latex')]),
+  format: TextContentFormatSchema,
+  textStyle: Type.Optional(TextStyleSchema),
 } satisfies TProperties;
 
 const SegmentFields = {
+  shapeStyle: Type.Optional(ShapeStyleSchema),
   start: PointSchema,
   end: PointSchema,
 } satisfies TProperties;
@@ -111,6 +122,7 @@ export const ReferenceLineAnnotationSchema = createAnnotationSchema(
   DataScopeFields,
   {
     kind: Type.Literal('reference-line'),
+    shapeStyle: Type.Optional(ShapeStyleSchema),
     orientation: Type.Union([Type.Literal('x'), Type.Literal('y')]),
     value: Type.Number(),
   },

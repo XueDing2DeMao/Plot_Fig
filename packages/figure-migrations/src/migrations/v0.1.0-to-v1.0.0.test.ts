@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import {
   canonicalizeFigurePayload,
-  validateFigureTemplate,
+  CURRENT_SCHEMA_VERSION,
 } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import { migrateV010ToV100 } from './v0.1.0-to-v1.0.0.js';
+import { loadFigurePayload } from '../load.js';
 
 const fixture = new URL(
   '../../../../tests/fixtures/migrations/figure-template-v0.1.0.json',
@@ -34,10 +35,17 @@ describe('migrateV010ToV100', () => {
     expect(output).not.toHaveProperty('id');
     expect(output).not.toHaveProperty('title');
     expect(output).not.toHaveProperty('tags');
-    expect(validateFigureTemplate(output)).toEqual({
+    expect(loadFigurePayload(output)).toEqual({
       ok: true,
-      value: output,
-      issues: [],
+      value: expect.any(Object),
+      migratedFrom: '1.0.0',
+      diagnostics: [],
+    });
+    const loaded = loadFigurePayload(output);
+    if (!loaded.ok) throw new Error('expected migrated template');
+    expect(withoutLegacyAxisRangeFlags(loaded.value)).toEqual({
+      ...output,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
     });
     expect(input).toEqual(before);
   });
@@ -167,3 +175,4 @@ describe('migrateV010ToV100', () => {
     );
   });
 });
+import { withoutLegacyAxisRangeFlags } from '../../../../tests/helpers/figure-payloads.js';

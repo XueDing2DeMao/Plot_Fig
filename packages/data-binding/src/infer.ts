@@ -5,16 +5,23 @@ import type {
   DataValue,
 } from './types.js';
 
-function isNumber(value: string): boolean {
-  return value.trim() !== '' && Number.isFinite(Number(value));
+function parseNumber(value: string): number | undefined {
+  const trimmed = value.trim();
+  if (trimmed === '') return undefined;
+  if (Number.isFinite(Number(trimmed))) return Number(trimmed);
+  const grouped = /^[+-]?\d{1,3}(?:[, _]\d{3})+(?:\.\d+)?(?:e[+-]?\d+)?$/i;
+  if (!grouped.test(trimmed)) return undefined;
+  const normalized = trimmed.replace(/[, _]/g, '');
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : undefined;
 }
 
 function columnId(name: string, index: number, used: Set<string>): string {
-  const base =
-    name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-') || `column-${index}`;
+  const normalized = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-');
+  const base = normalized.replace(/^-+|-+$/g, '') || `column-${index}`;
   let id = base;
   let suffix = 1;
   while (used.has(id)) id = `${base}-${suffix++}`;
@@ -29,7 +36,9 @@ function inferColumn(
   id: string,
 ): DataColumn {
   const nonEmpty = values.filter((value) => value.trim() !== '');
-  const numeric = nonEmpty.length > 0 && nonEmpty.every(isNumber);
+  const numeric =
+    nonEmpty.length > 0 &&
+    nonEmpty.every((value) => parseNumber(value) !== undefined);
   const unique = new Set(nonEmpty);
   const valueType = numeric
     ? 'number'
@@ -38,7 +47,7 @@ function inferColumn(
       : 'string';
   const converted: DataValue[] = values.map((value) => {
     if (value.trim() === '') return null;
-    return numeric ? Number(value) : value;
+    return parseNumber(value) ?? value;
   });
   return { columnId: id, name, index, valueType, values: converted };
 }

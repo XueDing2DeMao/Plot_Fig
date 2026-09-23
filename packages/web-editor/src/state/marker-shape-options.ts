@@ -1,0 +1,18 @@
+export const markerShapeOptions = {
+  circle: '圆形',
+  square: '方形',
+  triangle: '向上三角',
+  diamond: '菱形',
+  plus: '加号',
+  cross: '叉号',
+  'triangle-down': '向下三角',
+  'triangle-left': '向左三角',
+  'triangle-right': '向右三角',
+  star: '五角星',
+  pentagon: '五边形',
+  hexagon: '六边形',
+  octagon: '八边形',
+  'h-line': '水平短线',
+  'v-line': '垂直短线',
+  custom: '自定义多边形',
+};

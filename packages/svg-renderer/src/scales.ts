@@ -1,7 +1,18 @@
 import type { FigureTemplate } from '@plot-fig/figure-schema';
+import {
+  axisScaleSpec,
+  isAdvancedAxis,
+  isPositiveLogAxis,
+  createNumericScale,
+  type NumericScale,
+} from '@plot-fig/figure-schema';
 
 type Axis = FigureTemplate['panels'][number]['axes'][number];
-type AxisLike = Pick<Axis, 'scale' | 'reverse'>;
+export type AxisLike = Pick<
+  Axis,
+  'scale' | 'reverse' | 'symLog' | 'logTicks' | 'scaleOptions' | 'advanced'
+> & { discreteValues?: number[] };
+import { createBrokenScale } from './broken-scale.js';
 
 export type LinearScale = {
   min: number;
@@ -11,6 +22,23 @@ export type LinearScale = {
 
 export type PlotScale = LinearScale & {
   scale: Axis['scale'];
+  categories?: Array<{ key: string; label: string }>;
+  numeric?: NumericScale;
+  data?: import('@plot-fig/data-binding').DataBindingSet;
+  segments?: Array<{
+    min: number;
+    max: number;
+    from: number;
+    to: number;
+    scale: PlotScale;
+    settings?: NonNullable<
+      NonNullable<Axis['advanced']>['breaks']
+    >['intervals'][number]['after'];
+  }>;
+  segmentTicks?: (
+    axis: Axis,
+    scale: PlotScale,
+  ) => import('./tick-plan.js').AxisTickPlan;
 };
 
 function transformFor(scale: Axis['scale']): (value: number) => number {
@@ -24,6 +52,24 @@ export function createScale(
   min: number,
   max: number,
 ): PlotScale | undefined {
+  if (axis.advanced?.breaks)
+    return createBrokenScale(axis, min, max, createScale);
+  if (isAdvancedAxis(axis)) {
+    try {
+      const numeric = createNumericScale(
+        {
+          ...axisScaleSpec(axis),
+          ...(axis.discreteValues ? { values: axis.discreteValues } : {}),
+        },
+        min,
+        max,
+        axis.reverse,
+      );
+      return { min, max, scale: axis.scale, map: numeric.map, numeric };
+    } catch {
+      return undefined;
+    }
+  }
   if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max)
     return undefined;
   if (axis.scale !== 'linear' && (min <= 0 || max <= 0)) return undefined;
@@ -42,8 +88,11 @@ export function createScale(
     scale: axis.scale,
     map: (value) => {
       const transformed = transform(value);
-      const ratio =
-        (transformed - transformedMin) / (transformedMax - transformedMin);
+      const span = transformedMax - transformedMin;
+      const ratio = Number.isFinite(span)
+        ? (transformed - transformedMin) / span
+        : (transformed / 2 - transformedMin / 2) /
+          (transformedMax / 2 - transformedMin / 2);
       return axis.reverse ? 1 - ratio : ratio;
     },
   };
@@ -53,13 +102,18 @@ export function createScaleFromValues(
   axis: Axis,
   values: number[],
 ): PlotScale | undefined {
-  const finite = values.filter((value) => Number.isFinite(value));
-  const usable =
-    axis.scale === 'linear' ? finite : finite.filter((value) => value > 0);
+  let min = Infinity;
+  let max = -Infinity;
+  for (const value of values) {
+    if (!Number.isFinite(value) || (isPositiveLogAxis(axis) && value <= 0))
+      continue;
+    min = Math.min(min, value);
+    max = Math.max(max, value);
+  }
   const range =
     axis.range.mode === 'fixed'
       ? { min: axis.range.min, max: axis.range.max }
-      : { min: Math.min(...usable), max: Math.max(...usable) };
+      : { min, max };
   return createScale(axis, range.min, range.max);
 }
 
@@ -79,11 +133,14 @@ export function generateMajorTicks(
   count = 6,
 ): number[] {
   if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max) return [];
-  const target = Math.max(2, Math.floor(count));
-  const step = niceStep((max - min) / (target - 1));
+  const target = Math.min(100, Math.max(2, Math.floor(count)));
+  const rawStep = max / (target - 1) - min / (target - 1);
+  const step = niceStep(rawStep);
   const start = Math.ceil(min / step - 1e-12) * step;
   const ticks: number[] = [min];
-  for (let value = start; value < max - step * 1e-9; value += step) {
+  for (let i = 0; i <= target; i++) {
+    const value = start + i * step;
+    if (value >= max - step * 1e-9 || !Number.isFinite(value)) break;
     if (value > min + step * 1e-9) ticks.push(value);
   }
   if (ticks[ticks.length - 1] !== max) ticks.push(max);

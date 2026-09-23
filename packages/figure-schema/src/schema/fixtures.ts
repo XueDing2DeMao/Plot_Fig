@@ -1,6 +1,8 @@
+import { CURRENT_SCHEMA_VERSION } from './common.js';
+
 export const validTemplate = {
   kind: 'figure-template',
-  schemaVersion: '1.0.0',
+  schemaVersion: CURRENT_SCHEMA_VERSION,
   templateId: 'template-basic-xy',
   metadata: { name: 'Basic XY', tags: ['xy'] },
   page: {

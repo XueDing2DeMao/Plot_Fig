@@ -47,4 +47,20 @@ describe('inferDataBindingSet', () => {
       sourcePath: '/header/1',
     });
   });
+
+  it('converts grouped numeric text to numbers', () => {
+    const result = inferDataBindingSet(
+      [
+        ['Load', 'Label'],
+        ['3,790.97559', 'A'],
+        ['1 234.00', 'B'],
+      ],
+      'grouped.csv',
+    );
+
+    expect(result.columns[0]).toMatchObject({
+      valueType: 'number',
+      values: [3790.97559, 1234],
+    });
+  });
 });

@@ -7,14 +7,15 @@ import App from './App.js';
 describe('web editor shell', () => {
   it('shows local file input, bindings, diagnostics and preview regions', () => {
     render(<App />);
-    expect(screen.getByLabelText('选择 CSV 文件')).toBeInTheDocument();
+    expect(screen.getByLabelText('选择数据文件')).toBeInTheDocument();
     expect(
       screen.getByRole('region', { name: '数据绑定' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('region', { name: '图形设置' }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('绘制方式')).toHaveValue('line-markers');
+    expect(screen.getByRole('radio', { name: '线型：实线' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '标记符号：方形' })).toBeChecked();
     expect(
       screen.getByRole('region', { name: '诊断信息' }),
     ).toBeInTheDocument();

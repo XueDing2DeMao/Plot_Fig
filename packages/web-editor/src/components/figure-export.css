@@ -1,0 +1,164 @@
+.figure-export {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-border);
+}
+.export-actions {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  padding: 14px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
+}
+.export-resolution,
+.export-vector {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+.export-format-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0;
+  color: var(--ui-text);
+  font-size: var(--ui-font-caption);
+  font-weight: 600;
+}
+.export-format-label span {
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+.export-format-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+.export-actions button,
+.export-actions select {
+  min-height: var(--ui-control-height);
+  padding: 8px 12px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  font-size: var(--ui-font-small);
+  white-space: nowrap;
+}
+.export-actions select {
+  width: 200px;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.export-actions button {
+  font-weight: 600;
+}
+.export-actions .export-download-primary {
+  border-color: var(--ui-heading);
+  background: var(--ui-heading);
+  color: var(--ui-surface);
+}
+.export-actions button:disabled,
+.export-actions select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.export-actions :focus-visible,
+.export-secondary > button:focus-visible,
+.export-more-actions > button:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+.export-actions button:not(:disabled):hover {
+  border-color: var(--ui-heading);
+  box-shadow: 0 0 0 1px var(--ui-heading);
+}
+.export-secondary,
+.export-more-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.export-secondary {
+  margin-top: 10px;
+  gap: 8px 12px;
+}
+.export-more-actions {
+  border-left: 1px solid var(--ui-border);
+  padding-left: 12px;
+}
+.export-secondary > button,
+.export-more-actions > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-control);
+  background: transparent;
+  color: var(--ui-text);
+  font-size: var(--ui-font-caption);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.export-secondary > button:not(:disabled):hover,
+.export-more-actions > button:not(:disabled):hover,
+.export-options-toggle[aria-expanded='true'] {
+  background: var(--ui-subtle);
+  border-color: var(--ui-border);
+}
+.export-options {
+  margin-top: 12px;
+}
+.export-option-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 12px 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  font-size: var(--ui-font-caption);
+}
+.export-option-fields > legend,
+.export-option-fields > fieldset > legend {
+  padding: 0 6px;
+  color: var(--ui-muted);
+}
+.export-option-fields label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.export-option-fields input[type='number'] {
+  width: 96px;
+  min-width: 0;
+}
+.export-option-fields p {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--ui-muted);
+}
+.export-option-fields > fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  width: 100%;
+  min-width: 0;
+}
+.export-note {
+  margin: 8px 0 0;
+  font-size: var(--ui-font-caption);
+  color: var(--ui-muted);
+}

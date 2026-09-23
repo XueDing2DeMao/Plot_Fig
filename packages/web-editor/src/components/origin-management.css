@@ -1,0 +1,307 @@
+.publication-dialog.origin-tool-dialog {
+  width: min(920px, calc(100vw - 32px));
+  height: min(640px, calc(100dvh - 32px));
+  border-radius: 0;
+}
+.origin-tool-dialog > header,
+.origin-tool-dialog > footer {
+  padding: 8px 12px;
+}
+.origin-tool-dialog > header > button {
+  width: 28px;
+  min-height: 24px;
+  font-size: 18px;
+}
+.origin-tool-dialog h2 {
+  font-size: 14px;
+}
+.origin-manager-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+.origin-manager-editor {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.origin-manager-editor .origin-category-editor {
+  max-height: none;
+  overflow: visible;
+  border: 0;
+}
+.origin-manager-editor .origin-tab-content {
+  overflow: visible;
+  padding: 0;
+}
+.origin-manager-preview {
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: var(--ui-canvas);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.origin-manager-preview svg {
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+}
+.publication-dialog.origin-layer-manager {
+  width: min(1080px, calc(100vw - 32px));
+  height: min(740px, calc(100dvh - 32px));
+  border-radius: 8px;
+}
+.origin-layer-manager > header,
+.origin-layer-manager > footer {
+  padding: 12px 20px;
+}
+.origin-layer-manager h2 {
+  font-size: 18px;
+}
+.origin-layer-manager > footer {
+  gap: 8px;
+  flex-wrap: wrap;
+  background: var(--ui-subtle);
+}
+.origin-layer-manager > footer button,
+.origin-manager-toolbar button,
+.origin-manager-common button {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.origin-manager-status {
+  flex: 1;
+  min-width: 180px;
+  margin: 0 16px 0 0;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.origin-manager-sidebar {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 10px;
+  background: var(--ui-subtle);
+  border-right: 1px solid var(--ui-border);
+}
+.origin-manager-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 12px;
+}
+.origin-manager-list-heading h3,
+.origin-manager-toolbar h3 {
+  margin: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.origin-manager-list-heading span {
+  color: var(--ui-muted);
+  white-space: nowrap;
+}
+.origin-manager-sidebar .origin-object-nav {
+  padding: 0;
+  overflow: visible;
+  border: 0;
+}
+.origin-manager-sidebar .origin-tree-heading,
+.origin-manager-sidebar .origin-tree-note {
+  display: none;
+}
+.origin-manager-sidebar .origin-object-nav ul {
+  display: block;
+}
+.origin-manager-sidebar .origin-object-nav li {
+  margin-bottom: 6px;
+}
+.origin-manager-sidebar .origin-object-nav button {
+  align-items: flex-start;
+  padding: 10px 8px 10px calc(8px + var(--object-depth) * 12px);
+  border-radius: 4px;
+}
+.origin-manager-sidebar .origin-object-nav strong {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.origin-manager-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px 12px;
+  flex-shrink: 0;
+}
+.origin-manager-toolbar p {
+  margin: 4px 0 0;
+  color: var(--ui-muted);
+  line-height: 1.5;
+}
+.origin-manager-toolbar button {
+  flex-shrink: 0;
+}
+.origin-manager-editor > .origin-tabs {
+  flex-wrap: wrap;
+  overflow: visible;
+  padding: 0 12px;
+}
+.origin-manager-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 20px;
+}
+.origin-manager-common {
+  display: grid;
+  gap: 16px;
+}
+.origin-layer-manager .property-group {
+  padding: 12px;
+  margin: 0;
+  border-radius: 4px;
+}
+.origin-manager-common > .property-group:last-child .property-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.origin-manager-advanced {
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  padding: 12px;
+}
+.origin-manager-advanced summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.origin-manager-advanced[open] summary,
+.origin-manager-advanced .property-group:not(:last-child) {
+  margin-bottom: 12px;
+}
+.origin-manager-advanced .publication-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.origin-manager-advanced .publication-fields > :not(.property-select) {
+  grid-column: 1 / -1;
+}
+.origin-manager-preview h4 {
+  margin: 0 0 12px;
+}
+.origin-manager-empty {
+  padding: 20px 12px;
+  text-align: center;
+  color: var(--ui-muted);
+  line-height: 1.6;
+}
+.origin-manager-empty p {
+  margin: 6px 0 0;
+}
+.origin-contents-layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) 60px minmax(240px, 1fr);
+  min-height: 260px;
+}
+.origin-datasets {
+  overflow: auto;
+  padding: 10px;
+}
+.origin-datasets button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 5px 8px;
+}
+.origin-datasets button[aria-pressed='true'] {
+  background: var(--ui-selected);
+  border-color: var(--ui-border-strong);
+}
+.origin-transfer-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.origin-transfer-buttons button {
+  min-width: 36px;
+}
+.origin-order-buttons,
+.origin-contents-details {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+.origin-contents-details {
+  max-height: 35vh;
+  overflow: auto;
+}
+.origin-plot-setup {
+  overflow: auto;
+  padding: 8px 16px;
+}
+.origin-plot-setup details {
+  border: 1px solid var(--ui-border);
+  margin: 6px 0;
+}
+.origin-plot-setup summary {
+  padding: 6px;
+  background: var(--ui-subtle);
+}
+.origin-plot-setup .origin-object-nav {
+  max-height: 160px;
+}
+.origin-export-dialog {
+  padding: 20px;
+  overflow: auto;
+}
+@media (max-width: 700px) {
+  .origin-manager-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .origin-manager-sidebar {
+    max-height: 160px;
+    padding: 8px;
+    border-right: 0;
+    border-bottom: 1px solid var(--ui-border);
+  }
+  .origin-manager-sidebar .origin-object-nav {
+    overflow-x: auto;
+  }
+  .origin-manager-sidebar .origin-object-nav ul {
+    display: flex;
+    gap: 6px;
+  }
+  .origin-manager-sidebar .origin-object-nav li {
+    flex: 0 0 180px;
+  }
+  .origin-manager-toolbar,
+  .origin-manager-scroll {
+    padding: 12px;
+  }
+  .origin-manager-common > .property-group:last-child .property-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .origin-manager-advanced .publication-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .origin-manager-status {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+}

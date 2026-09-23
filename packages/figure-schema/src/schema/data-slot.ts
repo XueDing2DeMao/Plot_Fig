@@ -2,6 +2,13 @@ import Type from 'typebox';
 import { ExtensionBagSchema, IdentifierSchema } from './common.js';
 
 export const DataRoleSchema = Type.Union([
+  Type.Literal('valueError'),
+  Type.Literal('valueErrorLower'),
+  Type.Literal('valueErrorUpper'),
+  Type.Literal('category'),
+  Type.Literal('value'),
+  Type.Literal('values'),
+  Type.Literal('z'),
   Type.Literal('x'),
   Type.Literal('y'),
   Type.Literal('xError'),
@@ -11,9 +18,12 @@ export const DataRoleSchema = Type.Union([
   Type.Literal('yErrorLower'),
   Type.Literal('yErrorUpper'),
   Type.Literal('group'),
+  Type.Literal('split'),
   Type.Literal('label'),
   Type.Literal('color'),
+  Type.Literal('lineColor'),
   Type.Literal('size'),
+  Type.Literal('shape'),
 ]);
 
 export const DataValueTypeSchema = Type.Union([

@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalizeFigurePayload } from '../src/canonicalize.js';
+import { CURRENT_SCHEMA_VERSION } from '../src/schema/common.js';
 import { FigureDocumentSchema } from '../src/schema/figure-document.js';
 import { FigureTemplateSchema } from '../src/schema/figure-template.js';
 
@@ -28,12 +29,12 @@ export const DEFAULT_SCHEMA_ARTIFACT_DIRECTORY = fileURLToPath(
 const SCHEMA_ARTIFACTS: readonly ArtifactDefinition[] = [
   {
     fileName: 'figure-template.schema.json',
-    schemaId: 'https://plot-fig.dev/schema/figure-template/1.0.0',
+    schemaId: `https://plot-fig.dev/schema/figure-template/${CURRENT_SCHEMA_VERSION}`,
     rootSchema: FigureTemplateSchema,
   },
   {
     fileName: 'figure-document.schema.json',
-    schemaId: 'https://plot-fig.dev/schema/figure-document/1.0.0',
+    schemaId: `https://plot-fig.dev/schema/figure-document/${CURRENT_SCHEMA_VERSION}`,
     rootSchema: FigureDocumentSchema,
   },
 ];

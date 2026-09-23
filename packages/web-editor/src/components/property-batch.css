@@ -1,0 +1,81 @@
+.batch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.batch-actions button,
+.property-batch-entry button {
+  padding: 7px 10px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-surface);
+  color: var(--ui-heading);
+}
+.property-batch-entry {
+  display: flex;
+  gap: 8px;
+  margin-right: auto;
+}
+.batch-targets h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.batch-target-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+.batch-target {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  padding: 8px 4px;
+  font-size: var(--ui-font-small);
+}
+.batch-target input {
+  accent-color: var(--ui-heading);
+  flex-shrink: 0;
+}
+.batch-target span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.batch-target small {
+  display: block;
+  margin-top: 4px;
+  color: var(--ui-muted);
+}
+.batch-field {
+  display: grid;
+  gap: 4px;
+}
+.batch-field + .batch-field {
+  margin-top: 12px;
+}
+.batch-field .property-auto {
+  justify-self: start;
+}
+@media (max-width: 800px) {
+  .batch-targets {
+    max-height: 185px;
+    overflow: auto;
+  }
+  .batch-target-list {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .batch-target {
+    flex-shrink: 0;
+    max-width: 200px;
+  }
+  .batch-targets .batch-actions {
+    position: static;
+  }
+  .property-batch-entry {
+    width: 100%;
+  }
+  .origin-dialog .property-dialog-footer {
+    flex-wrap: wrap;
+  }
+}

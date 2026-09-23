@@ -1,6 +1,19 @@
 import Type from 'typebox';
+import {CurveGroupsSchema} from './curve-groups.js';
+import {PanelStackSchema} from './curve-transforms.js';
+import { PanelFrameLinkSchema } from './frame-link.js';
+import {
+  LayerAppearanceSchema,
+  ClipMarginsSchema,
+} from './layer-appearance.js';
+import {
+  SharedAxisGroupSchema,
+  PublicationPresetSchema,
+} from './publication.js';
 import { AnnotationSchema } from './annotation.js';
 import { AxisSchema } from './axis.js';
+import { YAxisAlignmentSchema } from './axis-alignment.js';
+import { AxisLengthRatioSchema } from './axis-length-ratio.js';
 import {
   CURRENT_SCHEMA_VERSION,
   ExtensionBagSchema,
@@ -14,11 +27,20 @@ import { ThemeSchema } from './theme.js';
 export const PanelSchema = Type.Object(
   {
     panelId: IdentifierSchema,
+    name: Type.Optional(Type.String({ minLength: 1, maxLength: 128 })),
+    visible: Type.Optional(Type.Boolean()),
+    appearance: Type.Optional(LayerAppearanceSchema),
+    clipMargins: Type.Optional(ClipMarginsSchema),
     frame: PanelFrameSchema,
+    frameLink: Type.Optional(PanelFrameLinkSchema),
     coordinateSystem: Type.Literal('cartesian-2d'),
     clip: Type.Boolean(),
     axes: Type.Array(AxisSchema, { minItems: 2 }),
+    yAxisAlignment: Type.Optional(YAxisAlignmentSchema),
+    axisLengthRatio: Type.Optional(AxisLengthRatioSchema),
     plotSlots: Type.Array(PlotSlotSchema),
+    groups: Type.Optional(CurveGroupsSchema),
+    stack: Type.Optional(PanelStackSchema),
     extensions: Type.Optional(ExtensionBagSchema),
   },
   { additionalProperties: false },
@@ -39,6 +61,8 @@ export const FigureTemplateSchema = Type.Object(
     ),
     page: PageSchema,
     panels: Type.Array(PanelSchema, { minItems: 1 }),
+    sharedAxisGroups: Type.Optional(Type.Array(SharedAxisGroupSchema)),
+    publicationPreset: Type.Optional(PublicationPresetSchema),
     dataSlots: Type.Array(DataSlotSchema),
     annotations: Type.Array(AnnotationSchema),
     theme: ThemeSchema,

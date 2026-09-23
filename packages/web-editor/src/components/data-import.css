@@ -1,0 +1,75 @@
+.import-panel .import-body {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+.import-panel .import-body[hidden],
+.import-panel .import-file-input[hidden] {
+  display: none;
+}
+.import-dropzone {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  padding: 16px 8px;
+  border: 1px dashed var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
+  color: var(--ui-text);
+  text-align: center;
+}
+.import-dropzone:hover,
+.import-dropzone.is-dragging {
+  border-color: var(--ui-focus);
+  background: var(--ui-selected);
+}
+.import-dropzone.is-dragging {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+.import-dropzone > * {
+  pointer-events: none;
+}
+.import-dropzone-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.import-dropzone-hint,
+.import-file-formats {
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+.import-file-formats {
+  margin-top: 2px;
+  word-spacing: 2px;
+}
+.import-paste-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.import-entry-note,
+.import-entry-error {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.import-entry-note {
+  color: var(--ui-muted);
+  text-align: center;
+}
+.import-entry-error {
+  color: var(--ui-danger);
+}

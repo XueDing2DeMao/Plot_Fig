@@ -1,151 +1,198 @@
-import type { FigureTemplate } from '@plot-fig/figure-schema';
-import { escapeXml, formatNumber, type Rect } from './geometry.js';
+import {
+  defaultShapeStyle,
+  type Annotation,
+  type Panel,
+} from '@plot-fig/figure-schema';
+import { escapeXml, type Rect } from './geometry.js';
 import type { PlotScale } from './scales.js';
-
-type Annotation = FigureTemplate['annotations'][number];
-type Panel = FigureTemplate['panels'][number];
+import { annotationText, annotationSegment } from './annotation-style.js';
+import { scaleCells, clippedCell } from './segmented-panel.js';
+import { clipDataLine, containsDataPoint, type DataClip } from './data-clip.js';
 type Point = { x: number; y: number };
-
-function panelPoint(point: Point, rect: Rect): Point {
-  return {
-    x: rect.x + point.x * rect.width,
-    y: rect.y + (1 - point.y) * rect.height,
-  };
-}
-
-function dataPoint(
-  point: Point,
-  rect: Rect,
-  xScale: PlotScale,
-  yScale: PlotScale,
-): Point {
-  return {
-    x: rect.x + xScale.map(point.x) * rect.width,
-    y: rect.y + (1 - yScale.map(point.y)) * rect.height,
-  };
-}
-
+type Context = {
+  rect: Rect;
+  scales: Map<string, PlotScale>;
+  dataClip?: DataClip;
+};
 function pointFor(
   annotation: Annotation,
   point: Point,
-  rect: Rect,
-  xScale: PlotScale,
-  yScale: PlotScale,
+  context: Context,
 ): Point {
-  return annotation.coordinateSpace === 'data'
-    ? dataPoint(point, rect, xScale, yScale)
-    : panelPoint(point, rect);
+  const { rect, scales } = context;
+  const x =
+    annotation.coordinateSpace === 'data'
+      ? scales.get(annotation.xAxisId)?.map(point.x)
+      : point.x;
+  const y =
+    annotation.coordinateSpace === 'data'
+      ? scales.get(annotation.yAxisId)?.map(point.y)
+      : point.y;
+  return {
+    x: rect.x + (x ?? NaN) * rect.width,
+    y: rect.y + (1 - (y ?? NaN)) * rect.height,
+  };
 }
-
-function renderText(
-  annotation: Extract<Annotation, { kind: 'text' }>,
-  point: Point,
-): string {
-  return `<text data-role="annotation-text" x="${formatNumber(point.x)}" y="${formatNumber(point.y)}">${escapeXml(annotation.text)}</text>`;
-}
-
-function renderLegend(
-  annotation: Extract<Annotation, { kind: 'legend' }>,
-  point: Point,
-): string {
-  if (!annotation.visible) return '';
-  return `<text data-role="annotation-legend" x="${formatNumber(point.x)}" y="${formatNumber(point.y)}">Legend</text>`;
-}
-
-function renderSegment(
-  annotation: Extract<Annotation, { kind: 'arrow' | 'rectangle' }>,
-  rect: Rect,
-  xScale: PlotScale,
-  yScale: PlotScale,
-): string {
-  const start = pointFor(annotation, annotation.start, rect, xScale, yScale);
-  const end = pointFor(annotation, annotation.end, rect, xScale, yScale);
-  if (annotation.kind === 'arrow')
-    return `<line data-role="annotation-arrow" x1="${formatNumber(start.x)}" y1="${formatNumber(start.y)}" x2="${formatNumber(end.x)}" y2="${formatNumber(end.y)}" />`;
-  const x = Math.min(start.x, end.x);
-  const y = Math.min(start.y, end.y);
-  return `<rect data-role="annotation-rectangle" x="${formatNumber(x)}" y="${formatNumber(y)}" width="${formatNumber(Math.abs(end.x - start.x))}" height="${formatNumber(Math.abs(end.y - start.y))}" fill="none" />`;
-}
-
-function renderReferenceLine(
+function reference(
   annotation: Extract<Annotation, { kind: 'reference-line' }>,
-  rect: Rect,
-  xScale: PlotScale,
-  yScale: PlotScale,
-): string {
-  if (annotation.orientation === 'x') {
-    const x = rect.x + xScale.map(annotation.value) * rect.width;
-    return `<line data-role="annotation-reference-line" x1="${formatNumber(x)}" x2="${formatNumber(x)}" y1="${formatNumber(rect.y)}" y2="${formatNumber(rect.y + rect.height)}" />`;
+  context: Context,
+) {
+  const { rect, scales } = context;
+  const x = scales.get(annotation.xAxisId),
+    y = scales.get(annotation.yAxisId);
+  if (!x || !y) return '';
+  const vertical = annotation.orientation === 'x';
+  const value = vertical
+    ? rect.x + x.map(annotation.value) * rect.width
+    : rect.y + (1 - y.map(annotation.value)) * rect.height;
+  return annotationSegment(
+    'reference-line',
+    {
+      start: vertical ? { x: value, y: rect.y } : { x: rect.x, y: value },
+      end: vertical
+        ? { x: value, y: rect.y + rect.height }
+        : { x: rect.x + rect.width, y: value },
+    },
+    annotation.shapeStyle,
+  );
+}
+function renderOne(annotation: Annotation, context: Context): string {
+  if (annotation.visible === false || annotation.kind === 'legend') return '';
+  if (context.dataClip && annotation.coordinateSpace === 'data') {
+    const c = context.dataClip;
+    if (
+      annotation.kind === 'text' &&
+      !containsDataPoint(annotation.position, c)
+    )
+      return '';
+    const xScale = context.scales.get(annotation.xAxisId)!,
+      yScale = context.scales.get(annotation.yAxisId)!;
+    const mappable = (p: Point) =>
+      Number.isFinite(xScale.map(p.x)) && Number.isFinite(yScale.map(p.y));
+    if (
+      annotation.kind === 'arrow' &&
+      (!mappable(annotation.start) || !mappable(annotation.end))
+    ) {
+      const segment = clipDataLine(annotation.start, annotation.end, c);
+      if (!segment) return '';
+      const style = annotation.shapeStyle ?? defaultShapeStyle(),
+        start =
+          style.arrowHead === 'both' && containsDataPoint(annotation.start, c),
+        end =
+          style.arrowHead !== 'none' && containsDataPoint(annotation.end, c);
+      annotation = {
+        ...annotation,
+        start: start && !end ? segment[1] : segment[0],
+        end: start && !end ? segment[0] : segment[1],
+        shapeStyle: {
+          ...style,
+          arrowHead: start && end ? 'both' : start || end ? 'end' : 'none',
+        },
+      };
+    }
+    if (
+      annotation.kind === 'rectangle' &&
+      (!mappable(annotation.start) || !mappable(annotation.end))
+    ) {
+      if (
+        Math.max(annotation.start.x, annotation.end.x) < c.xMin ||
+        Math.min(annotation.start.x, annotation.end.x) > c.xMax ||
+        Math.max(annotation.start.y, annotation.end.y) < c.yMin ||
+        Math.min(annotation.start.y, annotation.end.y) > c.yMax
+      )
+        return '';
+      const clamp = (p: Point) => ({
+        x: Math.max(c.xMin, Math.min(c.xMax, p.x)),
+        y: Math.max(c.yMin, Math.min(c.yMax, p.y)),
+      });
+      annotation = {
+        ...annotation,
+        start: clamp(annotation.start),
+        end: clamp(annotation.end),
+      };
+    }
   }
-  const y = rect.y + (1 - yScale.map(annotation.value)) * rect.height;
-  return `<line data-role="annotation-reference-line" x1="${formatNumber(rect.x)}" x2="${formatNumber(rect.x + rect.width)}" y1="${formatNumber(y)}" y2="${formatNumber(y)}" />`;
-}
-
-function renderOne(
-  annotation: Annotation,
-  rect: Rect,
-  xScale: PlotScale,
-  yScale: PlotScale,
-): string {
+  let svg = '';
   if (annotation.kind === 'reference-line')
-    return renderReferenceLine(annotation, rect, xScale, yScale);
-  if (annotation.kind === 'text')
-    return renderText(
-      annotation,
-      pointFor(annotation, annotation.position, rect, xScale, yScale),
+    svg = reference(annotation, context);
+  else if (annotation.kind === 'text') {
+    const p = pointFor(annotation, annotation.position, context);
+    if (![p.x, p.y].every(Number.isFinite)) return '';
+    svg = annotationText(
+      annotation.text,
+      p,
+      annotation.textStyle,
+      annotation.format,
+      `annotation-${annotation.annotationId}`,
     );
-  if (annotation.kind === 'legend')
-    return renderLegend(
-      annotation,
-      pointFor(annotation, annotation.position, rect, xScale, yScale),
+  } else
+    svg = annotationSegment(
+      annotation.kind,
+      {
+        start: pointFor(annotation, annotation.start, context),
+        end: pointFor(annotation, annotation.end, context),
+      },
+      annotation.shapeStyle,
     );
-  return renderSegment(annotation, rect, xScale, yScale);
+  return (
+    '<g data-annotation-id="' +
+    escapeXml(annotation.annotationId) +
+    '">' +
+    svg +
+    '</g>'
+  );
 }
-
 export function renderPanelAnnotations(
   annotations: Annotation[],
   panel: Panel,
-  rect: Rect,
-  xScale: PlotScale,
-  yScale: PlotScale,
+  context: Context,
 ): string {
   return annotations
-    .filter(
-      (annotation) =>
-        annotation.coordinateSpace !== 'page' &&
-        annotation.panelId === panel.panelId,
-    )
-    .map((annotation) => renderOne(annotation, rect, xScale, yScale))
+    .filter((a) => a.coordinateSpace !== 'page' && a.panelId === panel.panelId)
+    .map((a) => {
+      if (a.coordinateSpace === 'data') {
+        const x = context.scales.get(a.xAxisId),
+          y = context.scales.get(a.yAxisId);
+        if (x && y && (x.segments || y.segments))
+          return scaleCells(context.rect, x, y)
+            .map((cell, index) =>
+              clippedCell(
+                `annotation-segment-${a.annotationId}-${index}`,
+                cell.rect,
+                renderOne(a, {
+                  rect: cell.rect,
+                  scales: new Map(context.scales)
+                    .set(a.xAxisId, cell.xScale)
+                    .set(a.yAxisId, cell.yScale),
+                  dataClip: {
+                    xMin: cell.xScale.min,
+                    xMax: cell.xScale.max,
+                    yMin: cell.yScale.min,
+                    yMax: cell.yScale.max,
+                  },
+                }),
+                'annotation-segment',
+              ),
+            )
+            .join('');
+      }
+      const svg = renderOne(a, context);
+      return a.coordinateSpace === 'data' && panel.clip
+        ? '<g clip-path="url(#panel-clip-' +
+            escapeXml(panel.panelId) +
+            ')">' +
+            svg +
+            '</g>'
+        : svg;
+    })
     .join('');
 }
-
 export function renderPageAnnotations(
   annotations: Annotation[],
   viewport: Rect,
 ): string {
   return annotations
-    .filter((annotation) => annotation.coordinateSpace === 'page')
-    .map((annotation) => {
-      if (annotation.kind === 'text')
-        return renderText(
-          annotation,
-          panelPoint(annotation.position, viewport),
-        );
-      if (annotation.kind === 'legend')
-        return renderLegend(
-          annotation,
-          panelPoint(annotation.position, viewport),
-        );
-      if (annotation.kind === 'arrow' || annotation.kind === 'rectangle') {
-        const identity = {
-          min: 0,
-          max: 1,
-          scale: 'linear' as const,
-          map: (value: number) => value,
-        };
-        return renderSegment(annotation, viewport, identity, identity);
-      }
-      return '';
-    })
+    .filter((a) => a.coordinateSpace === 'page')
+    .map((a) => renderOne(a, { rect: viewport, scales: new Map() }))
     .join('');
 }

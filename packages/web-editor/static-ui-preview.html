@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plot Fig · Data Workbench Preview</title>
+    <style>
+      :root {
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        color: #e8eef5;
+        background: #0c1016;
+        font-synthesis: none;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: #0c1016;
+      }
+      button,
+      select {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 248px minmax(0, 1fr);
+        grid-template-rows: 72px minmax(0, 1fr);
+        background:
+          radial-gradient(circle at 72% 3%, #17252d 0, transparent 31%), #0c1016;
+      }
+      .topbar {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 0 28px;
+        border-bottom: 1px solid #23303a;
+        background: rgba(12, 16, 22, 0.88);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-mark {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border: 1px solid #55d6be;
+        border-radius: 9px;
+        color: #071112;
+        background: #55d6be;
+        font-weight: 800;
+      }
+      .brand strong {
+        display: block;
+        letter-spacing: -0.02em;
+      }
+      .brand small {
+        display: block;
+        margin-top: 2px;
+        color: #8493a2;
+        font-size: 11px;
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 11px;
+        border: 1px solid #2b4548;
+        border-radius: 999px;
+        color: #9ee9db;
+        background: #132426;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      .status i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #55d6be;
+        box-shadow: 0 0 12px #55d6be;
+      }
+      .icon-button,
+      .ghost-button {
+        border: 1px solid #2b3742;
+        border-radius: 8px;
+        color: #aab8c6;
+        background: #111821;
+      }
+      .icon-button {
+        width: 36px;
+        height: 36px;
+      }
+      .ghost-button {
+        padding: 9px 12px;
+        font-size: 12px;
+      }
+      .sidebar {
+        padding: 24px 16px;
+        border-right: 1px solid #23303a;
+        background: #10161d;
+      }
+      .side-label {
+        margin: 0 10px 12px;
+        color: #657585;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .nav {
+        display: grid;
+        gap: 5px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 12px;
+        border-radius: 8px;
+        color: #8e9daa;
+        text-decoration: none;
+        font-size: 13px;
+      }
+      .nav a.active {
+        color: #dffcf6;
+        background: #1a3131;
+        box-shadow: inset 3px 0 #55d6be;
+      }
+      .nav b {
+        width: 18px;
+        color: #657585;
+        font-size: 12px;
+        text-align: center;
+      }
+      .nav a.active b {
+        color: #55d6be;
+      }
+      .side-divider {
+        height: 1px;
+        margin: 28px 10px;
+        background: #23303a;
+      }
+      .recent {
+        display: grid;
+        gap: 9px;
+      }
+      .recent-item {
+        padding: 10px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        color: #8e9daa;
+        background: #111821;
+      }
+      .recent-item.current {
+        border-color: #315154;
+      }
+      .recent-item strong {
+        display: block;
+        overflow: hidden;
+        color: #cad5df;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .recent-item small {
+        display: block;
+        margin-top: 4px;
+        color: #687887;
+        font-size: 10px;
+      }
+      .main {
+        min-width: 0;
+        padding: 28px 32px 36px;
+        overflow: auto;
+      }
+      .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+      .eyebrow {
+        margin: 0 0 8px;
+        color: #55d6be;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.17em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0;
+        color: #f3f7fa;
+        font-size: clamp(24px, 3vw, 38px);
+        letter-spacing: -0.045em;
+      }
+      .page-head p {
+        max-width: 610px;
+        margin: 8px 0 0;
+        color: #83929f;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .head-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .primary {
+        border: 1px solid #55d6be;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #071112;
+        background: #55d6be;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 18px;
+      }
+      .panel {
+        border: 1px solid #26343e;
+        border-radius: 12px;
+        background: #111821;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+      }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 18px;
+        border-bottom: 1px solid #23303a;
+      }
+      .panel-head h2 {
+        margin: 0;
+        color: #e8eef5;
+        font-size: 14px;
+      }
+      .panel-head small {
+        color: #70808e;
+        font-size: 11px;
+      }
+      .file-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        border-bottom: 1px solid #23303a;
+        background: #151f27;
+      }
+      .file-meta {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+      }
+      .file-icon {
+        width: 31px;
+        height: 31px;
+        display: grid;
+        place-items: center;
+        border-radius: 7px;
+        color: #071112;
+        background: #f2bc6e;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .file-meta strong {
+        display: block;
+        overflow: hidden;
+        color: #dce6ed;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .file-meta small {
+        display: block;
+        margin-top: 3px;
+        color: #748493;
+        font-size: 10px;
+      }
+      .ready {
+        color: #8ce2d3;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .preview-body {
+        padding: 18px;
+      }
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid #2a3943;
+        border-radius: 9px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+        font-size: 11px;
+      }
+      th,
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid #23303a;
+        text-align: left;
+        white-space: nowrap;
+      }
+      th {
+        position: sticky;
+        top: 0;
+        color: #aabac6;
+        background: #19232c;
+        font-size: 10px;
+        font-weight: 700;
+      }
+      th span {
+        display: block;
+        margin-top: 4px;
+        color: #55d6be;
+        font-size: 9px;
+        font-weight: 500;
+      }
+      td {
+        color: #c5d0d9;
+        font-variant-numeric: tabular-nums;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      td:first-child,
+      th:first-child {
+        color: #6e7e8d;
+      }
+      .table-note {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 12px;
+        color: #748493;
+        font-size: 10px;
+      }
+      .chart {
+        margin-top: 18px;
+        border: 1px solid #2a3943;
+        border-radius: 9px;
+        background: #0f171d;
+      }
+      .chart-head {
+        display: flex;
+        justify-content: space-between;
+        padding: 13px 14px 0;
+        color: #9aabb8;
+        font-size: 11px;
+      }
+      .chart svg {
+        display: block;
+        width: 100%;
+        height: 210px;
+      }
+      .right-stack {
+        display: grid;
+        gap: 18px;
+        align-content: start;
+      }
+      .step-list {
+        display: grid;
+        gap: 1px;
+        padding: 10px;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 26px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 9px;
+        border-radius: 8px;
+      }
+      .step.active {
+        background: #1a3131;
+      }
+      .step-number {
+        width: 23px;
+        height: 23px;
+        display: grid;
+        place-items: center;
+        border: 1px solid #344550;
+        border-radius: 50%;
+        color: #80909e;
+        font-size: 10px;
+      }
+      .step.active .step-number {
+        border-color: #55d6be;
+        color: #071112;
+        background: #55d6be;
+      }
+      .step strong {
+        display: block;
+        color: #d8e2e9;
+        font-size: 12px;
+      }
+      .step small {
+        display: block;
+        margin-top: 3px;
+        color: #748493;
+        font-size: 10px;
+      }
+      .step em {
+        color: #55d6be;
+        font-size: 10px;
+        font-style: normal;
+      }
+      .settings {
+        padding: 16px;
+      }
+      .field {
+        display: grid;
+        gap: 7px;
+        margin-bottom: 15px;
+      }
+      .field:last-child {
+        margin-bottom: 0;
+      }
+      .field label {
+        color: #8b9aa7;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      select {
+        width: 100%;
+        padding: 10px 11px;
+        border: 1px solid #344550;
+        border-radius: 7px;
+        color: #d9e4eb;
+        background: #151f27;
+        outline: 0;
+        font-size: 12px;
+      }
+      select:focus {
+        border-color: #55d6be;
+      }
+      .mapping {
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+      }
+      .mapping-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px;
+        border: 1px solid #2a3943;
+        border-radius: 8px;
+        background: #151f27;
+      }
+      .mapping-row span {
+        color: #758493;
+        font-size: 10px;
+      }
+      .mapping-row strong {
+        color: #dbe8ee;
+        font-size: 11px;
+      }
+      .mapping-row b {
+        color: #55d6be;
+        font-size: 10px;
+        font-weight: 600;
+      }
+      dialog {
+        width: min(1060px, calc(100vw - 32px));
+        max-height: calc(100vh - 48px);
+        padding: 0;
+        border: 1px solid #334751;
+        border-radius: 14px;
+        color: #e8eef5;
+        background: #111821;
+        box-shadow: 0 30px 100px rgba(0, 0, 0, 0.55);
+      }
+      dialog::backdrop {
+        background: rgba(4, 7, 10, 0.76);
+        backdrop-filter: blur(4px);
+      }
+      .modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        padding: 20px 22px;
+        border-bottom: 1px solid #26343e;
+      }
+      .modal-head h2 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+      }
+      .modal-head p {
+        margin: 7px 0 0;
+        color: #81909e;
+        font-size: 12px;
+      }
+      .modal-close {
+        border: 0;
+        color: #9caab6;
+        background: transparent;
+        font-size: 22px;
+      }
+      .modal-controls {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 18px 22px;
+      }
+      .modal-preview {
+        padding: 0 22px 22px;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        padding: 15px 22px;
+        border-top: 1px solid #26343e;
+        background: #151f27;
+      }
+      .modal-actions button {
+        padding: 10px 14px;
+        border-radius: 7px;
+        font-size: 11px;
+      }
+      .modal-actions .cancel {
+        border: 1px solid #344550;
+        color: #9baab7;
+        background: transparent;
+      }
+      @media (max-width: 1080px) {
+        .app {
+          grid-template-columns: 204px minmax(0, 1fr);
+        }
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .right-stack {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 780px) {
+        .app {
+          display: block;
+        }
+        .sidebar {
+          display: none;
+        }
+        .topbar {
+          height: 64px;
+          padding: 0 16px;
+        }
+        .main {
+          padding: 22px 16px;
+        }
+        .page-head {
+          align-items: start;
+          flex-direction: column;
+        }
+        .right-stack {
+          grid-template-columns: 1fr;
+        }
+        .modal-controls {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      :root,
+      body {
+        color: #16181b;
+        background: #ffffff;
+      }
+      .app {
+        background: #f4f5f7;
+      }
+      .topbar {
+        border-color: #dcdfe3;
+        background: rgba(255, 255, 255, 0.94);
+      }
+      .brand-mark {
+        border-color: #17191c;
+        color: #ffffff;
+        background: #17191c;
+      }
+      .brand strong,
+      h1,
+      .panel-head h2,
+      .file-meta strong,
+      .step strong,
+      .mapping-row strong {
+        color: #16181b;
+      }
+      .brand small,
+      .page-head p,
+      .panel-head small,
+      .file-meta small,
+      .step small,
+      .table-note,
+      .modal-head p {
+        color: #6b7178;
+      }
+      .status {
+        border-color: #d6d9dd;
+        color: #212428;
+        background: #f4f5f6;
+      }
+      .status i {
+        background: #23977e;
+        box-shadow: none;
+      }
+      .icon-button,
+      .ghost-button {
+        border-color: #d8dce0;
+        color: #34383d;
+        background: #ffffff;
+      }
+      .sidebar {
+        border-color: #dcdfe3;
+        background: #ffffff;
+      }
+      .side-label,
+      .nav b {
+        color: #858b92;
+      }
+      .nav a {
+        color: #51565c;
+      }
+      .nav a.active {
+        color: #111315;
+        background: #eef1f2;
+        box-shadow: inset 3px 0 #17191c;
+      }
+      .nav a.active b {
+        color: #17191c;
+      }
+      .side-divider {
+        background: #e3e5e8;
+      }
+      .recent-item {
+        color: #555b62;
+        background: #f7f8f9;
+      }
+      .recent-item.current {
+        border-color: #c9cdd2;
+      }
+      .recent-item strong {
+        color: #26292d;
+      }
+      .recent-item small {
+        color: #777d84;
+      }
+      .eyebrow {
+        color: #22262a;
+      }
+      .primary {
+        border-color: #17191c;
+        color: #ffffff;
+        background: #17191c;
+      }
+      .panel {
+        border-color: #d9dde1;
+        background: #ffffff;
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.07);
+      }
+      .panel-head,
+      .file-bar {
+        border-color: #e1e4e7;
+      }
+      .file-bar,
+      .chart,
+      .mapping-row {
+        background: #f7f8f9;
+      }
+      .file-icon {
+        color: #ffffff;
+        background: #17191c;
+      }
+      .ready,
+      th span,
+      .mapping-row b {
+        color: #167864;
+      }
+      .table-wrap,
+      .chart,
+      .mapping-row {
+        border-color: #dfe2e5;
+      }
+      th,
+      td {
+        border-color: #e5e7e9;
+      }
+      th {
+        color: #353a40;
+        background: #f1f3f4;
+      }
+      td {
+        color: #24282c;
+      }
+      td:first-child,
+      th:first-child {
+        color: #777d84;
+      }
+      .chart {
+        background: #ffffff;
+      }
+      .chart-head {
+        color: #5f666d;
+      }
+      .step.active {
+        background: #f0f2f3;
+      }
+      .step-number {
+        border-color: #cbd0d5;
+        color: #5f666d;
+      }
+      .step.active .step-number {
+        border-color: #17191c;
+        color: #ffffff;
+        background: #17191c;
+      }
+      .step em {
+        color: #167864;
+      }
+      .field label,
+      .mapping-row span {
+        color: #62686f;
+      }
+      select {
+        border-color: #ccd1d6;
+        color: #202428;
+        background: #ffffff;
+      }
+      select:focus {
+        border-color: #17191c;
+      }
+      dialog {
+        border-color: #cfd4d8;
+        color: #16181b;
+        background: #ffffff;
+        box-shadow: 0 30px 100px rgba(15, 23, 42, 0.22);
+      }
+      dialog::backdrop {
+        background: rgba(28, 32, 36, 0.38);
+      }
+      .modal-head,
+      .modal-actions {
+        border-color: #dde1e4;
+      }
+      .modal-head h2 {
+        color: #16181b;
+      }
+      .modal-close {
+        color: #555b62;
+      }
+      .modal-actions {
+        background: #f6f7f8;
+      }
+      .modal-actions .cancel {
+        border-color: #cbd0d5;
+        color: #34393e;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">P</div>
+          <div>
+            <strong>Plot Fig</strong
+            ><small>数据绘图工作台 · 静态设计预览</small>
+          </div>
+        </div>
+        <div class="top-actions">
+          <span class="status"><i></i>LOCAL WORKSPACE</span
+          ><button class="icon-button" aria-label="帮助">?</button
+          ><button class="icon-button" aria-label="设置">⚙</button>
+        </div>
+      </header>
+      <aside class="sidebar">
+        <p class="side-label">Workspace</p>
+        <nav class="nav">
+          <a class="active" href="#preview"><b>01</b>数据预览</a
+          ><a href="#binding"><b>02</b>字段绑定</a
+          ><a href="#style"><b>03</b>图形样式</a
+          ><a href="#export"><b>04</b>导出与项目</a>
+        </nav>
+        <div class="side-divider"></div>
+        <p class="side-label">Recent files</p>
+        <div class="recent">
+          <div class="recent-item current">
+            <strong>Specimen_RawData_1.csv</strong
+            ><small>GB18030 · 36,270 rows</small>
+          </div>
+          <div class="recent-item">
+            <strong>compression-cycle.csv</strong
+            ><small>UTF-8 · 2,840 rows</small>
+          </div>
+        </div>
+      </aside>
+      <main class="main">
+        <div class="page-head">
+          <div>
+            <p class="eyebrow">01 / DATA PREVIEW</p>
+            <h1>先看清数据，再开始绘图。</h1>
+            <p>
+              导入文件后确认编码、表头与数据区。选择你真正要绘制的列，预览会同步反馈数据类型与图形结果。
+            </p>
+          </div>
+          <div class="head-actions">
+            <button class="ghost-button">打开项目</button
+            ><button class="primary" id="openPreview">＋ 导入数据</button>
+          </div>
+        </div>
+        <div class="layout" id="preview">
+          <section class="panel">
+            <div class="file-bar">
+              <div class="file-meta">
+                <div class="file-icon">CSV</div>
+                <div>
+                  <strong>Specimen_RawData_1.csv</strong
+                  ><small>GB18030 · 逗号分隔 · 自动识别表头第 14 行</small>
+                </div>
+              </div>
+              <span class="ready">● 已准备</span>
+            </div>
+            <div class="preview-body">
+              <div
+                class="panel-head"
+                style="padding: 0 0 14px; border-bottom: 0"
+              >
+                <div>
+                  <h2>数据表预览</h2>
+                  <small>展示数据区前 12 行</small>
+                </div>
+                <button class="ghost-button" id="openPreviewInline">
+                  调整导入设置
+                </button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>位移<span>number · mm</span></th>
+                      <th>载荷<span>number · N</span></th>
+                      <th>视频引伸计轴向应变<span>number · mm/mm</span></th>
+                      <th>压缩应力<span>number · MPa</span></th>
+                      <th>时间<span>number · s</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>0.00000</td>
+                      <td>-0.02219</td>
+                      <td>-0.00009</td>
+                      <td>-0.00817</td>
+                      <td>0.00000</td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>0.00000</td>
+                      <td>-0.02724</td>
+                      <td>-0.00009</td>
+                      <td>-0.01002</td>
+                      <td>0.00400</td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td>0.00000</td>
+                      <td>-0.02982</td>
+                      <td>-0.00009</td>
+                      <td>-0.01098</td>
+                      <td>0.00800</td>
+                    </tr>
+                    <tr>
+                      <td>4</td>
+                      <td>0.00001</td>
+                      <td>-0.03241</td>
+                      <td>-0.00009</td>
+                      <td>-0.01193</td>
+                      <td>0.01200</td>
+                    </tr>
+                    <tr>
+                      <td>5</td>
+                      <td>0.00002</td>
+                      <td>3,790.97559</td>
+                      <td>0.06643</td>
+                      <td>1,395.19604</td>
+                      <td>145.00800</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="table-note">
+                <span>共 36,270 行 · 6 个字段 · 0 个空值警告</span
+                ><span>滚动查看更多</span>
+              </div>
+              <div class="chart">
+                <div class="chart-head">
+                  <span>快速预览 · 位移 × 载荷</span><span>折线 + 标记</span>
+                </div>
+                <svg
+                  viewBox="0 0 760 210"
+                  role="img"
+                  aria-label="位移和载荷的静态图形预览"
+                >
+                  <g stroke="#25343d" stroke-width="1">
+                    <path
+                      d="M50 24H730M50 74H730M50 124H730M50 174H730M50 24V174M220 24V174M390 24V174M560 24V174M730 24V174"
+                    />
+                  </g>
+                  <path
+                    d="M50 152 C120 145 136 130 188 137 S280 118 328 112 S410 92 460 101 S556 61 610 72 S692 34 730 43"
+                    fill="none"
+                    stroke="#55d6be"
+                    stroke-width="3"
+                  />
+                  <path
+                    d="M50 152 C120 145 136 130 188 137 S280 118 328 112 S410 92 460 101 S556 61 610 72 S692 34 730 43"
+                    fill="none"
+                    stroke="#55d6be"
+                    stroke-width="12"
+                    opacity=".08"
+                  />
+                  <g fill="#111821" stroke="#f2bc6e" stroke-width="2">
+                    <circle cx="50" cy="152" r="4" />
+                    <circle cx="188" cy="137" r="4" />
+                    <circle cx="328" cy="112" r="4" />
+                    <circle cx="460" cy="101" r="4" />
+                    <circle cx="610" cy="72" r="4" />
+                    <circle cx="730" cy="43" r="4" />
+                  </g>
+                  <g fill="#687887" font-size="10">
+                    <text x="49" y="194">0.00</text>
+                    <text x="216" y="194">0.15</text>
+                    <text x="386" y="194">0.30</text>
+                    <text x="556" y="194">0.45</text>
+                    <text x="715" y="194">0.58</text>
+                    <text x="12" y="177">0</text>
+                    <text x="5" y="28">3.8k</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </section>
+          <aside class="right-stack">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>导入进度</h2>
+                <small>3 / 4</small>
+              </div>
+              <div class="step-list">
+                <div class="step">
+                  <div class="step-number">✓</div>
+                  <div>
+                    <strong>读取文件</strong><small>已识别 GB18030</small>
+                  </div>
+                  <em>完成</em>
+                </div>
+                <div class="step active">
+                  <div class="step-number">2</div>
+                  <div>
+                    <strong>确认数据区</strong
+                    ><small>表头第 14 行 · 单位行已跳过</small>
+                  </div>
+                  <em>当前</em>
+                </div>
+                <div class="step">
+                  <div class="step-number">3</div>
+                  <div>
+                    <strong>选择绘图列</strong
+                    ><small>配置 X / Y 数据角色</small>
+                  </div>
+                  <em>待办</em>
+                </div>
+                <div class="step">
+                  <div class="step-number">4</div>
+                  <div>
+                    <strong>生成图形</strong><small>实时更新 SVG 预览</small>
+                  </div>
+                  <em>待办</em>
+                </div>
+              </div>
+            </section>
+            <section class="panel" id="binding">
+              <div class="panel-head">
+                <h2>绘图列</h2>
+                <small>自动匹配</small>
+              </div>
+              <div class="settings">
+                <div class="field">
+                  <label for="x-axis">X 轴数据</label
+                  ><select id="x-axis">
+                    <option>位移 · number</option>
+                    <option>时间 · number</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="y-axis">Y 轴数据</label
+                  ><select id="y-axis">
+                    <option>载荷 · number</option>
+                    <option>压缩应力 · number</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="plot-style">绘制方式</label
+                  ><select id="plot-style">
+                    <option>折线 + 标记</option>
+                    <option>折线</option>
+                    <option>散点</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h2>识别结果</h2>
+                <small>6 columns</small>
+              </div>
+              <div class="mapping">
+                <div class="mapping-row">
+                  <span>位移</span>
+                  <div>
+                    <strong>column-0</strong><br /><b>number · 36,270 rows</b>
+                  </div>
+                </div>
+                <div class="mapping-row">
+                  <span>载荷</span>
+                  <div>
+                    <strong>column-1</strong><br /><b>number · 36,270 rows</b>
+                  </div>
+                </div>
+                <div class="mapping-row">
+                  <span>时间</span>
+                  <div>
+                    <strong>column-5</strong><br /><b>number · 36,270 rows</b>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <dialog id="importDialog">
+      <div class="modal-head">
+        <div>
+          <h2>预览并选择要绘图的数据</h2>
+          <p>Specimen_RawData_1.csv · 自动识别到 36,270 行</p>
+        </div>
+        <button class="modal-close" id="closePreview" aria-label="关闭">
+          ×
+        </button>
+      </div>
+      <div class="modal-controls">
+        <div class="field">
+          <label>编码</label
+          ><select>
+            <option>自动 / GB18030</option>
+            <option>UTF-8</option>
+            <option>UTF-16 LE</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>分隔符</label
+          ><select>
+            <option>逗号 (,)</option>
+            <option>制表符 (Tab)</option>
+            <option>分号 (;)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>表头行</label
+          ><select>
+            <option>第 14 行</option>
+            <option>第 1 行</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>数据起始行</label
+          ><select>
+            <option>第 16 行（跳过单位）</option>
+            <option>第 15 行</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-preview">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>位移<span>number · mm</span></th>
+                <th>载荷<span>number · N</span></th>
+                <th>视频引伸计轴向应变<span>number · mm/mm</span></th>
+                <th>压缩应力<span>number · MPa</span></th>
+                <th>时间<span>number · s</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>0.00000</td>
+                <td>-0.02219</td>
+                <td>-0.00009</td>
+                <td>-0.00817</td>
+                <td>0.00000</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>0.00000</td>
+                <td>-0.02724</td>
+                <td>-0.00009</td>
+                <td>-0.01002</td>
+                <td>0.00400</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>0.00000</td>
+                <td>-0.02982</td>
+                <td>-0.00009</td>
+                <td>-0.01098</td>
+                <td>0.00800</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="cancel" id="cancelPreview">取消</button
+        ><button class="primary" id="confirmPreview">导入并绘图</button>
+      </div>
+    </dialog>
+    <script>
+      const dialog = document.querySelector('#importDialog');
+      const open = () => dialog.showModal();
+      document.querySelector('#openPreview').addEventListener('click', open);
+      document
+        .querySelector('#openPreviewInline')
+        .addEventListener('click', open);
+      document
+        .querySelector('#closePreview')
+        .addEventListener('click', () => dialog.close());
+      document
+        .querySelector('#cancelPreview')
+        .addEventListener('click', () => dialog.close());
+      document
+        .querySelector('#confirmPreview')
+        .addEventListener('click', () => {
+          dialog.close();
+          document.querySelector('.ready').textContent = '● 已导入';
+        });
+    </script>
+  </body>
+</html>
