@@ -1,0 +1,556 @@
+{
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "快速入门与操作基础",
+      "sections": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5"
+      ]
+    },
+    {
+      "chapter": 2,
+      "title": "数据导入、整理与绑定",
+      "sections": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ]
+    },
+    {
+      "chapter": 3,
+      "title": "基础图型绘制教程",
+      "sections": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5",
+        "3.6",
+        "3.7",
+        "3.8",
+        "3.9",
+        "3.10",
+        "3.11",
+        "3.12"
+      ]
+    },
+    {
+      "chapter": 4,
+      "title": "热图、矩阵与等值线",
+      "sections": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.6",
+        "4.7",
+        "4.8",
+        "4.9"
+      ]
+    },
+    {
+      "chapter": 5,
+      "title": "多轴图、图层与页面布局",
+      "sections": [
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "5.6",
+        "5.7"
+      ]
+    },
+    {
+      "chapter": 6,
+      "title": "曲线样式、标注与分组堆叠",
+      "sections": [
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "6.6",
+        "6.7",
+        "6.8",
+        "6.9",
+        "6.10"
+      ]
+    },
+    {
+      "chapter": 7,
+      "title": "坐标轴、尺度与参考线",
+      "sections": [
+        "7.1",
+        "7.2",
+        "7.3",
+        "7.4"
+      ]
+    },
+    {
+      "chapter": 8,
+      "title": "模板复用、批量绘图与导出",
+      "sections": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "8.5",
+        "8.6",
+        "8.7",
+        "8.8",
+        "8.9",
+        "8.10"
+      ]
+    },
+    {
+      "chapter": 9,
+      "title": "项目保存、恢复与故障处理",
+      "sections": [
+        "9.1",
+        "9.2",
+        "9.3"
+      ]
+    },
+    {
+      "chapter": 10,
+      "title": "附录：示例、边界与功能索引",
+      "sections": [
+        "10.1",
+        "10.2"
+      ]
+    }
+  ],
+  "sectionMap": {
+    "1": {
+      "number": "1.1",
+      "chapter": 1,
+      "title": "开始使用与环境准备",
+      "anchor": "s01"
+    },
+    "2": {
+      "number": "1.2",
+      "chapter": 1,
+      "title": "工作区导览与操作生效规则",
+      "anchor": "s02"
+    },
+    "3": {
+      "number": "1.3",
+      "chapter": 1,
+      "title": "十分钟完成第一张双曲线图",
+      "anchor": "s03"
+    },
+    "7": {
+      "number": "1.4",
+      "chapter": 1,
+      "title": "图表类型选择与数据组织",
+      "anchor": "s07"
+    },
+    "18": {
+      "number": "1.5",
+      "chapter": 1,
+      "title": "画布缩放、撤销重做与快捷键",
+      "anchor": "s18"
+    },
+    "4": {
+      "number": "2.1",
+      "chapter": 2,
+      "title": "导入文件、粘贴文本与批量导入",
+      "anchor": "s04"
+    },
+    "5": {
+      "number": "2.2",
+      "chapter": 2,
+      "title": "数据表管理、列类型与缺失值",
+      "anchor": "s05"
+    },
+    "6": {
+      "number": "2.3",
+      "chapter": 2,
+      "title": "曲线绑定、跨表曲线与批量选择 Y",
+      "anchor": "s06"
+    },
+    "12": {
+      "number": "3.1",
+      "chapter": 3,
+      "title": "柱图与统计图：概览及数据要求",
+      "anchor": "s12"
+    },
+    "26": {
+      "number": "3.2",
+      "chapter": 3,
+      "title": "折线图",
+      "anchor": "s26"
+    },
+    "27": {
+      "number": "3.3",
+      "chapter": 3,
+      "title": "散点图",
+      "anchor": "s27"
+    },
+    "28": {
+      "number": "3.4",
+      "chapter": 3,
+      "title": "线加符号图",
+      "anchor": "s28"
+    },
+    "29": {
+      "number": "3.5",
+      "chapter": 3,
+      "title": "分组柱形图",
+      "anchor": "s29"
+    },
+    "30": {
+      "number": "3.6",
+      "chapter": 3,
+      "title": "水平条形图",
+      "anchor": "s30"
+    },
+    "31": {
+      "number": "3.7",
+      "chapter": 3,
+      "title": "堆叠柱形图",
+      "anchor": "s31"
+    },
+    "32": {
+      "number": "3.8",
+      "chapter": 3,
+      "title": "百分比堆叠柱形图",
+      "anchor": "s32"
+    },
+    "33": {
+      "number": "3.9",
+      "chapter": 3,
+      "title": "直方图",
+      "anchor": "s33"
+    },
+    "34": {
+      "number": "3.10",
+      "chapter": 3,
+      "title": "箱线图",
+      "anchor": "s34"
+    },
+    "35": {
+      "number": "3.11",
+      "chapter": 3,
+      "title": "面积图",
+      "anchor": "s35"
+    },
+    "57": {
+      "number": "3.12",
+      "chapter": 3,
+      "title": "直方图、箱线图与统计分布参数",
+      "anchor": "s57"
+    },
+    "13": {
+      "number": "4.1",
+      "chapter": 4,
+      "title": "热图入口与数据组织概览",
+      "anchor": "s13"
+    },
+    "37": {
+      "number": "4.2",
+      "chapter": 4,
+      "title": "宽表矩阵热图",
+      "anchor": "s37"
+    },
+    "36": {
+      "number": "4.3",
+      "chapter": 4,
+      "title": "XYZ 热力图",
+      "anchor": "s36"
+    },
+    "38": {
+      "number": "4.4",
+      "chapter": 4,
+      "title": "线条等值线图",
+      "anchor": "s38"
+    },
+    "39": {
+      "number": "4.5",
+      "chapter": 4,
+      "title": "填色等值线图",
+      "anchor": "s39"
+    },
+    "44": {
+      "number": "4.6",
+      "chapter": 4,
+      "title": "不规则 XYZ 三角网热图",
+      "anchor": "s44"
+    },
+    "45": {
+      "number": "4.7",
+      "chapter": 4,
+      "title": "不规则 XYZ 线条等值线",
+      "anchor": "s45"
+    },
+    "46": {
+      "number": "4.8",
+      "chapter": 4,
+      "title": "不规则 XYZ 填色等值线",
+      "anchor": "s46"
+    },
+    "58": {
+      "number": "4.9",
+      "chapter": 4,
+      "title": "热图、等值线与色标完整设置",
+      "anchor": "s58"
+    },
+    "16": {
+      "number": "5.1",
+      "chapter": 5,
+      "title": "图层、页面尺寸、多纵轴与共享 X 布局",
+      "anchor": "s16"
+    },
+    "40": {
+      "number": "5.2",
+      "chapter": 5,
+      "title": "双纵轴图",
+      "anchor": "s40"
+    },
+    "41": {
+      "number": "5.3",
+      "chapter": 5,
+      "title": "三纵轴图",
+      "anchor": "s41"
+    },
+    "42": {
+      "number": "5.4",
+      "chapter": 5,
+      "title": "四纵轴图",
+      "anchor": "s42"
+    },
+    "43": {
+      "number": "5.5",
+      "chapter": 5,
+      "title": "上下共享横轴图",
+      "anchor": "s43"
+    },
+    "53": {
+      "number": "5.6",
+      "chapter": 5,
+      "title": "图页与图层参数详解",
+      "anchor": "s53"
+    },
+    "62": {
+      "number": "5.7",
+      "chapter": 5,
+      "title": "图层管理、轴关系与格式复用",
+      "anchor": "s62"
+    },
+    "8": {
+      "number": "6.1",
+      "chapter": 6,
+      "title": "折线、符号、映射与单点样式",
+      "anchor": "s08"
+    },
+    "9": {
+      "number": "6.2",
+      "chapter": 6,
+      "title": "数据视图、子集、误差线和数据标签",
+      "anchor": "s09"
+    },
+    "10": {
+      "number": "6.3",
+      "chapter": 6,
+      "title": "曲线组、调色板与连续组色标",
+      "anchor": "s10"
+    },
+    "11": {
+      "number": "6.4",
+      "chapter": 6,
+      "title": "堆叠、偏移、倍率与子组",
+      "anchor": "s11"
+    },
+    "17": {
+      "number": "6.5",
+      "chapter": 6,
+      "title": "文字、公式、图例与图形标注",
+      "anchor": "s17"
+    },
+    "54": {
+      "number": "6.6",
+      "chapter": 6,
+      "title": "曲线显示、线条、颜色与填充",
+      "anchor": "s54"
+    },
+    "55": {
+      "number": "6.7",
+      "chapter": 6,
+      "title": "符号、三类映射与单点覆盖",
+      "anchor": "s55"
+    },
+    "56": {
+      "number": "6.8",
+      "chapter": 6,
+      "title": "数据视图、标签、误差与投影线",
+      "anchor": "s56"
+    },
+    "59": {
+      "number": "6.9",
+      "chapter": 6,
+      "title": "曲线组、颜色递增和六种堆叠模式",
+      "anchor": "s59"
+    },
+    "63": {
+      "number": "6.10",
+      "chapter": 6,
+      "title": "注释、图例与文字排版",
+      "anchor": "s63"
+    },
+    "14": {
+      "number": "7.1",
+      "chapter": 7,
+      "title": "坐标轴尺度、范围与重缩放",
+      "anchor": "s14"
+    },
+    "15": {
+      "number": "7.2",
+      "chapter": 7,
+      "title": "刻度标签、网格、参考线、断轴与轴联动",
+      "anchor": "s15"
+    },
+    "60": {
+      "number": "7.3",
+      "chapter": 7,
+      "title": "坐标轴尺度、范围与重缩放",
+      "anchor": "s60"
+    },
+    "61": {
+      "number": "7.4",
+      "chapter": 7,
+      "title": "轴刻度、标签、网格、断点与参考线",
+      "anchor": "s61"
+    },
+    "19": {
+      "number": "8.1",
+      "chapter": 8,
+      "title": "复制格式、应用于与多选编辑",
+      "anchor": "s19"
+    },
+    "20": {
+      "number": "8.2",
+      "chapter": 8,
+      "title": "模板保存、JSON 迁移与 Origin 原生导入",
+      "anchor": "s20"
+    },
+    "21": {
+      "number": "8.3",
+      "chapter": 8,
+      "title": "按数据表批量绘图与输出项目",
+      "anchor": "s21"
+    },
+    "47": {
+      "number": "8.4",
+      "chapter": 8,
+      "title": "一张表的多个 Y 列",
+      "anchor": "s47"
+    },
+    "48": {
+      "number": "8.5",
+      "chapter": 8,
+      "title": "多个文件自动生成独立图形",
+      "anchor": "s48"
+    },
+    "49": {
+      "number": "8.6",
+      "chapter": 8,
+      "title": "异名列手动映射",
+      "anchor": "s49"
+    },
+    "50": {
+      "number": "8.7",
+      "chapter": 8,
+      "title": "模板与格式范围",
+      "anchor": "s50"
+    },
+    "51": {
+      "number": "8.8",
+      "chapter": 8,
+      "title": "取消、重试、ZIP 验收",
+      "anchor": "s51"
+    },
+    "52": {
+      "number": "8.9",
+      "chapter": 8,
+      "title": "一个图页的多个图层分别导出",
+      "anchor": "s52"
+    },
+    "22": {
+      "number": "8.10",
+      "chapter": 8,
+      "title": "SVG、PNG 与逐图层批量导出",
+      "anchor": "s22"
+    },
+    "23": {
+      "number": "9.1",
+      "chapter": 9,
+      "title": "项目文件、自动恢复与跨设备备份",
+      "anchor": "s23"
+    },
+    "24": {
+      "number": "9.2",
+      "chapter": 9,
+      "title": "常见任务配方与排错",
+      "anchor": "s24"
+    },
+    "64": {
+      "number": "9.3",
+      "chapter": 9,
+      "title": "工作区操作速查",
+      "anchor": "s64"
+    },
+    "25": {
+      "number": "10.1",
+      "chapter": 10,
+      "title": "示例数据与功能边界",
+      "anchor": "s25"
+    },
+    "65": {
+      "number": "10.2",
+      "chapter": 10,
+      "title": "功能索引与练习验收",
+      "anchor": "s65"
+    }
+  },
+  "terminology": [
+    [
+      "图页",
+      "导出图形的整体页面，具有物理宽高。"
+    ],
+    [
+      "图层",
+      "图页内承载坐标轴、曲线及相关对象的区域。"
+    ],
+    [
+      "曲线",
+      "一个绘图系列；在柱图、箱线图等图型中也使用界面的这一名称。"
+    ],
+    [
+      "批量选 Y",
+      "从一张表选择多个 Y，生成同图多条曲线。"
+    ],
+    [
+      "数据表批绘",
+      "对多张数据表复用当前图形或模板，生成独立结果。"
+    ],
+    [
+      "逐图层导出",
+      "将当前图页的选中图层分别输出。"
+    ],
+    [
+      "项目文件",
+      "保存图形、数据与绑定的 .plotfig.json 文件。"
+    ],
+    [
+      "模板",
+      "用于复用结构或样式的配置，区别于完整工作区项目。"
+    ]
+  ],
+  "skill": "https://github.com/Yuan1z0825/nature-skills/blob/main/skills/nature-writing/SKILL.md"
+}

@@ -4,6 +4,14 @@
 
 项目采用 TypeScript、React 19 和 Vite，使用 pnpm workspace 管理图形模型、数据绑定、SVG 渲染、版本迁移与编辑器。日常编辑和 SVG / PNG 导出在浏览器中完成。
 
+## 图文使用手册
+
+[在线阅读完整手册](user-manual/README.md) · [下载离线手册 ZIP](user-manual/Plot_Fig-user-manual.zip)
+
+手册按 **10 个大章、65 个小节**组织，包含 **21 个绘图教程、6 个批量教程和 231 项功能说明**，配有界面截图、实际效果图、8 份教学 CSV 和 22 个可重新打开的示例项目。
+
+离线阅读：解压 ZIP 后双击 `index.html`；克隆仓库后也可直接打开 `user-manual/index.html`，无需启动编辑器。练习绘图时按下方“快速开始”启动项目。
+
 ## 功能概览
 
 | 模块         | 能力                                                                               |

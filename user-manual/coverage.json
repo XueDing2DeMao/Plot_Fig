@@ -1,0 +1,3323 @@
+{
+  "date": "2026-10-08",
+  "schema": "1.24.0",
+  "projectFormat": "2.0.0",
+  "majorChapters": [
+    {
+      "chapter": 1,
+      "title": "快速入门与操作基础",
+      "sections": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5"
+      ]
+    },
+    {
+      "chapter": 2,
+      "title": "数据导入、整理与绑定",
+      "sections": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ]
+    },
+    {
+      "chapter": 3,
+      "title": "基础图型绘制教程",
+      "sections": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5",
+        "3.6",
+        "3.7",
+        "3.8",
+        "3.9",
+        "3.10",
+        "3.11",
+        "3.12"
+      ]
+    },
+    {
+      "chapter": 4,
+      "title": "热图、矩阵与等值线",
+      "sections": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.6",
+        "4.7",
+        "4.8",
+        "4.9"
+      ]
+    },
+    {
+      "chapter": 5,
+      "title": "多轴图、图层与页面布局",
+      "sections": [
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "5.6",
+        "5.7"
+      ]
+    },
+    {
+      "chapter": 6,
+      "title": "曲线样式、标注与分组堆叠",
+      "sections": [
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "6.6",
+        "6.7",
+        "6.8",
+        "6.9",
+        "6.10"
+      ]
+    },
+    {
+      "chapter": 7,
+      "title": "坐标轴、尺度与参考线",
+      "sections": [
+        "7.1",
+        "7.2",
+        "7.3",
+        "7.4"
+      ]
+    },
+    {
+      "chapter": 8,
+      "title": "模板复用、批量绘图与导出",
+      "sections": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "8.5",
+        "8.6",
+        "8.7",
+        "8.8",
+        "8.9",
+        "8.10"
+      ]
+    },
+    {
+      "chapter": 9,
+      "title": "项目保存、恢复与故障处理",
+      "sections": [
+        "9.1",
+        "9.2",
+        "9.3"
+      ]
+    },
+    {
+      "chapter": 10,
+      "title": "附录：示例、边界与功能索引",
+      "sections": [
+        "10.1",
+        "10.2"
+      ]
+    }
+  ],
+  "chapters": [
+    {
+      "chapter": 1,
+      "section": "1.1",
+      "legacyChapter": 1,
+      "anchor": "s01",
+      "title": "开始使用与环境准备",
+      "sourceFiles": [
+        "README.md",
+        "package.json",
+        "start-plot-fig.cmd",
+        "packages/figure-schema/src/schema/common.ts",
+        "packages/web-editor/src/state/workspace-project.ts"
+      ]
+    },
+    {
+      "chapter": 1,
+      "section": "1.2",
+      "legacyChapter": 2,
+      "anchor": "s02",
+      "title": "工作区导览与操作生效规则",
+      "sourceFiles": [
+        "packages/web-editor/src/App.tsx",
+        "packages/web-editor/src/components/FigurePreview.tsx",
+        "packages/web-editor/src/components/PlotSettingsPanel.tsx",
+        "packages/web-editor/src/components/FigurePropertiesDialog.tsx"
+      ]
+    },
+    {
+      "chapter": 1,
+      "section": "1.3",
+      "legacyChapter": 3,
+      "anchor": "s03",
+      "title": "十分钟完成第一张双曲线图",
+      "sourceFiles": [
+        "packages/web-editor/src/components/BatchYDialog.tsx",
+        "packages/web-editor/src/state/batch-y-columns.ts",
+        "packages/web-editor/src/components/DataImportPanel.tsx"
+      ]
+    },
+    {
+      "chapter": 1,
+      "section": "1.4",
+      "legacyChapter": 7,
+      "anchor": "s07",
+      "title": "图表类型选择与数据组织",
+      "sourceFiles": [
+        "packages/web-editor/src/components/PlotSettingsPanel.tsx",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/state/multi-axis-presets.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx"
+      ]
+    },
+    {
+      "chapter": 1,
+      "section": "1.5",
+      "legacyChapter": 18,
+      "anchor": "s18",
+      "title": "画布缩放、撤销重做与快捷键",
+      "sourceFiles": [
+        "packages/web-editor/src/components/FigureZoomControls.tsx",
+        "packages/web-editor/src/state/use-figure-zoom.ts",
+        "packages/web-editor/src/state/editor-history.ts",
+        "packages/web-editor/src/components/EditorHistoryControls.tsx",
+        "packages/web-editor/src/state/origin-menu-model.ts"
+      ]
+    },
+    {
+      "chapter": 2,
+      "section": "2.1",
+      "legacyChapter": 4,
+      "anchor": "s04",
+      "title": "导入文件、粘贴文本与批量导入",
+      "sourceFiles": [
+        "packages/web-editor/src/components/DataImportPanel.tsx",
+        "packages/web-editor/src/components/use-import-draft.ts",
+        "packages/data-binding/src"
+      ]
+    },
+    {
+      "chapter": 2,
+      "section": "2.2",
+      "legacyChapter": 5,
+      "anchor": "s05",
+      "title": "数据表管理、列类型与缺失值",
+      "sourceFiles": [
+        "packages/web-editor/src/components/WorkspaceTablePanel.tsx",
+        "packages/web-editor/src/components/ColumnSettingsDialog.tsx",
+        "packages/web-editor/src/components/ColumnSettingsFields.tsx",
+        "packages/web-editor/src/components/RemoveTableDialog.tsx"
+      ]
+    },
+    {
+      "chapter": 2,
+      "section": "2.3",
+      "legacyChapter": 6,
+      "anchor": "s06",
+      "title": "曲线绑定、跨表曲线与批量选择 Y",
+      "sourceFiles": [
+        "packages/web-editor/src/components/WorkspaceBindingPanel.tsx",
+        "packages/web-editor/src/components/SeriesFields.tsx",
+        "packages/web-editor/src/components/BatchYDialog.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.1",
+      "legacyChapter": 12,
+      "anchor": "s12",
+      "title": "柱图与统计图：概览及数据要求",
+      "sourceFiles": [
+        "packages/web-editor/src/components/ChartFields.tsx",
+        "packages/web-editor/src/components/HistogramFields.tsx",
+        "packages/web-editor/src/components/DistributionFields.tsx",
+        "packages/web-editor/src/components/CurveTransformFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.2",
+      "legacyChapter": 26,
+      "anchor": "s26",
+      "title": "折线图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.3",
+      "legacyChapter": 27,
+      "anchor": "s27",
+      "title": "散点图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.4",
+      "legacyChapter": 28,
+      "anchor": "s28",
+      "title": "线加符号图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.5",
+      "legacyChapter": 29,
+      "anchor": "s29",
+      "title": "分组柱形图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.6",
+      "legacyChapter": 30,
+      "anchor": "s30",
+      "title": "水平条形图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.7",
+      "legacyChapter": 31,
+      "anchor": "s31",
+      "title": "堆叠柱形图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.8",
+      "legacyChapter": 32,
+      "anchor": "s32",
+      "title": "百分比堆叠柱形图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.9",
+      "legacyChapter": 33,
+      "anchor": "s33",
+      "title": "直方图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.10",
+      "legacyChapter": 34,
+      "anchor": "s34",
+      "title": "箱线图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.11",
+      "legacyChapter": 35,
+      "anchor": "s35",
+      "title": "面积图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 3,
+      "section": "3.12",
+      "legacyChapter": 57,
+      "anchor": "s57",
+      "title": "直方图、箱线图与统计分布参数",
+      "sourceFiles": [
+        "packages/web-editor/src/components/HistogramFields.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx",
+        "packages/web-editor/src/components/DistributionFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.1",
+      "legacyChapter": 13,
+      "anchor": "s13",
+      "title": "热图入口与数据组织概览",
+      "sourceFiles": [
+        "packages/web-editor/src/components/MatrixHeatmapDialog.tsx",
+        "packages/web-editor/src/state/matrix-heatmap.ts",
+        "packages/web-editor/src/components/ColorFields.tsx",
+        "packages/web-editor/src/components/GridFields.tsx",
+        "packages/svg-renderer/src/charts/grid.ts"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.2",
+      "legacyChapter": 37,
+      "anchor": "s37",
+      "title": "宽表矩阵热图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.3",
+      "legacyChapter": 36,
+      "anchor": "s36",
+      "title": "XYZ 热力图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.4",
+      "legacyChapter": 38,
+      "anchor": "s38",
+      "title": "线条等值线图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.5",
+      "legacyChapter": 39,
+      "anchor": "s39",
+      "title": "填色等值线图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.6",
+      "legacyChapter": 44,
+      "anchor": "s44",
+      "title": "不规则 XYZ 三角网热图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.7",
+      "legacyChapter": 45,
+      "anchor": "s45",
+      "title": "不规则 XYZ 线条等值线",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.8",
+      "legacyChapter": 46,
+      "anchor": "s46",
+      "title": "不规则 XYZ 填色等值线",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 4,
+      "section": "4.9",
+      "legacyChapter": 58,
+      "anchor": "s58",
+      "title": "热图、等值线与色标完整设置",
+      "sourceFiles": [
+        "packages/web-editor/src/components/GridFields.tsx",
+        "packages/web-editor/src/components/ColorFields.tsx",
+        "packages/web-editor/src/components/ColorMapPreset.tsx"
+      ]
+    },
+    {
+      "chapter": 5,
+      "section": "5.1",
+      "legacyChapter": 16,
+      "anchor": "s16",
+      "title": "图层、页面尺寸、多纵轴与共享 X 布局",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginGraphManagementDialog.tsx",
+        "packages/web-editor/src/components/LayerGeometryFields.tsx",
+        "packages/web-editor/src/components/LayerFrameLinkFields.tsx",
+        "packages/web-editor/src/components/AxisLengthRatioFields.tsx",
+        "packages/web-editor/src/components/PageGeometryFields.tsx",
+        "packages/web-editor/src/state/multi-axis-frame.ts"
+      ]
+    },
+    {
+      "chapter": 5,
+      "section": "5.2",
+      "legacyChapter": 40,
+      "anchor": "s40",
+      "title": "双纵轴图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 5,
+      "section": "5.3",
+      "legacyChapter": 41,
+      "anchor": "s41",
+      "title": "三纵轴图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 5,
+      "section": "5.4",
+      "legacyChapter": 42,
+      "anchor": "s42",
+      "title": "四纵轴图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 5,
+      "section": "5.5",
+      "legacyChapter": 43,
+      "anchor": "s43",
+      "title": "上下共享横轴图",
+      "sourceFiles": [
+        "packages/web-editor/src/state/chart-defaults.ts",
+        "packages/web-editor/src/state/chart-operations.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/ChartFields.tsx"
+      ]
+    },
+    {
+      "chapter": 5,
+      "section": "5.6",
+      "legacyChapter": 53,
+      "anchor": "s53",
+      "title": "图页与图层参数详解",
+      "sourceFiles": [
+        "packages/web-editor/src/components/PageGeometryFields.tsx",
+        "packages/web-editor/src/components/GeometryFitFields.tsx",
+        "packages/web-editor/src/components/LayerAppearanceFields.tsx",
+        "packages/web-editor/src/components/LayerGeometryFields.tsx",
+        "packages/web-editor/src/components/PaintFields.tsx"
+      ]
+    },
+    {
+      "chapter": 5,
+      "section": "5.7",
+      "legacyChapter": 62,
+      "anchor": "s62",
+      "title": "图层管理、轴关系与格式复用",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginGraphManagementDialog.tsx",
+        "packages/web-editor/src/components/LayerCreateControls.tsx",
+        "packages/web-editor/src/components/LayerDeleteControls.tsx",
+        "packages/web-editor/src/components/LayerOrderFields.tsx",
+        "packages/web-editor/src/components/PlotPanelFields.tsx",
+        "packages/web-editor/src/components/LayerLayoutFields.tsx",
+        "packages/web-editor/src/components/SharedAxisFields.tsx",
+        "packages/web-editor/src/components/AxisRelationFields.tsx",
+        "packages/web-editor/src/components/LayerFrameLinkFields.tsx",
+        "packages/web-editor/src/components/AxisCreationFields.tsx",
+        "packages/web-editor/src/components/LayerFormatControls.tsx",
+        "packages/web-editor/src/components/GeometryFitFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.1",
+      "legacyChapter": 8,
+      "anchor": "s08",
+      "title": "折线、符号、映射与单点样式",
+      "sourceFiles": [
+        "packages/web-editor/src/components/LineAppearanceFields.tsx",
+        "packages/web-editor/src/components/MarkerAppearanceFields.tsx",
+        "packages/web-editor/src/components/MarkerDetailFields.tsx",
+        "packages/web-editor/src/components/MarkerPointFields.tsx",
+        "packages/web-editor/src/components/LineMappingFields.tsx",
+        "packages/web-editor/src/components/MarkerMappingFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.2",
+      "legacyChapter": 9,
+      "anchor": "s09",
+      "title": "数据视图、子集、误差线和数据标签",
+      "sourceFiles": [
+        "packages/web-editor/src/components/XyDataViewFields.tsx",
+        "packages/web-editor/src/state/xy-data-view-options.ts",
+        "packages/web-editor/src/components/SubsetFields.tsx",
+        "packages/web-editor/src/components/ErrorFields.tsx",
+        "packages/web-editor/src/components/ErrorDetailFields.tsx",
+        "packages/web-editor/src/components/DataLabelFields.tsx",
+        "packages/web-editor/src/components/AdvancedDropLineFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.3",
+      "legacyChapter": 10,
+      "anchor": "s10",
+      "title": "曲线组、调色板与连续组色标",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginCurveGroupFields.tsx",
+        "packages/web-editor/src/components/GroupColorMappingFields.tsx",
+        "packages/web-editor/src/components/GroupParameterImportFields.tsx",
+        "packages/svg-renderer/src/group-colorbars.ts"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.4",
+      "legacyChapter": 11,
+      "anchor": "s11",
+      "title": "堆叠、偏移、倍率与子组",
+      "sourceFiles": [
+        "packages/web-editor/src/components/LayerStackFields.tsx",
+        "packages/web-editor/src/state/origin-layer-stack.ts",
+        "packages/figure-schema/src/schema/layer-stack.ts",
+        "packages/svg-renderer/src/layer-stack-curves.ts",
+        "packages/svg-renderer/src/layer-stack-bars.ts"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.5",
+      "legacyChapter": 17,
+      "anchor": "s17",
+      "title": "文字、公式、图例与图形标注",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginObjectFields.tsx",
+        "packages/web-editor/src/components/LightAnnotationFields.tsx",
+        "packages/web-editor/src/components/TextLayoutFields.tsx",
+        "packages/web-editor/src/components/useAnnotationDrag.ts",
+        "packages/web-editor/src/components/OriginPageCollectionFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.6",
+      "legacyChapter": 54,
+      "anchor": "s54",
+      "title": "曲线显示、线条、颜色与填充",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginObjectFields.tsx",
+        "packages/web-editor/src/components/LineAppearanceFields.tsx",
+        "packages/web-editor/src/components/XyLineExtrasFields.tsx",
+        "packages/web-editor/src/components/OriginLineColor.tsx",
+        "packages/web-editor/src/components/CurveTransformFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.7",
+      "legacyChapter": 55,
+      "anchor": "s55",
+      "title": "符号、三类映射与单点覆盖",
+      "sourceFiles": [
+        "packages/web-editor/src/components/MarkerAppearanceFields.tsx",
+        "packages/web-editor/src/components/MarkerDetailFields.tsx",
+        "packages/web-editor/src/components/MarkerMappingFields.tsx",
+        "packages/web-editor/src/components/MarkerPointFields.tsx",
+        "packages/web-editor/src/components/PlotMarkerMappingFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.8",
+      "legacyChapter": 56,
+      "anchor": "s56",
+      "title": "数据视图、标签、误差与投影线",
+      "sourceFiles": [
+        "packages/web-editor/src/components/XyDataViewFields.tsx",
+        "packages/web-editor/src/components/SubsetFields.tsx",
+        "packages/web-editor/src/components/DataLabelFields.tsx",
+        "packages/web-editor/src/components/ErrorFields.tsx",
+        "packages/web-editor/src/components/ErrorDetailFields.tsx",
+        "packages/web-editor/src/components/AdvancedDropLineFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.9",
+      "legacyChapter": 59,
+      "anchor": "s59",
+      "title": "曲线组、颜色递增和六种堆叠模式",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginCurveGroupFields.tsx",
+        "packages/web-editor/src/components/GroupColorMappingFields.tsx",
+        "packages/web-editor/src/components/GroupParameterImportFields.tsx",
+        "packages/web-editor/src/components/OriginLineColor.tsx",
+        "packages/web-editor/src/components/LayerStackFields.tsx"
+      ]
+    },
+    {
+      "chapter": 6,
+      "section": "6.10",
+      "legacyChapter": 63,
+      "anchor": "s63",
+      "title": "注释、图例与文字排版",
+      "sourceFiles": [
+        "packages/web-editor/src/components/LightAnnotationFields.tsx",
+        "packages/web-editor/src/components/TextLayoutFields.tsx",
+        "packages/web-editor/src/components/TextMarkupButtons.tsx",
+        "packages/web-editor/src/components/OriginPageCollectionFields.tsx",
+        "packages/web-editor/src/components/useAnnotationDrag.ts"
+      ]
+    },
+    {
+      "chapter": 7,
+      "section": "7.1",
+      "legacyChapter": 14,
+      "anchor": "s14",
+      "title": "坐标轴尺度、范围与重缩放",
+      "sourceFiles": [
+        "packages/web-editor/src/components/AxisPropertiesDialog.tsx",
+        "packages/web-editor/src/components/AxisAdvancedScaleFields.tsx",
+        "packages/web-editor/src/components/AxisRescaleFields.tsx",
+        "packages/web-editor/src/components/OriginAxisFields.tsx"
+      ]
+    },
+    {
+      "chapter": 7,
+      "section": "7.2",
+      "legacyChapter": 15,
+      "anchor": "s15",
+      "title": "刻度标签、网格、参考线、断轴与轴联动",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginTabs.tsx",
+        "packages/web-editor/src/components/AxisAdvancedFields.tsx",
+        "packages/web-editor/src/components/AxisGenerationFields.tsx",
+        "packages/web-editor/src/components/AxisRelationFields.tsx",
+        "packages/web-editor/src/components/AxisGridFields.tsx"
+      ]
+    },
+    {
+      "chapter": 7,
+      "section": "7.3",
+      "legacyChapter": 60,
+      "anchor": "s60",
+      "title": "坐标轴尺度、范围与重缩放",
+      "sourceFiles": [
+        "packages/web-editor/src/components/AxisFields.tsx",
+        "packages/web-editor/src/components/AxisAdvancedScaleFields.tsx",
+        "packages/web-editor/src/components/AdvancedScaleFields.tsx",
+        "packages/web-editor/src/components/AxisRescaleFields.tsx",
+        "packages/web-editor/src/components/AxisAdvancedFields.tsx",
+        "packages/web-editor/src/components/AxisLengthRatioFields.tsx"
+      ]
+    },
+    {
+      "chapter": 7,
+      "section": "7.4",
+      "legacyChapter": 61,
+      "anchor": "s61",
+      "title": "轴刻度、标签、网格、断点与参考线",
+      "sourceFiles": [
+        "packages/web-editor/src/components/AxisAdvancedFields.tsx",
+        "packages/web-editor/src/components/AxisGenerationFields.tsx",
+        "packages/web-editor/src/components/AxisGridFields.tsx",
+        "packages/web-editor/src/components/AxisLabelAppearanceFields.tsx",
+        "packages/web-editor/src/components/AxisTitleAppearanceFields.tsx",
+        "packages/web-editor/src/components/AxisPlacementFields.tsx"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.1",
+      "legacyChapter": 19,
+      "anchor": "s19",
+      "title": "复制格式、应用于与多选编辑",
+      "sourceFiles": [
+        "packages/web-editor/src/components/FigurePreview.tsx",
+        "packages/web-editor/src/components/PropertyBatchEditor.tsx",
+        "packages/web-editor/src/state/batch-properties.ts",
+        "packages/web-editor/src/state/batch-object-fields.ts"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.2",
+      "legacyChapter": 20,
+      "anchor": "s20",
+      "title": "模板保存、JSON 迁移与 Origin 原生导入",
+      "sourceFiles": [
+        "packages/web-editor/src/templates/catalog.ts",
+        "packages/web-editor/src/components/TemplateLibraryDialog.tsx",
+        "packages/web-editor/src/components/TemplateStorageFields.tsx",
+        "packages/web-editor/src/components/OriginTemplateImport.tsx",
+        "packages/web-editor/server"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.3",
+      "legacyChapter": 21,
+      "anchor": "s21",
+      "title": "按数据表批量绘图与输出项目",
+      "sourceFiles": [
+        "packages/web-editor/src/components/DatasetBatchDialog.tsx",
+        "packages/web-editor/src/components/DatasetBatchFormats.tsx",
+        "packages/web-editor/src/components/DatasetBatchMapping.tsx",
+        "packages/web-editor/src/batch/column-mapping.ts",
+        "packages/web-editor/src/batch/template-formats.ts",
+        "packages/web-editor/src/batch/queue.ts"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.4",
+      "legacyChapter": 47,
+      "anchor": "s47",
+      "title": "一张表的多个 Y 列",
+      "sourceFiles": [
+        "packages/web-editor/src/components/BatchYDialog.tsx",
+        "packages/web-editor/src/state/batch-y-columns.ts"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.5",
+      "legacyChapter": 48,
+      "anchor": "s48",
+      "title": "多个文件自动生成独立图形",
+      "sourceFiles": [
+        "packages/web-editor/src/components/DatasetBatchDialog.tsx",
+        "packages/web-editor/src/components/DatasetBatchControls.tsx"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.6",
+      "legacyChapter": 49,
+      "anchor": "s49",
+      "title": "异名列手动映射",
+      "sourceFiles": [
+        "packages/web-editor/src/components/DatasetBatchMapping.tsx",
+        "packages/web-editor/src/batch/column-mapping.ts"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.7",
+      "legacyChapter": 50,
+      "anchor": "s50",
+      "title": "模板与格式范围",
+      "sourceFiles": [
+        "packages/web-editor/src/components/DatasetBatchFormats.tsx",
+        "packages/web-editor/src/batch/template-formats.ts",
+        "packages/web-editor/src/components/TemplateMappingFields.tsx"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.8",
+      "legacyChapter": 51,
+      "anchor": "s51",
+      "title": "取消、重试、ZIP 验收",
+      "sourceFiles": [
+        "packages/web-editor/src/components/DatasetBatchReport.tsx",
+        "packages/web-editor/src/components/useBatchRunner.ts",
+        "packages/web-editor/src/batch/archive.ts"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.9",
+      "legacyChapter": 52,
+      "anchor": "s52",
+      "title": "一个图页的多个图层分别导出",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginExportDialog.tsx",
+        "packages/web-editor/src/browser/origin-export.ts",
+        "packages/web-editor/src/state/layer-batch.ts"
+      ]
+    },
+    {
+      "chapter": 8,
+      "section": "8.10",
+      "legacyChapter": 22,
+      "anchor": "s22",
+      "title": "SVG、PNG 与逐图层批量导出",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginExportDialog.tsx",
+        "packages/web-editor/src/components/OriginExportFields.tsx",
+        "packages/web-editor/src/browser/origin-export.ts",
+        "packages/web-editor/src/browser/figure-export.ts"
+      ]
+    },
+    {
+      "chapter": 9,
+      "section": "9.1",
+      "legacyChapter": 23,
+      "anchor": "s23",
+      "title": "项目文件、自动恢复与跨设备备份",
+      "sourceFiles": [
+        "packages/web-editor/src/state/workspace-project.ts",
+        "packages/web-editor/src/components/ProjectRecoveryControls.tsx",
+        "packages/web-editor/src/components/ProjectRecoveryDialog.tsx",
+        "packages/web-editor/src/browser/draft-storage.ts",
+        "packages/web-editor/src/state/project-recovery-scheduler.ts"
+      ]
+    },
+    {
+      "chapter": 9,
+      "section": "9.2",
+      "legacyChapter": 24,
+      "anchor": "s24",
+      "title": "常见任务配方与排错",
+      "sourceFiles": [
+        "README.md",
+        "packages/web-editor/src/components/DiagnosticsPanel.tsx",
+        "packages/web-editor/src/components/DatasetBatchReport.tsx"
+      ]
+    },
+    {
+      "chapter": 9,
+      "section": "9.3",
+      "legacyChapter": 64,
+      "anchor": "s64",
+      "title": "工作区操作速查",
+      "sourceFiles": [
+        "packages/web-editor/src/components/DataImportPanel.tsx",
+        "packages/web-editor/src/components/ImportOptions.tsx",
+        "packages/web-editor/src/components/ColumnSettingsDialog.tsx",
+        "packages/web-editor/src/components/TableImportSettingsDialog.tsx",
+        "packages/web-editor/src/components/WorkspaceTablePanel.tsx",
+        "packages/web-editor/src/components/RemoveTableDialog.tsx",
+        "packages/web-editor/src/components/BindingPanel.tsx",
+        "packages/web-editor/src/components/PropertyBatchEditor.tsx",
+        "packages/web-editor/src/components/EditorHistoryControls.tsx",
+        "packages/web-editor/src/components/FigureZoomControls.tsx",
+        "packages/web-editor/src/components/DiagnosticsPanel.tsx",
+        "packages/web-editor/src/components/ProjectControls.tsx",
+        "packages/web-editor/src/components/ProjectRecoveryControls.tsx",
+        "packages/web-editor/src/components/TemplateLibraryDialog.tsx",
+        "packages/web-editor/src/components/DatasetBatchDialog.tsx",
+        "packages/web-editor/src/components/OriginExportDialog.tsx"
+      ]
+    },
+    {
+      "chapter": 10,
+      "section": "10.1",
+      "legacyChapter": 25,
+      "anchor": "s25",
+      "title": "示例数据与功能边界",
+      "sourceFiles": [
+        "packages/figure-schema/src/schema/common.ts",
+        "packages/web-editor/src/state/workspace-project.ts",
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/templates/catalog.ts"
+      ]
+    },
+    {
+      "chapter": 10,
+      "section": "10.2",
+      "legacyChapter": 65,
+      "anchor": "s65",
+      "title": "功能索引与练习验收",
+      "sourceFiles": [
+        "packages/web-editor/src/components/OriginPropertyEditor.tsx",
+        "packages/web-editor/src/components/OriginTabs.tsx",
+        "packages/web-editor/src/components/DatasetBatchReport.tsx"
+      ]
+    }
+  ],
+  "features": [
+    {
+      "id": "F001",
+      "name": "页面物理宽高",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "打印/尺寸中输入宽高及 mm/cm/in/px 单位。",
+      "check": "单位切换保持实际尺寸；改变数值才改变大小。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F002",
+      "name": "页面横纵方向",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "选择横向或纵向交换页面方向。",
+      "check": "检查图层与外侧轴留白。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F003",
+      "name": "页面宽高比锁定",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "锁定后修改宽或高，另一项自动换算。",
+      "check": "不把锁定外框比当数据 X:Y 比。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F004",
+      "name": "页面变化时图层处理",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "选择随页面缩放或保留实际尺寸和位置，再改页面。",
+      "check": "固定尺寸模式下注意图层可能超出新页面。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F005",
+      "name": "内容适配",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "使用内容适配按钮按内容整理页面/图层，必要时保持比例。",
+      "check": "标题、图例、色标均处于可见区域。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F006",
+      "name": "名称与描述",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "图页 → 其他，修改名称与描述。",
+      "check": "保存/导出默认名字与项目信息符合预期。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F007",
+      "name": "页面纯色/透明/图案",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "图页 → 显示，设置背景 Paint 类型、颜色和图案。",
+      "check": "透明页面不自动移除图层底色。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F008",
+      "name": "页面图层列表",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "图页 → 图层中切换显示并进入该层属性。",
+      "check": "隐藏层保留数据，后续范围和图例不再按可见层处理它。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F009",
+      "name": "集中图例条目",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "图页 → 图例/标题，逐曲线设置是否显示、名称。",
+      "check": "图例与数据系列一致。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F010",
+      "name": "图层背景",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "图层 → 背景，选颜色与 0–1 值。",
+      "check": "该背景字段 0 为透明、1 为不透明，虽然标签写“透明度”，按旁边提示理解。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F011",
+      "name": "图层边框",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "启用边框，设置颜色、线宽、线型。",
+      "check": "不能与坐标轴边框混淆。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F012",
+      "name": "图层阴影",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "启用阴影并设置颜色、透明度、X/Y 偏移。",
+      "check": "导出边界容纳阴影。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F013",
+      "name": "图层名称和可见性",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "显示/速度页设置名字与显示图层。",
+      "check": "隐藏不是删除，重新勾选可恢复。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F014",
+      "name": "裁剪开关与余量",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "启用裁剪，设置水平/垂直余量。",
+      "check": "正数向内、负数向外，范围 −100% 至小于 50%。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F015",
+      "name": "轴与数据前后顺序",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "显示/速度页选数据在轴上方或轴在数据上方。",
+      "check": "粗线在交叉轴处没有意外遮挡。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F016",
+      "name": "图层位置尺寸",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "大小页选参考图页/边距内区域，填左、上、宽、高。",
+      "check": "% 与物理单位含义不同。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F017",
+      "name": "锁定图层宽高比",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "勾选锁定后改一边。",
+      "check": "图层外框保持比例，不保证数据单位等长。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F018",
+      "name": "位置尺寸父图层",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "选父层，设置相对位置偏移和宽高比例。",
+      "check": "父层改变后子层按关系移动，禁止循环关系。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F019",
+      "name": "叠放顺序",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "移到最前、前移、后移、移到最后。",
+      "check": "透明层与不透明层遮挡符合预期。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F020",
+      "name": "轴长与数据比例",
+      "entry": "图形属性 → 图页 / 图层",
+      "operation": "关联轴长与数据比例，选轴并设置比例。",
+      "check": "实际 X/Y 轴长与范围满足约束；小尺寸/断轴等不支持组合查看提示。",
+      "chapter": 5,
+      "legacyChapter": 53,
+      "section": "5.6"
+    },
+    {
+      "id": "F021",
+      "name": "曲线可见性",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "显示页勾选显示曲线。",
+      "check": "隐藏后原数据仍在，不参加可见图例和范围计算。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F022",
+      "name": "曲线轴分配",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "显示页选择 X/Y 轴，必要时使用创建上轴/右轴入口。",
+      "check": "曲线对应轴标题、量纲与范围正确。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F023",
+      "name": "图例文字与格式",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "显示页设置图例条目、普通文字/上下标/LaTeX。",
+      "check": "自动模式保留裸下划线，带花括号才触发上下标。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F024",
+      "name": "学术配色",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "显示/相关外观页搜索或筛选可用配色，选色再应用到当前曲线。",
+      "check": "配色选择不等于更改图表类型。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F025",
+      "name": "线宽与基本颜色",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "线条页设置 pt 线宽、固定颜色。",
+      "check": "导出后细线可见。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F026",
+      "name": "自定义虚线",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "线型选自定义虚线，输入线段/间隔列表与相关参数。",
+      "check": "不是把任意文字作为线型，检查预览的节奏。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F027",
+      "name": "线端、拐角、尖角限制",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "选择平/圆/方线端，尖/圆/斜连接，调整尖角限制。",
+      "check": "陡转角无异常长尖刺。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F028",
+      "name": "线条透明度",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "按百分比设置；0% 不透明。",
+      "check": "不要与背景 0–1 不透明度字段反向使用。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F029",
+      "name": "首尾连接",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "勾选首尾直线连接，闭合曲线轮廓。",
+      "check": "最后一点到第一点的线确实具有含义。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F030",
+      "name": "符号周围留白",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "打开留白并调整可用间隔。",
+      "check": "线条在符号附近不穿透边框。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F031",
+      "name": "曲线箭头",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "选首端/末端/两端/等距重复，设置长度、角度、重复间距及弯曲容忍。",
+      "check": "箭头方向由原曲线路径决定。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F032",
+      "name": "箭头跟随颜色",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "勾跟随线条或改固定颜色。",
+      "check": "按点颜色映射时检查箭头与线是否一致。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F033",
+      "name": "线条与符号层次",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "勾选线条绘制在符号前方。",
+      "check": "粗线是否遮挡符号中心。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F034",
+      "name": "固定/按点/按曲线颜色面板",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "打开线条颜色面板，在不同模式中选色列或连续色带。",
+      "check": "按曲线可影响整层 XY；按点作用于当前曲线。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F035",
+      "name": "整层连续配色",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "按曲线使用连续色带，使首尾曲线对应色带两端。",
+      "check": "已有组映射会改为全图层曲线顺序；隐藏曲线保留颜色位置。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F036",
+      "name": "按点顺序色列",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "线条颜色映射选递增，修改色列。",
+      "check": "每段采用起点颜色，不是每条曲线一种颜色。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F037",
+      "name": "按连续列着色",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "选连续映射与数值列，指定或取消输入范围。",
+      "check": "超范围夹到端点，范围与色条含义一致。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F038",
+      "name": "按分类列着色",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "选分类映射与类别列，编辑颜色列表。",
+      "check": "类别数超过色数时检查重复颜色。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F039",
+      "name": "X/Y 曲线偏移",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "线条页下方启用偏移，选常量、自动、显式列表或元数据方式。",
+      "check": "偏移改变显示与范围，原表数值保留。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F040",
+      "name": "偏移序号范围",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "设置按图层/组等当前可选序号范围计算。",
+      "check": "成员重排后自动偏移位置可能改变。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F041",
+      "name": "曲线下填充",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "线条页勾曲线下填充区域，新增图案页。",
+      "check": "勾选后才出现该页签。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F042",
+      "name": "填充到基线/曲线",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "图案页设基线，或选择同轴目标曲线。",
+      "check": "正负方向颜色与目标线相对位置正确。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F043",
+      "name": "填充图案",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "选择斜线/交叉等可用图案，设置颜色、线宽、间距和透明度。",
+      "check": "图案不要掩盖数据线。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F044",
+      "name": "恢复默认高级线条样式",
+      "entry": "图形属性 → 选中 XY 曲线",
+      "operation": "点击恢复按钮，再应用。",
+      "check": "只按该按钮覆盖的高级线条范围恢复；想全退用取消或全局撤销。",
+      "chapter": 6,
+      "legacyChapter": 54,
+      "section": "6.6"
+    },
+    {
+      "id": "F045",
+      "name": "基本符号",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "选择形状、pt 大小、填充、边框、宽度及透明度。",
+      "check": "无填充可生成空心符号。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F046",
+      "name": "更多标记",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "主界面更多标记展开后选择较少用的几何形状。",
+      "check": "与属性页当前形状一致。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F047",
+      "name": "数据单位固定尺寸",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "启用后选 X 或 Y 数据单位并填尺寸。",
+      "check": "缩放后屏幕像素大小会改变。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F048",
+      "name": "仅填充透明",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "选择仅填充使用符号透明度。",
+      "check": "边框仍按自身设置清晰显示。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F049",
+      "name": "边框按半径缩放",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "启用并填半径百分比。",
+      "check": "不同大小符号的边框随之变化。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F050",
+      "name": "字符符号",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "启用字符，选固定字符或循环字符序列，设置字体和字符轮廓。",
+      "check": "使用本机实际可用字体。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F051",
+      "name": "重合点展开",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "开启，选展开方向与间距；按需标出真实位置。",
+      "check": "展开只改善辨认，不改变真实坐标。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F052",
+      "name": "颜色映射",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "启用颜色映射，选择连续渐变或分类轮换，选择数据列。",
+      "check": "数值列用连续，类别列用分类。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F053",
+      "name": "颜色作用对象",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "选择填充、边框或两者。",
+      "check": "另一部分仍保留其基础颜色。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F054",
+      "name": "映射色列编辑",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "添加、删除、修改映射颜色。",
+      "check": "连续至少保留足够颜色形成渐变。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F055",
+      "name": "颜色输入范围",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "勾指定范围，填输入起止。",
+      "check": "多图统一范围才可直接比较色值。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F056",
+      "name": "大小映射",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "选择数值列，面积随值或直径随值。",
+      "check": "两种方式视觉含义不同，论文说明应与设置一致。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F057",
+      "name": "大小单位与边界",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "设 pt/X 数据/Y 数据单位和最小最大尺寸。",
+      "check": "极端值不应盖住整张图。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F058",
+      "name": "形状映射",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "选择类别列并编辑形状序列。",
+      "check": "图例中选有代表性的形状。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F059",
+      "name": "映射图例样本",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "启用显示映射图例样本，填原始行和图例符号尺寸。",
+      "check": "样本来自正确原行。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F060",
+      "name": "单点选择",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "输入原始行号，查看该点数据；启用单点覆盖。",
+      "check": "按原始行定位，不是排序后的第 N 个显示点。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F061",
+      "name": "单点可见性与外观",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "覆盖该行形状、大小、颜色、边框或显示状态。",
+      "check": "单点样式优先于常规映射；仅影响指定点。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F062",
+      "name": "清除单点覆盖",
+      "entry": "图形属性 → XY 曲线 → 符号",
+      "operation": "移除该行或全部覆盖，恢复基础/映射样式。",
+      "check": "换 X/Y 来源后检查覆盖是否暂停，不能假定原行身份仍相同。",
+      "chapter": 6,
+      "legacyChapter": 55,
+      "section": "6.7"
+    },
+    {
+      "id": "F063",
+      "name": "行范围",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "显示页启用限定范围，填起始/结束数据行。",
+      "check": "数据行从数据区起算，与文件表头行分开。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F064",
+      "name": "无效点处理",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选跨过连接或断开。",
+      "check": "缺失值附近线段符合预期。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F065",
+      "name": "排序与重复 X",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选原序/升序/降序；重复值保留全部或原始第一/最后行。",
+      "check": "往返扫描不要无意按 X 重排。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F066",
+      "name": "计算数据来源",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选择原始数据或处理后所选数据。",
+      "check": "自动范围/统计是否应忽略隐藏范围。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F067",
+      "name": "显示抽样",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "每隔点数或限定总数，设置首尾保留。",
+      "check": "峰值可能不在抽样点中，科研分析要回看完整数据。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F068",
+      "name": "导出抽样",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "勾导出也使用抽样数据。",
+      "check": "默认导出完整显示范围中的数据；显式开启才抽稀。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F069",
+      "name": "固定行数子集",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "子集页启用，选固定行数并填每组行数。",
+      "check": "每段边界与真实实验分段一致。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F070",
+      "name": "分组列子集",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "子集划分选分组列，绑定该列。",
+      "check": "同组标签正确，按需要断开子集间连线。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F071",
+      "name": "标签来源",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "标签页开启标签，选择数值、原行、列或自定义来源。",
+      "check": "标签读出正确字段。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F072",
+      "name": "标签模板",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选择自定义并按界面支持占位符编辑文本模板。",
+      "check": "预览中的字段成功替换，不把任意程序当模板执行。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F073",
+      "name": "标签数字格式",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "设置固定/科学等格式与精度。",
+      "check": "不会修改数据精度。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F074",
+      "name": "标签位置、旋转、偏移",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "设上下左右等位置、角度、X/Y 偏移及 pt/字号百分比单位。",
+      "check": "偏移方向与锚点正确。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F075",
+      "name": "标签换行与行距",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "填每行字符数、行距倍数。",
+      "check": "多行不会超出图页。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F076",
+      "name": "标签避让",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选择允许重叠、隐藏重叠、移动避让。",
+      "check": "隐藏策略会少显示标签，不代表少了数据。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F077",
+      "name": "标签引导线",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "启用，设置色和线宽。",
+      "check": "移动后的标签能追溯到正确点。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F078",
+      "name": "标签背景与边框",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "开启标签框，设背景、描边、内边距。",
+      "check": "不遮挡关键数据。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F079",
+      "name": "标签抽样",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "全部原行、按原行间隔、限定数量或指定原行。",
+      "check": "只减少标签，不减少曲线点。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F080",
+      "name": "逐行标签覆盖",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选择原始行号，覆盖文字、可见性和偏移。",
+      "check": "清除覆盖后恢复通用规则。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F081",
+      "name": "误差入口",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "XY 标签页下方，柱图独立误差页；选 X/Y/值方向。",
+      "check": "支持图型才显示入口。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F082",
+      "name": "对称/非对称误差",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "对称绑定一列，非对称分别绑定负/正两列。",
+      "check": "误差数值单位与相应轴一致。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F083",
+      "name": "误差幅值/端点",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "幅值表示离中心距离；端点表示实际上下端坐标。",
+      "check": "不能把下界坐标当负误差长度。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F084",
+      "name": "方向与基线",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选两向/单向和参考基线。",
+      "check": "基线在非线性轴上有效。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F085",
+      "name": "误差棒/带/连接",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "选择绘制方式、连接、端帽/避让、线型透明度和填充。",
+      "check": "误差带是范围，不是额外 Y 曲线。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F086",
+      "name": "误差抽样",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "每隔点或限定数目。",
+      "check": "只影响误差绘制密度。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F087",
+      "name": "水平/垂直投影",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "垂直线页分别启用两个方向，选轴/指定值等目标。",
+      "check": "目标坐标在当前轴定义域内。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F088",
+      "name": "投影到曲线",
+      "entry": "图形属性 → XY 曲线 → 显示 / 子集 / 标签 / 垂直线",
+      "operation": "高级垂线选同轴目标曲线，按需指定插值位置列表。",
+      "check": "检查交点，不提供任意曲线拟合。",
+      "chapter": 6,
+      "legacyChapter": 56,
+      "section": "6.8"
+    },
+    {
+      "id": "F089",
+      "name": "自动与固定箱数",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "直方图分箱选择自动或指定箱数，后者填写整数。",
+      "check": "相同数据不同箱数会改变外观，比较样本时统一规则。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F090",
+      "name": "固定箱宽",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "选择指定箱宽，填写宽度、分箱起点与终点。",
+      "check": "检查范围是否覆盖全部样本。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F091",
+      "name": "自定义边界",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "指定边界输入递增列表，例如 0,5,10,20。",
+      "check": "不等宽箱比较分布时宜用概率密度。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F092",
+      "name": "分箱尺度",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "选择 Linear、Log10、Log2、Ln。",
+      "check": "对数分箱的数据和边界必须处于有效定义域。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F093",
+      "name": "边界包含",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "选左闭右开或左开右闭，最外端按界面规则包含。",
+      "check": "恰好落在边界的样本只计一次。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F094",
+      "name": "归一化",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "统计页选频数、概率、概率密度。",
+      "check": "频数合计为样本数，概率合计为 1，密度以面积解释。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F095",
+      "name": "统计标注与柱间距",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "显示统计标注；外观页调柱间距比例。",
+      "check": "统计文字不遮挡直方图。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F096",
+      "name": "四分位算法",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "箱线图选择 Type 7 线性、Type 1 离散、Type 2 中点。",
+      "check": "与报告中声明的计算方法一致。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F097",
+      "name": "箱体范围",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "选择 Q1–Q3、最小–最大、自定义百分位、均值±SD 或均值±SE。",
+      "check": "改为非四分位箱体后须在图注明确含义。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F098",
+      "name": "须范围",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "选择 IQR 内实际样本、最小–最大、百分位、SD 或 SE，设置倍数。",
+      "check": "IQR 须端落在规则以内的实际样本，并非直接画到理论界限。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F099",
+      "name": "自定义百分位",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "填百分位下限、上限及额外百分位列表。",
+      "check": "下限小于上限，百分位不等于原始数据单位。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F100",
+      "name": "均值、中位数与缺口",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "分别勾显示均值、显示中位数、显示缺口。",
+      "check": "均值符号、中位线与箱体分开辨认。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F101",
+      "name": "置信区间",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "启用，选择均值/中位数与缺口/正态近似；适用时填置信水平。",
+      "check": "例如 0.95 表示 95%；这是所选近似方法的结果。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F102",
+      "name": "原始点与离群点",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "原始点选隐藏、确定性抖动、均匀散开；独立开启离群点和极端值。",
+      "check": "抖动只为显示，离群不等于数据错误。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F103",
+      "name": "连接统计量",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "勾连接均值、中位数或百分位。",
+      "check": "组的先后顺序有意义时使用。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F104",
+      "name": "部件独立配色",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "外观页设置须线、中位线、均值、离群点、极端值颜色。",
+      "check": "图注说明各符号含义。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F105",
+      "name": "叠加分布",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "分布选正态、对数正态、Weibull、指数、Gamma、Laplace、Lorentz、KDE、Poisson 或二项分布。",
+      "check": "离散与连续分布按数据类型选择。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F106",
+      "name": "分布参数与采样",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "填写界面所列参数、采样点数、延伸比例和归一化选项。",
+      "check": "显式参数是用户输入，不代表程序自动拟合成功。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F107",
+      "name": "核密度与箱图分布",
+      "entry": "图形属性 → 对应曲线 → 分箱 / 统计与分布 / 箱体与须 / 原始点与百分位",
+      "operation": "KDE 选择带宽方法或自定义带宽；箱线图分布按可用布局设对称等外观。",
+      "check": "带宽会改变平滑程度；小样本不能仅凭轮廓推断总体。",
+      "chapter": 3,
+      "legacyChapter": 57,
+      "section": "3.12"
+    },
+    {
+      "id": "F108",
+      "name": "热图数据区域",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "选矩形网格或不规则 XYZ 三角网。",
+      "check": "规则格点与散乱点使用对应区域模式。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F109",
+      "name": "单元插值",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "最近单元保留分块，双线性产生连续过渡。",
+      "check": "插值后的颜色不是新增测量值。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F110",
+      "name": "缺失单元",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "设置缺失值颜色。",
+      "check": "空白单元与数值为零的单元应可区分。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F111",
+      "name": "单元标签与边界",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "勾单元标签、单元边界，设置边界颜色和宽度。",
+      "check": "密集矩阵减少标签以保持可读。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F112",
+      "name": "等值线线条/填色",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "等高线页选择线条或填色模式。",
+      "check": "填色区间和色标方向一致。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F113",
+      "name": "等值级别",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "用自动数量、显式数值列表或起点/终点/步长定义。",
+      "check": "科学比较使用共同级别。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F114",
+      "name": "逐级线型覆盖",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "添加级别覆盖，输入 level 及颜色/线宽；不需要时删除。",
+      "check": "仅影响对应级别，最多 50 项。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F115",
+      "name": "等值线平滑与标签",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "选择规则矩阵/不规则 XYZ；开启平滑或数值标签。",
+      "check": "平滑改变显示路径，不能替代更密采样。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F116",
+      "name": "范围外颜色",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "钳制到端点或透明。",
+      "check": "透明模式下范围外区域消失是预期效果。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F117",
+      "name": "Z 色域",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "自动范围或输入固定最小最大值；按需反转。",
+      "check": "多个热图使用同一 Z 范围才能直接比较。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F118",
+      "name": "颜色尺度",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "选线性或 Log10；选连续渐变或离散颜色。",
+      "check": "Log10 不适合非正 Z。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F119",
+      "name": "色谱预设和节点",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "选择色谱，编辑颜色节点、位置，添加/删除节点。",
+      "check": "最多 32 节点，顺序和范围符合预览。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F120",
+      "name": "色标显示和标题",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "勾显示色标，填物理量及单位。",
+      "check": "仅关闭图例不会必然关闭色标。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F121",
+      "name": "色标联动/独立",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "联动跟随 Z 色域；独立模式输入自己的显示范围。",
+      "check": "独立色标须核对是否仍准确表达实际颜色。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F122",
+      "name": "色标方向与位置",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "垂直选左/右，水平选上/下；调长度比例和宽度 pt。",
+      "check": "为色标留出页边空间。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F123",
+      "name": "色标刻度与端点",
+      "entry": "图形属性 → 热力图 / 等值线 → 热图单元 / 等高线 / 颜色映射 / 色标",
+      "operation": "设置主次刻度数量、记数法、精度和两端三角形。",
+      "check": "三角端点配合图注解释超范围值。",
+      "chapter": 4,
+      "legacyChapter": 58,
+      "section": "4.9"
+    },
+    {
+      "id": "F124",
+      "name": "创建与拆分曲线组",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "在组页选择成员建立组；按需要调整成员、顺序或解除分组。",
+      "check": "只对目标图层的实际成员生效。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F125",
+      "name": "从属/独立编辑",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "选择从属统一递增样式，独立时分别编辑曲线。",
+      "check": "后续组更新可能覆盖从属成员的局部样式。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F126",
+      "name": "组样式递增",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "配置颜色、线型、符号等递增序列和同步/嵌套方式。",
+      "check": "以组成员顺序逐条检查结果。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F127",
+      "name": "子组",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "给成员指定子组及组间递增关系。",
+      "check": "子组同时可参与堆叠，先检查成员身份。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F128",
+      "name": "离散调色板",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "编辑色列，选择循环、拉伸或分箱方式。",
+      "check": "曲线数大于颜色数时需知道如何复用颜色。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F129",
+      "name": "连续参数配色",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "启用数值映射，为每条曲线输入参数，设置色域与色谱。",
+      "check": "参数是每条曲线的量，不是曲线中每个点的值。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F130",
+      "name": "读取组参数",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "从纯数值 Y 列名或指定来源读参数，检查逐曲线匹配。",
+      "check": "带单位文字的列名不一定能直接转数值。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F131",
+      "name": "组色标",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "启用色标，调标题、范围、刻度和布局。",
+      "check": "用于温度/时间序列等连续组参数。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F132",
+      "name": "按曲线配色入口",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "线条颜色菜单选择按曲线调色板。",
+      "check": "连续应用会按整层序列重建映射；隐藏曲线仍占序号。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F133",
+      "name": "无堆叠",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "堆叠模式选无。",
+      "check": "取消堆叠规则后仍需检查曲线本身的独立变换。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F134",
+      "name": "累计堆叠",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "选择累计，按需排序及百分比归一化。",
+      "check": "后续曲线叠加之前数据；适合有加和意义的量。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F135",
+      "name": "增量堆叠",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "柱图选择增量，按需显示重叠部分。",
+      "check": "该模式限适用柱图，不等于一般 XY 错位。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F136",
+      "name": "固定偏移",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "填偏移序列，选累积增量或绝对偏移。",
+      "check": "[10] 增量得到 0/10/20；绝对值列表会循环复用。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F137",
+      "name": "自动偏移",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "选择自动，设置间距百分比和保留比例。",
+      "check": "默认间距 8%，自动根据曲线范围排开。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F138",
+      "name": "独立偏移",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "选单条曲线，开启 X/Y 偏移，输入偏移值和倍数。",
+      "check": "柱图不能沿类别维任意数值偏移。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F139",
+      "name": "子组内与子组间",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "组内选累计/增量，组间选固定/自动。",
+      "check": "先预览一个子组再检查组间位置。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F140",
+      "name": "成员、顺序与排序",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "编辑参与曲线与子组归属；适用累计柱图可按值升/降序。",
+      "check": "排列顺序与图例识别保持一致。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F141",
+      "name": "堆叠连线与总标签",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "开启连接线、总标签，设置颜色、字号、格式。",
+      "check": "总量标签与各段标签区分。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F142",
+      "name": "附加线相对基线",
+      "entry": "图形属性 → 曲线/图层 → 组；图层 → 堆叠",
+      "operation": "按需要设置附加线随堆叠偏移。",
+      "check": "否则辅助线可能停留在未偏移的位置。",
+      "chapter": 6,
+      "legacyChapter": 59,
+      "section": "6.9"
+    },
+    {
+      "id": "F143",
+      "name": "选择目标轴",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "确认当前图层以及上/下 X、左/右 Y 轴，再编辑。",
+      "check": "多轴图不能只凭左侧列表第一项判断目标。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F144",
+      "name": "尺度类型",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "在刻度设置选择线性、对数或界面提供的高级尺度。",
+      "check": "更改尺度后重新核对数据定义域、范围及主次刻度。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F145",
+      "name": "Log10 / Log2 / Ln",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "选择相应底数，范围和数据使用正值。",
+      "check": "不可显示值的诊断需处理，不能隐藏后当作零。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F146",
+      "name": "SymLog",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "对数轴开启对称对数，设置线性范围阈值和线性段长度。",
+      "check": "适合正负跨零数据；零附近线性，远端对数。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F147",
+      "name": "对数刻度策略",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "选择等距细分、真实对数细分或 Log10 窄区间兼容。",
+      "check": "真实 Log10 次刻度 8 对应 2…9。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F148",
+      "name": "倒数尺度",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "选择倒数 1/x，设置不跨零的范围。",
+      "check": "范围不得跨越奇点，注意轴方向和读数。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F149",
+      "name": "Probability / Probit / Logit",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "选择对应概率尺度，输入百分数数据及严格位于 0–100 的范围。",
+      "check": "50 表示 50%，不能把 0.5 当作 50%。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F150",
+      "name": "Weibull 尺度",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "选择 Weibull，输入比例数据，范围严格位于 0–1。",
+      "check": "与百分数尺度不同，0.5 表示 50%。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F151",
+      "name": "Discrete 数值 X",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "数值 X 选择 Discrete，按离散位置展示。",
+      "check": "用于离散横坐标；不是数据列类型的通用转换。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F152",
+      "name": "平移倒数",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "选择平移倒数并输入 offset。",
+      "check": "奇点为 x=-offset；默认值需按实际单位核查。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F153",
+      "name": "自定义尺度",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "输入正函数、逆函数、定义域，例如 2*x 与 x/2。",
+      "check": "整个定义域必须单调且正逆互相还原。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F154",
+      "name": "公式语法",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "只使用 x、四则运算、^、sqrt、ln、log10、log2、exp、abs。",
+      "check": "不支持任意 JavaScript 或外部脚本。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F155",
+      "name": "手动范围与反向",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "填上下界，按需开启反向。",
+      "check": "轴方向变化不改原始数据顺序。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F156",
+      "name": "重缩放策略",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "选常规、自动、固定，或固定最小/最大端的常规/自动。",
+      "check": "自动跟随数据变化，固定用于跨图统一但可能裁掉新值。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F157",
+      "name": "端点边距",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "设置最小/最大端 0–100% 边距，再按当前策略重缩放。",
+      "check": "固定端不添加边距，设置并非立即修改所有轴。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F158",
+      "name": "分类顺序",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "分类轴选首次出现、升序、降序或自定义类别列表。",
+      "check": "实际类别与自定义项拼写一致。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F159",
+      "name": "日历刻度",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "日期轴设置日历单位、步长和锚点。",
+      "check": "锚点为 UTC 毫秒；显示时区与原始数据解释需一致。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F160",
+      "name": "X:Y 数据比例",
+      "entry": "双击坐标轴 → 坐标轴属性；或图形属性对象树 → 对应轴",
+      "operation": "启用关联轴长，选择线性 X/Y 轴，比例设 1 得到等单位长度。",
+      "check": "调整绘图区轴长，数据范围保持；不适用组合界面会提示。",
+      "chapter": 7,
+      "legacyChapter": 60,
+      "section": "7.3"
+    },
+    {
+      "id": "F161",
+      "name": "轴显示和标题",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "显示页开关轴；标题页输入物理量/单位并设置字体、位置、旋转。",
+      "check": "关闭轴后确认曲线仍按正确轴映射。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F162",
+      "name": "主次刻度生成",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "刻度页设置数量或步长，选择自动、手动数值列表或数据列定位。",
+      "check": "密集刻度会挤压标签。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F163",
+      "name": "轴线和刻度线",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "设置轴线色/宽、主次刻度长度、方向和外观。",
+      "check": "朝内/外方向应与页面留白匹配。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F164",
+      "name": "轴放置位置",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "按边界或可用定位方式设置轴线位置和偏移。",
+      "check": "穿过数据区的轴线可能覆盖曲线。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F165",
+      "name": "数字标签",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "设记数法、精度、前后缀、字体、角度及偏移。",
+      "check": "数值显示格式不改变坐标值。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F166",
+      "name": "标签来源列",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "标签来源选列；需要时选择位置匹配列。",
+      "check": "位置和标签来自对应的行，不能只按列表长度猜配对。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F167",
+      "name": "日期标签",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "选择日期来源、格式和时区。",
+      "check": "同一时刻可能在不同时区显示不同日期。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F168",
+      "name": "元数据标签",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "选索引、名称、单位、表名、最小/最大或起止等元数据。",
+      "check": "确认对应的数据列与表来源。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F169",
+      "name": "多行标签表",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "启用标签表、添加行，选择各行内容和标题、间距。",
+      "check": "给多行表预留底部空间。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F170",
+      "name": "次刻度标签",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "开启次标签，设置字体和颜色。",
+      "check": "只在需要精细读数时启用。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F171",
+      "name": "网格线",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "分别开关主、次网格，设置线色、线宽和线型。",
+      "check": "网格应易读且不掩盖观测点。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F172",
+      "name": "特殊刻度",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "添加位于最小/最大/指定值的刻度，设标签、长度、引导长度或隐藏。",
+      "check": "适用于标明阈值和关键时间点。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F173",
+      "name": "轴线箭头",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "选起点、终点或两端箭头。",
+      "check": "方向与轴反向状态一致。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F174",
+      "name": "常量参考线",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "参照线页添加常量，输入值、标签与样式。",
+      "check": "X 常量为竖线，Y 常量为横线。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F175",
+      "name": "统计参考线",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "选择数据曲线、均值/中位数/标准差/分位数及全量/可见域。",
+      "check": "分位数使用 0–1；范围变化是否影响统计由域选择决定。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F176",
+      "name": "参考线标签和区域",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "开启数值，调标签位置；选择成对/交替区域填充及透明度。",
+      "check": "先核对参考线先后顺序。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F177",
+      "name": "断点区间",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "添加 from/to，设置间隙百分比、分段权重和断点符号。",
+      "check": "断点隐藏区间会改变直观长度，应在报告中清楚显示。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F178",
+      "name": "断点后尺度",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "按需设后段尺度、主步长、次刻度数、记数法与精度。",
+      "check": "跨段比较不能按屏幕长度直接读比例。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F179",
+      "name": "轴须（Rug）",
+      "entry": "坐标轴属性 → 对应同名页签",
+      "operation": "勾来源曲线，选原始/显示数据、重叠/堆叠、内/外侧和长度。",
+      "check": "每根小线代表样本位置，需区分统计密度曲线。",
+      "chapter": 7,
+      "legacyChapter": 61,
+      "section": "7.4"
+    },
+    {
+      "id": "F180",
+      "name": "新增/复制图层",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "图层管理常用操作新增空层，或复制当前层。",
+      "check": "检查曲线是否也复制以及当前选中层。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F181",
+      "name": "删除图层",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "选择层并检查依赖提示后删除，至少保留一层。",
+      "check": "轴/框架联动和跨层对象的依赖应按提示处理。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F182",
+      "name": "图层顺序",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "用前移/后移等顺序操作调整覆盖关系。",
+      "check": "重叠层中后绘制内容可能遮住前层。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F183",
+      "name": "移动曲线",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "曲线所属图层选择目标层及兼容 X/Y 轴，点击移动曲线。",
+      "check": "保留数据、样式、名称，使用目标轴范围；源层仍保留。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F184",
+      "name": "图层内容与绘图设置",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "从相应管理模式检查层内曲线及其绑定，增删或调整。",
+      "check": "变更数据槽后重新生成/应用。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F185",
+      "name": "网格排列",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "选择参与层、参照区域、列数和横纵间距，再执行排列。",
+      "check": "间距单位可选 %、mm、cm、in、px。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F186",
+      "name": "位置与尺寸对齐",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "选择参考层/区域，再左中右、上中下或统一宽/高/尺寸。",
+      "check": "联动层可能限制直接编辑。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F187",
+      "name": "共享坐标范围",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "在共享轴入口选参与层及维度。",
+      "check": "同一物理量和单位才能合理共享范围。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F188",
+      "name": "轴公式联动",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "选源图层/轴，输入正逆公式与有效域。",
+      "check": "例如单位换算；避免循环引用和不可逆函数。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F189",
+      "name": "图层框架联动",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "为位置/尺寸选择源层和联动方式，按需解除。",
+      "check": "它控制几何布局，与坐标范围联动分别设置。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F190",
+      "name": "添加对应轴",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "使用轴创建入口增加上/右等对应轴，并设置来源与映射。",
+      "check": "新增轴不自动把所有曲线移到新轴。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F191",
+      "name": "复制粘贴格式",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "选择源层复制格式，目标层选择粘贴范围再执行。",
+      "check": "图例格式不覆盖名称；尺寸复用保留位置。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F192",
+      "name": "格式类别",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "可选页面背景、图例、背景、尺寸、刻度、颜色、字体、所有样式或所有格式。",
+      "check": "所有样式保留尺寸/范围；所有格式可能固定目标范围。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F193",
+      "name": "页面适配内容",
+      "entry": "图形菜单 / 图层管理；图形属性 → 页面/图层",
+      "operation": "在页面/图层大小的适配入口执行并检查边距。",
+      "check": "标题、轴标签、图例和色标都要在页面内。",
+      "chapter": 5,
+      "legacyChapter": 62,
+      "section": "5.7"
+    },
+    {
+      "id": "F194",
+      "name": "新增注释",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "选择文本、线/箭头、矩形、参考线或跨层图例，再新增。",
+      "check": "在编辑注释列表中选中目标后继续设置。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F195",
+      "name": "显示与删除注释",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "开关显示注释，或删除当前对象。",
+      "check": "隐藏便于临时比较；保存项目可保留对象。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F196",
+      "name": "坐标空间",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "选图页比例、图层比例或数据坐标，再选所属层/轴。",
+      "check": "比例坐标 0–1；数据坐标使用轴单位，换空间后核对位置。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F197",
+      "name": "文本位置和内容",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "填位置、文字、字号、字体、颜色、粗斜体及锚点。",
+      "check": "中间锚点适合居中注释，末端锚点适合右对齐。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F198",
+      "name": "文字格式",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "选自动、纯文本、富文本或 LaTeX；使用格式按钮输入上下标等。",
+      "check": "以预览验证，不能把任意 HTML 当受支持富文本。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F199",
+      "name": "文字布局",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "设对齐、内边距、换行、行距、背景和边框。",
+      "check": "文字框高度应容纳换行后的内容。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F200",
+      "name": "旋转与拖动",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "数值调整文字旋转；在预览中对支持对象拖动定位。",
+      "check": "数据锚点随轴变换，图页锚点随页面比例定位。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F201",
+      "name": "线与箭头",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "填写两端，设置线色/宽/型/透明度、箭头起终点及尺寸。",
+      "check": "箭头明确指向目标数据，不能把点位移当作数据变化。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F202",
+      "name": "矩形区域",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "设置位置、尺寸、填充及边框。",
+      "check": "用低不透明度突出区域，避免遮住曲线。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F203",
+      "name": "注释参考线",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "选 X 常量或 Y 常量，填数据值。",
+      "check": "只能使用数据坐标；轴统计参考线从轴属性设置。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F204",
+      "name": "曲线图例项",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "编辑每条曲线图例文字和可见性，检查样本样式。",
+      "check": "隐藏图例项与隐藏曲线分别控制。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F205",
+      "name": "跨层图例",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "新增图例注释，勾选包含的曲线，设列数、方向和锚点。",
+      "check": "可合并不同层的说明，删除曲线后需检查成员。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F206",
+      "name": "页面标题与图例",
+      "entry": "图形属性 → 页面 → 注释；页面图例/标题或曲线图例",
+      "operation": "页面图例/标题页设置全图文字与图例格式。",
+      "check": "图层标题和页面标题按用途区别使用。",
+      "chapter": 6,
+      "legacyChapter": 63,
+      "section": "6.10"
+    },
+    {
+      "id": "F207",
+      "name": "单文件/多文件导入",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "选择 CSV/TSV/TXT/XLSX，批次中勾选文件或工作表，再确认。",
+      "check": "上限与解析选项见入门章节，XLSX 多表逐项检查。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F208",
+      "name": "文本编码与分隔符",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "导入对话框选择编码、逗号/制表符等分隔方式。",
+      "check": "预览应形成多列且中文正常。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F209",
+      "name": "表头/单位/数据起始行",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "分别设置行号，单位行 0 表示不用。",
+      "check": "重新解析后检查每张表选择状态。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F210",
+      "name": "工作区表浏览",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "打开数据工作区，选择表并查看列概要及数据预览。",
+      "check": "预览只显示部分数据时不代表数据被截断。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F211",
+      "name": "列设置",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "选择列，编辑允许的名称、类型、单位、缺失标记等选项，检查转换诊断。",
+      "check": "日期/数值转换失败会影响绑定。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F212",
+      "name": "重新设置导入",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "打开表导入设置，调整解析选项并确认更新。",
+      "check": "已绑定曲线需重新检查列身份与数据范围。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F213",
+      "name": "删除数据表",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "通过表菜单删除，查看绑定依赖影响。",
+      "check": "先保存项目；被使用的表不能当作无关文件随意移除。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F214",
+      "name": "数据槽绑定",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "在曲线或数据绑定入口为每个必需角色选表/列。",
+      "check": "列名相同仍要确认表来源。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F215",
+      "name": "新增/删除曲线",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "按当前图型新增曲线，绑定角色；删除前核对曲线名称。",
+      "check": "删除曲线不会等同于删除原始数据表。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F216",
+      "name": "批量选 Y",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "选择同一 X、勾多个 Y，再确认新增。",
+      "check": "这是一个图里的多曲线；多个独立文件出图用数据表批绘。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F217",
+      "name": "生成、应用和重置",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "修改绘图设置后点击生成/应用；放弃草稿用重置。",
+      "check": "有待应用设置时保存/批绘可能被限制。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F218",
+      "name": "属性草稿",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "属性窗口先预览，应用保留窗口、确定提交并关闭、取消放弃未提交内容。",
+      "check": "批量属性编辑先选对象，再只勾要修改的字段。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F219",
+      "name": "撤销/重做",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "使用工具栏或对应快捷键回退已提交编辑。",
+      "check": "未应用输入不是独立历史；恢复项目会清空历史。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F220",
+      "name": "视图缩放",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "用放大、缩小、框选和恢复缩放控件改变可见数据范围。",
+      "check": "范围会影响图像输出，导出前核对；不改变页面物理尺寸。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F221",
+      "name": "诊断信息",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "打开诊断查看对象、字段及错误信息，修复后重新应用。",
+      "check": "有预览不等于所有绑定均正确。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F222",
+      "name": "保存和打开项目",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "保存 .plotfig.json；打开项目恢复数据、绑定及图形。",
+      "check": "手动备份是跨浏览器/设备继续编辑的依据。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F223",
+      "name": "自动恢复开关",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "开启自动保留；恢复窗口选择副本或本次跳过。",
+      "check": "只保留已应用内容，同站点有容量上限。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F224",
+      "name": "恢复副本清理",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "逐条删除不需要的副本；删除当前副本后用重新保留恢复保存。",
+      "check": "关闭自动保存不等于删除已有副本。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F225",
+      "name": "模板保存/管理",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "保存当前预览为个人模板；搜索、改名、删除或导出 JSON。",
+      "check": "模板与完整项目用途不同。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F226",
+      "name": "模板套用",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "选择仅样式或完整模板，映射必需槽，检查预览后应用。",
+      "check": "完整结构可能改变现有图层。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F227",
+      "name": "Origin 原生模板",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "本机满足条件后检测服务，导入 OTP/OTPU，查看兼容提示再保存模板。",
+      "check": "详见模板章节；本次未在 Origin 中执行转换验证。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F228",
+      "name": "数据表批绘",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "选择图形/模板依据、数据表、映射、复用格式和输出；逐项预览再开始。",
+      "check": "详细跟做步骤见六个批量教程。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F229",
+      "name": "批绘取消/重试",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "任务运行中取消；完成后检查逐项报告，重试可重试项，下载成功文件。",
+      "check": "修改配置会清空旧结果，批次状态不跨会话持久化。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F230",
+      "name": "单图/逐层导出",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "导出图形中选择当前图形或批量导出图层，配置 SVG/PNG、DPI 和像素。",
+      "check": "SVG/PNG 不能替代可编辑项目。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    },
+    {
+      "id": "F231",
+      "name": "透明背景",
+      "entry": "主界面工具栏、数据工作区及模板中心",
+      "operation": "导出中启用页面透明；需要完全透明时也检查各图层背景。",
+      "check": "页面透明不自动移除图层自身的填充。",
+      "chapter": 9,
+      "legacyChapter": 64,
+      "section": "9.3"
+    }
+  ]
+}

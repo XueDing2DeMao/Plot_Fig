@@ -1,0 +1,517 @@
+{
+  "kind": "plot-fig-project",
+  "version": "2.0.0",
+  "template": {
+    "kind": "figure-template",
+    "schemaVersion": "1.24.0",
+    "templateId": "web-xy-template",
+    "metadata": {
+      "name": "矩阵热图",
+      "tags": [
+        "xy",
+        "origin-2026b-inspired"
+      ]
+    },
+    "page": {
+      "size": {
+        "width": {
+          "value": 180,
+          "unit": "mm"
+        },
+        "height": {
+          "value": 120,
+          "unit": "mm"
+        }
+      },
+      "background": "#ffffff",
+      "margins": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "panels": [
+      {
+        "panelId": "panel",
+        "frame": {
+          "x": 0.16,
+          "y": 0.06,
+          "width": 0.81,
+          "height": 0.79
+        },
+        "coordinateSystem": "cartesian-2d",
+        "clip": true,
+        "axes": [
+          {
+            "axisId": "panel-axis-x",
+            "dimension": "x",
+            "position": "bottom",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "rescale": {
+              "mode": "normal",
+              "nice": false,
+              "margin": {
+                "minPercent": 0,
+                "maxPercent": 0
+              }
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "title": {
+              "format": "auto",
+              "text": "Angle",
+              "fontFamily": "Arial",
+              "fontSizePt": 12,
+              "color": "#000000"
+            }
+          },
+          {
+            "axisId": "panel-axis-y",
+            "dimension": "y",
+            "position": "left",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "rescale": {
+              "mode": "normal",
+              "nice": false,
+              "margin": {
+                "minPercent": 0,
+                "maxPercent": 0
+              }
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "title": {
+              "format": "auto",
+              "text": "列坐标",
+              "fontFamily": "Arial",
+              "fontSizePt": 12,
+              "color": "#000000"
+            }
+          },
+          {
+            "axisId": "panel-frame-x",
+            "dimension": "x",
+            "position": "top",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": false,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": false,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "rescale": {
+              "mode": "normal",
+              "nice": false,
+              "margin": {
+                "minPercent": 0,
+                "maxPercent": 0
+              }
+            }
+          },
+          {
+            "axisId": "panel-frame-y",
+            "dimension": "y",
+            "position": "right",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": false,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": false,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "rescale": {
+              "mode": "normal",
+              "nice": false,
+              "margin": {
+                "minPercent": 0,
+                "maxPercent": 0
+              }
+            }
+          }
+        ],
+        "plotSlots": [
+          {
+            "plotSlotId": "matrix-heatmap",
+            "xAxisId": "panel-axis-x",
+            "yAxisId": "panel-axis-y",
+            "legendEntry": {
+              "text": "04-matrix.csv · 热图",
+              "visible": false,
+              "source": "manual"
+            },
+            "kind": "heatmap",
+            "bindings": {
+              "x": "matrix-heatmap-x",
+              "y": "matrix-heatmap-y",
+              "z": "matrix-heatmap-z"
+            },
+            "colorScale": {
+              "colors": [
+                "#440154",
+                "#3b528b",
+                "#21918c",
+                "#5ec962",
+                "#fde725"
+              ],
+              "reverse": false,
+              "transform": "linear",
+              "interpolation": "continuous",
+              "range": {
+                "mode": "auto"
+              },
+              "colorbar": {
+                "visible": true,
+                "title": "强度",
+                "mode": "linked",
+                "orientation": "vertical",
+                "side": "right",
+                "length": 1,
+                "widthPt": 10,
+                "majorTicks": 3,
+                "minorTicks": 0,
+                "notation": "auto",
+                "precision": 6,
+                "endpoints": "flat"
+              }
+            },
+            "heatmap": {
+              "missingColor": "#eeeeee",
+              "labels": false,
+              "interpolation": "nearest",
+              "dataRegion": "matrix"
+            }
+          }
+        ],
+        "name": "04-matrix.csv · 热图"
+      }
+    ],
+    "dataSlots": [
+      {
+        "dataSlotId": "matrix-heatmap-x",
+        "name": "X",
+        "role": "x",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "matrix-heatmap-y",
+        "name": "Y",
+        "role": "y",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "matrix-heatmap-z",
+        "name": "Z",
+        "role": "z",
+        "valueType": "number",
+        "required": true
+      }
+    ],
+    "annotations": [],
+    "theme": {
+      "font": {
+        "family": "Arial",
+        "sizePt": 10,
+        "color": "#000000"
+      },
+      "line": {
+        "color": "#515151",
+        "widthPt": 1.5
+      },
+      "marker": {
+        "shape": "square",
+        "sizePt": 5,
+        "fill": "#515151",
+        "stroke": "#515151"
+      },
+      "palette": [
+        "#515151",
+        "#d62728",
+        "#1f77b4",
+        "#2ca02c"
+      ],
+      "background": "#ffffff"
+    }
+  },
+  "workspace": {
+    "tables": [
+      {
+        "tableId": "heatmap-matrix",
+        "name": "04-matrix.csv · 热图矩阵",
+        "source": {
+          "kind": "clipboard",
+          "name": "04-matrix.csv · 矩阵转换"
+        },
+        "rows": [
+          [
+            "Angle",
+            "列坐标",
+            "强度"
+          ],
+          [
+            10,
+            500,
+            1
+          ],
+          [
+            15,
+            500,
+            2
+          ],
+          [
+            20,
+            500,
+            4
+          ],
+          [
+            25,
+            500,
+            8
+          ],
+          [
+            30,
+            500,
+            4
+          ],
+          [
+            35,
+            500,
+            2
+          ],
+          [
+            40,
+            500,
+            1
+          ],
+          [
+            10,
+            550,
+            2
+          ],
+          [
+            15,
+            550,
+            3
+          ],
+          [
+            20,
+            550,
+            8
+          ],
+          [
+            25,
+            550,
+            5
+          ],
+          [
+            30,
+            550,
+            3
+          ],
+          [
+            35,
+            550,
+            4
+          ],
+          [
+            40,
+            550,
+            2
+          ],
+          [
+            10,
+            1000,
+            3
+          ],
+          [
+            15,
+            1000,
+            5
+          ],
+          [
+            20,
+            1000,
+            5
+          ],
+          [
+            25,
+            1000,
+            3
+          ],
+          [
+            30,
+            1000,
+            6
+          ],
+          [
+            35,
+            1000,
+            9
+          ],
+          [
+            40,
+            1000,
+            4
+          ]
+        ],
+        "region": {
+          "headerRow": 0,
+          "unitRow": null,
+          "dataStartRow": 1
+        },
+        "columns": [
+          {
+            "columnId": "angle",
+            "index": 0,
+            "name": "Angle",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "column-1",
+            "index": 1,
+            "name": "列坐标",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "column-2",
+            "index": 2,
+            "name": "强度",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          }
+        ],
+        "importDiagnostics": []
+      }
+    ],
+    "activeTableId": "heatmap-matrix",
+    "slotBindings": {
+      "matrix-heatmap-x": {
+        "tableId": "heatmap-matrix",
+        "columnId": "angle"
+      },
+      "matrix-heatmap-y": {
+        "tableId": "heatmap-matrix",
+        "columnId": "column-1"
+      },
+      "matrix-heatmap-z": {
+        "tableId": "heatmap-matrix",
+        "columnId": "column-2"
+      }
+    }
+  }
+}

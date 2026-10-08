@@ -1,0 +1,449 @@
+{
+  "kind": "plot-fig-project",
+  "version": "2.0.0",
+  "template": {
+    "kind": "figure-template",
+    "schemaVersion": "1.24.0",
+    "templateId": "web-xy-template",
+    "metadata": {
+      "name": "直方图",
+      "tags": [
+        "xy",
+        "origin-2026b-inspired"
+      ]
+    },
+    "page": {
+      "size": {
+        "width": {
+          "value": 180,
+          "unit": "mm"
+        },
+        "height": {
+          "value": 120,
+          "unit": "mm"
+        }
+      },
+      "background": "#ffffff",
+      "margins": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "panels": [
+      {
+        "panelId": "panel-main",
+        "frame": {
+          "x": 0.16,
+          "y": 0.06,
+          "width": 0.81,
+          "height": 0.79
+        },
+        "coordinateSystem": "cartesian-2d",
+        "clip": true,
+        "axes": [
+          {
+            "axisId": "axis-x",
+            "dimension": "x",
+            "position": "bottom",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "rescale": {
+              "mode": "auto",
+              "nice": true,
+              "margin": {
+                "minPercent": 8,
+                "maxPercent": 8
+              }
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "title": {
+              "format": "auto",
+              "text": "Value",
+              "fontFamily": "Arial",
+              "fontSizePt": 12,
+              "color": "#000000"
+            },
+            "extensions": {
+              "origin": {
+                "plotFigAutoAxisTitle": {
+                  "plotSlotId": "series-1",
+                  "role": "x",
+                  "text": "Value"
+                }
+              }
+            }
+          },
+          {
+            "axisId": "axis-y",
+            "dimension": "y",
+            "position": "left",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "rescale": {
+              "mode": "auto",
+              "nice": true,
+              "margin": {
+                "minPercent": 8,
+                "maxPercent": 8
+              }
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "title": {
+              "format": "auto",
+              "text": "Count",
+              "fontFamily": "Arial",
+              "fontSizePt": 12,
+              "color": "#000000"
+            },
+            "extensions": {
+              "origin": {
+                "plotFigAutoAxisTitle": {
+                  "plotSlotId": "series-1",
+                  "role": "y",
+                  "text": "Value"
+                }
+              }
+            }
+          },
+          {
+            "axisId": "frame-x",
+            "dimension": "x",
+            "position": "top",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": false,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": false,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            }
+          },
+          {
+            "axisId": "frame-y",
+            "dimension": "y",
+            "position": "right",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": false,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": false,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            }
+          }
+        ],
+        "plotSlots": [
+          {
+            "plotSlotId": "series-1",
+            "xAxisId": "axis-x",
+            "yAxisId": "axis-y",
+            "legendEntry": {
+              "visible": true,
+              "text": "Value",
+              "source": "auto"
+            },
+            "kind": "histogram",
+            "bindings": {
+              "values": "series-1-values"
+            },
+            "bins": {
+              "mode": "auto"
+            },
+            "normalization": "count",
+            "boundary": "left",
+            "gap": 0,
+            "fillStyle": {
+              "color": "#2166ac",
+              "opacity": 0.65,
+              "borderColor": "#515151",
+              "borderWidthPt": 1
+            }
+          }
+        ]
+      }
+    ],
+    "dataSlots": [
+      {
+        "dataSlotId": "series-1-values",
+        "name": "样本",
+        "role": "values",
+        "valueType": "number",
+        "required": true
+      }
+    ],
+    "annotations": [],
+    "theme": {
+      "font": {
+        "family": "Arial",
+        "sizePt": 10,
+        "color": "#000000"
+      },
+      "line": {
+        "color": "#515151",
+        "widthPt": 1.5
+      },
+      "marker": {
+        "shape": "square",
+        "sizePt": 5,
+        "fill": "#515151",
+        "stroke": "#515151"
+      },
+      "palette": [
+        "#515151",
+        "#d62728",
+        "#1f77b4",
+        "#2ca02c"
+      ],
+      "background": "#ffffff"
+    }
+  },
+  "workspace": {
+    "tables": [
+      {
+        "tableId": "manual-data",
+        "name": "03-distribution.csv",
+        "source": {
+          "kind": "csv",
+          "name": "03-distribution.csv"
+        },
+        "rows": [
+          [
+            "Group",
+            "Value"
+          ],
+          [
+            "A",
+            "8"
+          ],
+          [
+            "A",
+            "9"
+          ],
+          [
+            "A",
+            "9"
+          ],
+          [
+            "A",
+            "10"
+          ],
+          [
+            "A",
+            "10"
+          ],
+          [
+            "A",
+            "10"
+          ],
+          [
+            "A",
+            "11"
+          ],
+          [
+            "A",
+            "11"
+          ],
+          [
+            "A",
+            "12"
+          ],
+          [
+            "A",
+            "12"
+          ],
+          [
+            "A",
+            "13"
+          ],
+          [
+            "A",
+            "15"
+          ],
+          [
+            "B",
+            "12"
+          ],
+          [
+            "B",
+            "13"
+          ],
+          [
+            "B",
+            "14"
+          ],
+          [
+            "B",
+            "14"
+          ],
+          [
+            "B",
+            "15"
+          ],
+          [
+            "B",
+            "15"
+          ],
+          [
+            "B",
+            "16"
+          ],
+          [
+            "B",
+            "16"
+          ],
+          [
+            "B",
+            "17"
+          ],
+          [
+            "B",
+            "18"
+          ],
+          [
+            "B",
+            "19"
+          ],
+          [
+            "B",
+            "22"
+          ]
+        ],
+        "region": {
+          "headerRow": 0,
+          "unitRow": null,
+          "dataStartRow": 1
+        },
+        "columns": [
+          {
+            "columnId": "group",
+            "index": 0,
+            "name": "Group",
+            "settings": {
+              "type": "category",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "value",
+            "index": 1,
+            "name": "Value",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          }
+        ],
+        "importDiagnostics": []
+      }
+    ],
+    "activeTableId": "manual-data",
+    "slotBindings": {
+      "series-1-values": {
+        "tableId": "manual-data",
+        "columnId": "value"
+      }
+    }
+  }
+}

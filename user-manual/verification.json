@@ -1,0 +1,278 @@
+{
+  "chapters": 10,
+  "sections": 65,
+  "features": 231,
+  "screenshots": 18,
+  "chartImages": 22,
+  "projects": 22,
+  "examples": 8,
+  "missingLinks": [],
+  "htmlBytes": 254365,
+  "sourceFiles": 134,
+  "preservedContentImages": 39,
+  "headingLevels": "ok",
+  "uniqueAnchors": true,
+  "chartRoundTrips": [
+    {
+      "id": "line",
+      "title": "折线图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "scatter",
+      "title": "散点图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "line-symbol",
+      "title": "线加符号图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "bar",
+      "title": "分组柱形图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "bar-horizontal",
+      "title": "水平条形图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "stacked-bar",
+      "title": "堆叠柱形图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "percent-bar",
+      "title": "百分比堆叠柱形图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "histogram",
+      "title": "直方图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "box",
+      "title": "箱线图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "area",
+      "title": "面积图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "heatmap",
+      "title": "XYZ 热力图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "contour",
+      "title": "等值线图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "contour-filled",
+      "title": "填色等值线图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "irregular-heatmap",
+      "title": "不规则 XYZ 三角网热图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "irregular-contour",
+      "title": "不规则 XYZ 线条等值线",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "irregular-filled",
+      "title": "不规则 XYZ 填色等值线",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "double-y",
+      "title": "双纵轴图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    },
+    {
+      "id": "triple-y",
+      "title": "三纵轴图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 3,
+      "plots": 3
+    },
+    {
+      "id": "quad-y",
+      "title": "四纵轴图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 4,
+      "plots": 4
+    },
+    {
+      "id": "stacked-shared-x",
+      "title": "上下共享横轴图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 2,
+      "plots": 2
+    },
+    {
+      "id": "matrix",
+      "title": "矩阵热图",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 1
+    },
+    {
+      "id": "batch-start",
+      "title": "批量绘图练习起点",
+      "render": "ok",
+      "reopen": "ok",
+      "svgEqual": true,
+      "panels": 1,
+      "plots": 2
+    }
+  ],
+  "batchManifest": {
+    "kind": "plot-fig-batch-manifest",
+    "version": "1.0.0",
+    "createdAt": "2026-10-08T08:04:13.839Z",
+    "formats": [
+      "svg",
+      "png"
+    ],
+    "dpi": 300,
+    "records": [
+      {
+        "id": "manual-data",
+        "name": "01-xy.csv",
+        "status": "success",
+        "files": [
+          "001-01-xy.svg",
+          "001-01-xy.png",
+          "001-01-xy.plotfig.json"
+        ],
+        "messages": []
+      },
+      {
+        "id": "repeat",
+        "name": "06-xy-repeat.csv",
+        "status": "success",
+        "files": [
+          "002-06-xy-repeat.svg",
+          "002-06-xy-repeat.png",
+          "002-06-xy-repeat.plotfig.json"
+        ],
+        "messages": []
+      },
+      {
+        "id": "mapping",
+        "name": "07-multi-axis.csv",
+        "status": "success",
+        "files": [
+          "003-07-multi-axis.svg",
+          "003-07-multi-axis.png",
+          "003-07-multi-axis.plotfig.json"
+        ],
+        "messages": []
+      }
+    ]
+  },
+  "batchArchiveIntegrity": "ok",
+  "batchProjectReopen": [
+    {
+      "file": "001-01-xy.plotfig.json",
+      "reopen": "ok",
+      "render": "ok"
+    },
+    {
+      "file": "002-06-xy-repeat.plotfig.json",
+      "reopen": "ok",
+      "render": "ok"
+    },
+    {
+      "file": "003-07-multi-axis.plotfig.json",
+      "reopen": "ok",
+      "render": "ok"
+    }
+  ]
+}
