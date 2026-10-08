@@ -10,6 +10,32 @@ export function renderChartDataLabels(
   data: DataBindingSet,
   context: ChartContext,
 ): ReturnType<typeof renderDataLabels> {
+  if (item.layerStackBarsManaged) {
+    const members = new Map(
+      (item.layerStackBarMarks ?? []).map(({ item: source }) => [
+        source.plot.plotSlotId,
+        source,
+      ]),
+    );
+    const result: ReturnType<typeof renderDataLabels> = {
+      svg: '',
+      diagnostics: [],
+      placed: 0,
+      hidden: 0,
+    };
+    for (const source of members.values()) {
+      const labels = renderChartDataLabels(
+        { ...item, ...source, layerStackBarsManaged: false },
+        data,
+        context,
+      );
+      result.svg += labels.svg;
+      result.diagnostics.push(...labels.diagnostics);
+      result.placed += labels.placed;
+      result.hidden += labels.hidden;
+    }
+    return result;
+  }
   const plot = item.plot;
   if (
     (plot.kind !== 'bar' && plot.kind !== 'area') ||
@@ -27,10 +53,18 @@ export function renderChartDataLabels(
           scale.categories?.findIndex((c) => c.key === bar.category) ?? -1;
       if (categoryIndex < 0) throw new Error('标签类别没有对应坐标位置');
       const overlap = plot.overlap ?? 0,
-        unit =
-          plot.width /
-          Math.max(1, item.bandCount - overlap * (item.bandCount - 1)),
-        center = categoryIndex - plot.width / 2 + unit * (item.bandIndex + 0.5);
+        bandCount = bar.bandCount ?? item.bandCount,
+        bandIndex = bar.bandIndex ?? item.bandIndex,
+        unit = plot.width / Math.max(1, bandCount - overlap * (bandCount - 1)),
+        center =
+          categoryIndex -
+          plot.width / 2 +
+          unit * (bandIndex + 0.5) +
+          (bar.bandSlice
+            ? unit *
+              (1 - plot.gap) *
+              ((bar.bandSlice.index + 0.5) / bar.bandSlice.count - 0.5)
+            : 0);
       return plot.orientation === 'horizontal'
         ? point(context, value, center)
         : point(context, center, value);
@@ -78,7 +112,11 @@ export function renderChartDataLabels(
       mapY =
         transform?.mapY ??
         ((value: number) => value + (geometry?.offset?.y ?? 0));
-    rows.push({ ...raw, x: raw.x + xOffset, y: mapY(raw.y) });
+    rows.push({
+      ...raw,
+      x: transform?.mapX ? transform.mapX(raw.x) : raw.x + xOffset,
+      y: mapY(raw.y),
+    });
     if (
       plot.dataLabels.anchor === 'baseline' &&
       plot.dataLabels.baseline === undefined

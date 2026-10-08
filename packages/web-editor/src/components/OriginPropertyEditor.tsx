@@ -38,9 +38,15 @@ import { ensurePlotAxis } from '../state/axis-operations.js';
 import { PropertyObjectNavigation } from './PropertyObjectNavigation.js';
 import { F4PlotFields } from './F4PlotFields.js';
 import { F4CurveLayerFields } from './F4CurveLayerFields.js';
+import { OriginCurveGroupFields } from './OriginCurveGroupFields.js';
+import {
+  applyLayerCurveOffsets,
+  readLayerCurveOffsets,
+} from '../state/layer-stack.js';
 import { AdvancedDropLineFields } from './AdvancedDropLineFields.js';
 import { DropLineFields } from './XyLineExtrasFields.js';
 import { PropertyCheck } from './PropertyInputs.js';
+import { sampleLineColor } from '../palettes/origin-line-colors.js';
 import './origin-property-editor.css';
 
 const tabs: Record<PropertyObjectRef['kind'], OriginTab[]> = {
@@ -53,12 +59,14 @@ const tabs: Record<PropertyObjectRef['kind'], OriginTab[]> = {
     { key: 'annotations', label: '注释' },
   ],
   panel: [
+    { key: 'groups', label: '组' },
     { key: 'background', label: '背景' },
     { key: 'size', label: '大小' },
     { key: 'display', label: '显示/速度' },
     { key: 'stack', label: '堆叠' },
   ],
   plot: [
+    { key: 'groups', label: '组' },
     { key: 'display', label: '显示' },
     { key: 'line', label: '线条' },
     { key: 'symbol', label: '符号' },
@@ -144,12 +152,18 @@ export function OriginPropertyEditor(props: Props) {
     reference: 'selection',
   });
   const plot = value.kind === 'plot' ? value.settings.plot : undefined;
-  const layerDraft = selectedPanel ? { ...selectedPanel } : undefined;
+  const layerDraft = selectedPanel
+    ? value.kind === 'panel' && value.curveOffsets
+      ? applyLayerCurveOffsets(selectedPanel, value.curveOffsets)
+      : { ...selectedPanel }
+    : undefined;
   if (layerDraft && value.kind === 'panel') {
     if (value.groups) layerDraft.groups = value.groups;
     else delete layerDraft.groups;
     if (value.stack) layerDraft.stack = value.stack;
     else delete layerDraft.stack;
+    if (value.layerStack) layerDraft.layerStack = value.layerStack;
+    else delete layerDraft.layerStack;
   }
   const chartTabs: Partial<
     Record<NonNullable<typeof plot>['kind'], OriginTab[]>
@@ -176,6 +190,7 @@ export function OriginPropertyEditor(props: Props) {
       { key: 'legend', label: '图例' },
     ],
     area: [
+      { key: 'groups', label: '组' },
       { key: 'area', label: '面积图' },
       { key: 'line', label: '线条' },
       { key: 'data-labels', label: '数据标签' },
@@ -265,13 +280,11 @@ export function OriginPropertyEditor(props: Props) {
     : value.kind === 'panel'
       ? tab === 'display'
         ? ['general', 'display']
-        : tab === 'stack'
-          ? ['stack', 'groups']
-          : [tab]
+        : [tab]
       : plot?.kind === 'xy'
         ? ({
             display: ['display', 'data', 'legend'],
-            line: ['line', 'line-mapping', 'palette', 'offset'],
+            line: ['line', 'line-mapping', 'offset'],
             symbol: ['symbol', 'symbol-details', 'mapping', 'points'],
             'data-labels': ['data-labels', 'errors'],
             pattern: ['pattern'],
@@ -279,6 +292,25 @@ export function OriginPropertyEditor(props: Props) {
         : [tab];
   const renderFeature = (tab: string) => (
     <>
+      {tab === 'groups' && selectedPanel && layerDraft && (
+        <OriginCurveGroupFields
+          key={selectedPanel.panelId}
+          panel={layerDraft}
+          workspace={props.model?.workspace}
+          theme={props.template.theme}
+          selectedPlotId={
+            selected.kind === 'plot' ? selected.plotSlotId : undefined
+          }
+          disabled={!props.onGeometryChange || props.errors.length > 0}
+          onChange={(panel) => {
+            const template = structuredClone(props.template);
+            template.panels[
+              template.panels.findIndex((p) => p.panelId === panel.panelId)
+            ] = panel;
+            props.onGeometryChange?.(template);
+          }}
+        />
+      )}
       {props.section && value.kind === 'axis' && selected.kind === 'axis' && (
         <OriginAxisFields
           template={props.template}
@@ -312,34 +344,25 @@ export function OriginPropertyEditor(props: Props) {
         ['general', 'display', 'background'].includes(tab) && (
           <LayerAppearanceFields value={value} onChange={onChange} tab={tab} />
         )}
-      {value.kind === 'panel' &&
-        selectedPanel &&
-        (tab === 'groups' || tab === 'stack') && (
-          <F4CurveLayerFields
-            panel={layerDraft!}
-            tab={tab}
-            invalid={props.errors.length > 0}
-            onChange={(next) => {
-              if (
-                next.plotSlots !== selectedPanel.plotSlots &&
-                props.onGeometryChange
-              ) {
-                const template = structuredClone(props.template);
-                template.panels[
-                  template.panels.findIndex((p) => p.panelId === next.panelId)
-                ] = next;
-                props.onGeometryChange(template);
-              } else {
-                const updated = { ...value };
-                if (next.groups) updated.groups = next.groups;
-                else delete updated.groups;
-                if (next.stack) updated.stack = next.stack;
-                else delete updated.stack;
-                onChange(updated);
-              }
-            }}
-          />
-        )}
+      {value.kind === 'panel' && selectedPanel && tab === 'stack' && (
+        <F4CurveLayerFields
+          panel={layerDraft!}
+          data={props.data}
+          tab={tab}
+          invalid={props.errors.length > 0}
+          onChange={(next) => {
+            const updated = {
+              ...value,
+              curveOffsets: readLayerCurveOffsets(next),
+            };
+            if (next.stack) updated.stack = next.stack;
+            else delete updated.stack;
+            if (next.layerStack) updated.layerStack = next.layerStack;
+            else delete updated.layerStack;
+            onChange(updated);
+          }}
+        />
+      )}
       {value.kind === 'panel' && (tab === 'size' || tab === 'frame') && (
         <LayerFields
           value={value}
@@ -436,6 +459,7 @@ export function OriginPropertyEditor(props: Props) {
       )}
       {value.kind === 'plot' &&
         ![
+          'groups',
           'membership',
           'pattern',
           'offset',
@@ -452,6 +476,81 @@ export function OriginPropertyEditor(props: Props) {
         ].includes(tab) && (
           <CurveFields
             value={value.settings}
+            onOpenGroup={
+              !props.section
+                ? () =>
+                    setSelection((before) => ({
+                      ...before,
+                      [selectedKey]: 'groups',
+                    }))
+                : undefined
+            }
+            onCurveColors={
+              selected.kind === 'plot' &&
+              props.onGeometryChange &&
+              props.errors.length === 0
+                ? (colors, continuous) => {
+                    const next = structuredClone(props.template);
+                    const panel = next.panels.find(
+                      (item) => item.panelId === selected.panelId,
+                    );
+                    if (!panel || !colors.length) return;
+                    const curves = panel.plotSlots.filter(
+                      (curve) => curve.kind === 'xy',
+                    );
+                    const positions = new Map(
+                      curves.map((curve, index) => [
+                        curve.plotSlotId,
+                        curves.length === 1 ? 0.5 : index / (curves.length - 1),
+                      ]),
+                    );
+                    for (const [index, curve] of curves.entries()) {
+                      curve.lineStyle = {
+                        visible: true,
+                        widthPt: next.theme.line.widthPt,
+                        dash: 'solid',
+                        ...curve.lineStyle,
+                        color: continuous
+                          ? sampleLineColor(
+                              colors,
+                              positions.get(curve.plotSlotId)!,
+                            )
+                          : colors[index % colors.length]!,
+                      };
+                      delete curve.lineMapping;
+                    }
+                    for (const group of panel.groups ?? []) {
+                      if (continuous) {
+                        const members = new Set(group.members);
+                        const descendants = [group.groupId];
+                        for (let i = 0; i < descendants.length; i++) {
+                          for (const child of panel.groups ?? []) {
+                            if (child.parentId !== descendants[i]) continue;
+                            descendants.push(child.groupId);
+                            child.members.forEach((id) => members.add(id));
+                          }
+                        }
+                        group.colorMapping = {
+                          source: 'values',
+                          colors: [...colors],
+                          domain: { min: 0, max: 1 },
+                          values: [...positions]
+                            .filter(([id]) => members.has(id))
+                            .map(([plotSlotId, value]) => ({
+                              plotSlotId,
+                              value,
+                            })),
+                        };
+                      } else {
+                        group.colors = [...colors];
+                        group.colorIncrement = 'cycle';
+                        delete group.colorMapping;
+                      }
+                    }
+                    props.onGeometryChange!(next);
+                  }
+                : undefined
+            }
             data={props.data}
             onChange={(settings) => onChange({ kind: 'plot', settings })}
             tab={tab}

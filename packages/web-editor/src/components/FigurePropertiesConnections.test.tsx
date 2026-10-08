@@ -9,7 +9,7 @@ import {
   within,
 } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
-import type { FigureTemplate } from '@plot-fig/figure-schema';
+import type { FigureTemplate, XyPlot } from '@plot-fig/figure-schema';
 import {
   chartData,
   chartTemplate,
@@ -17,17 +17,18 @@ import {
 import { FigurePropertiesDialog } from './FigurePropertiesDialog.js';
 
 afterEach(cleanup);
-function show(x = [0, 1, 3]) {
+function show(lineConnection?: XyPlot['lineConnection']) {
   const template = chartTemplate('xy');
   const plot = template.panels[0]!.plotSlots[0]!;
   plot.legendEntry.text = '连接测试';
   Object.assign(plot, { mode: 'line-markers' });
+  if (lineConnection) Object.assign(plot, { lineConnection });
   const apply = vi.fn<(template: FigureTemplate) => void>(),
     dismiss = vi.fn();
   const { container } = render(
     <FigurePropertiesDialog
       template={template}
-      data={chartData({ x, y: [0, 2, 0] })}
+      data={chartData({ x: [0, 1, 3], y: [0, 2, 0] })}
       onApply={apply}
       onDismiss={dismiss}
     />,
@@ -39,20 +40,36 @@ function show(x = [0, 1, 3]) {
     ),
   );
   openPropertyFeature('线条');
+  fireEvent.click(screen.getByRole('button', { name: '展开预览' }));
   return { template, apply, dismiss, container };
 }
-const change = (value: string) =>
-  fireEvent.change(screen.getByLabelText('连接方式'), { target: { value } });
+const changeWidth = () =>
+  fireEvent.change(screen.getByLabelText('线宽 (pt)'), {
+    target: { value: '2' },
+  });
+it('uses straight lines by default without a connection selector', () => {
+  const { apply, container } = show();
+  expect(screen.queryByLabelText('连接方式')).not.toBeInTheDocument();
+  const path = container
+    .querySelector('[data-role="plot-slot"] path')
+    ?.getAttribute('d');
+  expect(path).toMatch(/L/);
+  expect(path).not.toMatch(/[CHV]/);
+  changeWidth();
+  fireEvent.click(screen.getByRole('button', { name: '应用' }));
+  const plot = apply.mock.lastCall?.[0].panels[0]!.plotSlots[0] as XyPlot;
+  expect(plot.lineConnection ?? 'straight').toBe('straight');
+});
 it.each([
   ['step-h', /H.*V/],
   ['step-v', /V.*H/],
   ['spline', /C/],
 ] as const)(
-  'previews and applies %s from the real property dialog',
+  'preserves existing %s connections when editing line appearance',
   (mode, command) => {
-    const { apply, container } = show();
-    expect(screen.getByLabelText('连接方式')).toHaveValue('straight');
-    change(mode);
+    const { apply, container } = show(mode);
+    expect(screen.queryByLabelText('连接方式')).not.toBeInTheDocument();
+    changeWidth();
     expect(
       container
         .querySelector('[data-role="plot-slot"] path')
@@ -64,22 +81,9 @@ it.each([
     });
   },
 );
-it('keeps an invalid spline draft visible, blocks apply and allows correction', () => {
-  const { apply } = show([2, 1, 1]);
-  change('spline');
-  expect(screen.getByLabelText('连接方式')).toHaveValue('spline');
-  expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
-  expect(screen.getAllByText(/严格递增/).length).toBeGreaterThan(0);
-  change('step-h');
-  expect(screen.getByRole('button', { name: '应用' })).toBeEnabled();
-  fireEvent.click(screen.getByRole('button', { name: '应用' }));
-  expect(apply.mock.lastCall?.[0].panels[0]!.plotSlots[0]).toMatchObject({
-    lineConnection: 'step-h',
-  });
-});
-it('cancels a changed connection without modifying the caller template', () => {
+it('cancels line appearance edits without changing the default connection', () => {
   const { apply, dismiss, template } = show();
-  change('spline');
+  changeWidth();
   fireEvent.click(screen.getByRole('button', { name: '取消' }));
   expect(apply).not.toHaveBeenCalled();
   expect(dismiss).toHaveBeenCalledOnce();

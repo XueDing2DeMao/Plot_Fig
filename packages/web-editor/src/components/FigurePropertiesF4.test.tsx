@@ -214,13 +214,15 @@ it('图层组与堆叠可编辑且解除依赖保留当前外观', () => {
   fireEvent.change(screen.getByLabelText(/组 1\s*颜色 2/), {
     target: { value: '#aa22bb' },
   });
-  fireEvent.click(screen.getByLabelText('组 1 依赖自动样式'));
+  fireEvent.click(screen.getByRole('radio', { name: '独立' }));
   openPropertyFeature('堆叠');
-  fireEvent.click(screen.getByLabelText('启用曲线堆叠'));
+  fireEvent.click(screen.getByRole('radio', { name: '累积' }));
   fireEvent.click(screen.getByRole('button', { name: '应用' }));
   expect(apply).toHaveBeenCalledOnce();
   const p = apply.mock.calls[0]![0].template.panels[0]!;
   expect(p.groups?.[0]?.mode).toBe('independent');
   expect((p.plotSlots[1] as XyPlot).lineStyle?.color).toBe('#aa22bb');
-  expect(p.stack?.members).toEqual(['series-1', 'series-2']);
+  expect(p.layerStack?.members).toEqual(['series-1', 'series-2']);
+  expect(p.layerStack?.mode).toBe('cumulative');
+  expect(p.stack).toBeUndefined();
 });

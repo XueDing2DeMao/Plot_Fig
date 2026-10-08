@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   bindWorkspace,
@@ -38,7 +39,7 @@ it('saves and reopens the persistent constraint, full data and annotation coordi
   );
   expect(loaded).toEqual({ ok: true, ...model });
   if (!loaded.ok) throw Error('load failed');
-  expect(loaded.template.schemaVersion).toBe('1.22.0');
+  expect(loaded.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   const data = bindWorkspace(loaded.template, loaded.workspace);
   expect(renderFigureSvg(loaded.template, data)).toEqual(
     renderFigureSvg(model.template, data),

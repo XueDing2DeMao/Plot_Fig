@@ -1,4 +1,5 @@
 import { synchronizeLegendSources } from './legend-bindings.js';
+import { batchYColumns, type BatchYSelection } from './batch-y-columns.js';
 import { changeChartType } from './chart-operations.js';
 import type { ChartChoice } from './chart-defaults.js';
 import {
@@ -123,6 +124,8 @@ export function tableActions(model: WorkspaceEditor, update: Update) {
 }
 export function figureActions(update: Update) {
   return {
+    onBatchY: (selection: BatchYSelection) =>
+      update((current) => batchYColumns(current, selection)),
     onInlineText: (target: InlineChartTextTarget, value: string) =>
       update((current) => updateInlineChartText(current, target, value)),
     onAddChart: (choice?: ChartChoice) =>

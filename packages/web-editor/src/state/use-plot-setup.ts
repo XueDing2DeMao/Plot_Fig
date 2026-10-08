@@ -12,6 +12,10 @@ import {
   type PlotSetupChoice,
 } from './multi-axis-presets.js';
 import { tableActions, figureActions } from './workspace-actions.js';
+import {
+  matrixHeatmap,
+  type MatrixHeatmapSelection,
+} from './matrix-heatmap.js';
 import type { WorkspaceEditor } from './workspace-editor.js';
 import type { PlotLineChoice, PlotMarkerChoice } from './editor-state.js';
 import { isolateLayer, hasLayerAxisLinks } from './layer-batch.js';
@@ -117,7 +121,7 @@ function normalizeXyAppearance(model: WorkspaceEditor): WorkspaceEditor {
       ),
     );
   if (!needsRepair) return model;
-  const repaired = structuredClone(model);
+  const repaired = { ...model, template: structuredClone(model.template) };
   for (const panel of repaired.template.panels.filter(inScope))
     for (const plot of panel.plotSlots)
       if (plot.kind === 'xy') {
@@ -277,6 +281,32 @@ export function usePlotSetup(
     ...draft,
     ...tableActions(draft, update),
     ...figureActions(update),
+    onMatrixHeatmap: (request: MatrixHeatmapSelection) => {
+      try {
+        if (pending.error) throw new Error(pending.error);
+        const next = matrixHeatmap(draft, request);
+        const nextView = isolateLayer(next, next.activePanelId!);
+        const nextData = bindWorkspace(nextView.template, nextView.workspace);
+        const invalid = nextData.diagnostics.filter(
+          (item) => item.severity === 'error',
+        );
+        if (invalid.length)
+          throw new Error(invalid.map((item) => item.message).join('；'));
+        const preview = renderFigureSvg(nextView.template, nextData);
+        if (!preview.ok)
+          throw new Error(
+            preview.diagnostics.map((item) => item.message).join('；'),
+          );
+        if (onApply(next) === false)
+          throw new Error('未能生成热图，原图和待绘图设置已保留。');
+        setState({ version: openedVersion, changes: [], base: next });
+        setError('');
+        return true;
+      } catch (cause) {
+        setError(message(cause));
+        return false;
+      }
+    },
     onLayerFormat: (
       snapshot: LayerFormatSnapshot,
       panelId: string,
@@ -375,7 +405,10 @@ export function usePlotSetup(
       ),
     onLineDash: (next: PlotLineChoice) =>
       update((current) => {
-        const updated = structuredClone(current);
+        const updated = {
+          ...current,
+          template: structuredClone(current.template),
+        };
         for (const panel of updated.template.panels)
           if (
             multiAxisPreset(current.template) ||
@@ -402,7 +435,10 @@ export function usePlotSetup(
       }),
     onMarkerShape: (next: PlotMarkerChoice) =>
       update((current) => {
-        const updated = structuredClone(current);
+        const updated = {
+          ...current,
+          template: structuredClone(current.template),
+        };
         for (const panel of updated.template.panels)
           if (
             multiAxisPreset(current.template) ||

@@ -1,0 +1,66 @@
+.batch-y-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+.batch-y-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.batch-y-field select,
+.batch-y-field input {
+  width: 100%;
+  min-width: 0;
+}
+.batch-y-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.batch-y-actions button {
+  min-height: var(--ui-control-height);
+}
+.batch-y-submit {
+  justify-content: flex-end;
+}
+.batch-y-columns {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 8px;
+  min-width: 0;
+  max-height: min(38vh, 360px);
+  overflow-y: auto;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+}
+.batch-y-body .batch-y-column {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 6px;
+  cursor: pointer;
+}
+.batch-y-body .batch-y-column input {
+  width: auto;
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+.batch-y-body .batch-y-column span {
+  overflow-wrap: anywhere;
+}
+.batch-y-column:focus-within {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
+.binding-batch-entry {
+  padding: 0 14px 12px;
+}
+.binding-batch-entry button {
+  width: 100%;
+}
+.binding-batch-entry p {
+  margin: 6px 0 0;
+}

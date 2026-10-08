@@ -133,7 +133,10 @@ function offsetIndex(
       const member = byId.get(id);
       return member ? [member] : [];
     });
-    return { index: members.indexOf(item), members };
+    return {
+      index: members.indexOf(item),
+      units: members.map((member) => [member]),
+    };
   }
   if (scope === 'between-groups') {
     const key = (p: PreparedPlot) => {
@@ -144,12 +147,50 @@ function offsetIndex(
         owner = panel.groups?.find((g) => g.groupId === owner!.parentId);
       return owner ? 'group:' + owner.groupId : 'plot:' + p.plot.plotSlotId;
     };
+    const groups = new Map<string, PreparedPlot[]>();
+    for (const member of eligible) {
+      const id = key(member);
+      const members = groups.get(id) ?? [];
+      members.push(member);
+      groups.set(id, members);
+    }
     return {
-      index: [...new Set(eligible.map(key))].indexOf(key(item)),
-      members: eligible,
+      index: [...groups.keys()].indexOf(key(item)),
+      units: [...groups.values()],
     };
   }
-  return { index: eligible.indexOf(item), members: eligible };
+  return {
+    index: eligible.indexOf(item),
+    units: eligible.map((member) => [member]),
+  };
+}
+type OffsetRangeCache = Map<
+  PreparedPlot,
+  Partial<Record<'x' | 'y', { min: number; max: number }>>
+>;
+function offsetSpan(
+  members: PreparedPlot[],
+  dimension: 'x' | 'y',
+  ranges: OffsetRangeCache,
+) {
+  let min = Infinity,
+    max = -Infinity;
+  for (const member of members) {
+    const cached = ranges.get(member) ?? {};
+    let range = cached[dimension];
+    if (!range) {
+      range = { min: Infinity, max: -Infinity };
+      for (const value of dimension === 'x' ? member.xValues : member.yValues) {
+        range.min = Math.min(range.min, value);
+        range.max = Math.max(range.max, value);
+      }
+      cached[dimension] = range;
+      ranges.set(member, cached);
+    }
+    min = Math.min(min, range.min);
+    max = Math.max(max, range.max);
+  }
+  return min <= max ? finite(max - min, '自动偏移跨度') : 0;
 }
 function offsetFor(
   setting: CurveOffset | undefined,
@@ -159,9 +200,10 @@ function offsetFor(
   item: PreparedPlot,
   data: DataBindingSet,
   metadata: CurveMetadata,
+  ranges: OffsetRangeCache,
 ) {
   if (!setting) return 0;
-  const { index, members } = offsetIndex(panel, items, item, setting.scope);
+  const { index, units } = offsetIndex(panel, items, item, setting.scope);
   if (setting.mode === 'constant') return setting.value;
   if (setting.mode === 'increment')
     return finite(index * setting.value, '逐曲线偏移');
@@ -172,17 +214,19 @@ function offsetFor(
     return v;
   }
   if (setting.mode === 'auto') {
-    let span = 0;
-    for (const member of members) {
-      let min = Infinity,
-        max = -Infinity;
-      for (const v of dimension === 'x' ? member.xValues : member.yValues) {
-        min = Math.min(min, v);
-        max = Math.max(max, v);
-      }
-      if (min <= max) span = Math.max(span, max - min);
+    if (index <= 0) return 0;
+    let offset = 0,
+      previous = offsetSpan(units[0]!, dimension, ranges);
+    for (let i = 1; i <= index; i++) {
+      const current = offsetSpan(units[i]!, dimension, ranges);
+      // Origin 自动间距按相邻跨度递推；组间偏移使用各组的整体包络。
+      offset = finite(
+        offset + previous + Math.max(previous, current) * setting.gap,
+        '自动偏移',
+      );
+      previous = current;
     }
-    return finite(index * (span || 1) * (1 + setting.gap), '自动偏移');
+    return offset;
   }
   const p = item.plot;
   if (p.kind !== 'xy' && p.kind !== 'area')
@@ -216,14 +260,16 @@ export function materializeCurveOffsets(
   if (!plot) throw new Error('找不到需要物化偏移的曲线');
   const settings = plot.transform;
   const dynamic = (o: CurveOffset | undefined) =>
-    o && ['increment', 'auto', 'list'].includes(o.mode);
+    o && ['increment', 'auto', 'list', 'metadata'].includes(o.mode);
   if (!settings || (!dynamic(settings.offsetX) && !dynamic(settings.offsetY)))
     return structuredClone(settings);
   if (
     !data &&
-    [settings.offsetX, settings.offsetY].some((o) => o?.mode === 'auto')
+    [settings.offsetX, settings.offsetY].some(
+      (o) => o?.mode === 'auto' || o?.mode === 'metadata',
+    )
   )
-    throw new Error('复制或移动自动偏移曲线需要已绑定的原始数据');
+    throw new Error('转换自动或元数据偏移曲线需要已绑定的原始数据');
   const input = panel.plotSlots
     .filter((p) => supported(p) && p.visible !== false)
     .map((p) =>
@@ -253,6 +299,7 @@ export function materializeCurveOffsets(
     diagnostics: [],
   };
   const next = structuredClone(settings);
+  const ranges: OffsetRangeCache = new Map();
   for (const [key, dim] of [
     ['offsetX', 'x'],
     ['offsetY', 'y'],
@@ -268,6 +315,7 @@ export function materializeCurveOffsets(
           item,
           data ?? empty,
           {},
+          ranges,
         ),
       };
   return next;
@@ -291,7 +339,7 @@ function mapSegments<T extends DataPoint>(
   }
   return result;
 }
-function mapPrepared(
+export function mapPrepared(
   item: PreparedPlot,
   map: <T extends DataPoint>(row: T) => T | undefined,
 ): PreparedPlot {
@@ -416,8 +464,10 @@ export function prepareCurveTransforms(
   input: PreparedPlot[],
   data: DataBindingSet,
   metadata: CurveMetadata = {},
+  stackOverrides?: PanelStack[],
 ) {
   validateCurveTransforms(panel);
+  const stacks = stackOverrides ?? (panel.stack ? [panel.stack] : []);
   const fills: CurveFillGeometry[] = [],
     totals: CurveTotalLabel[] = [],
     offsets = new Map<string, { x: number; y: number }>(),
@@ -442,7 +492,7 @@ export function prepareCurveTransforms(
   );
   const errorTransforms = new Map<string, CurveErrorTransform>();
   if (
-    !panel.stack &&
+    !stacks.length &&
     !input.some((item) => (item.plot as TransformPlot).transform)
   )
     return {
@@ -454,6 +504,7 @@ export function prepareCurveTransforms(
       sourceRows,
       errorTransforms,
     };
+  const ranges: OffsetRangeCache = new Map();
   let prepared = input.map((source) => {
     const item = {
       ...source,
@@ -470,6 +521,7 @@ export function prepareCurveTransforms(
         source,
         data,
         metadata,
+        ranges,
       ),
       y = offsetFor(
         settings.offsetY,
@@ -479,6 +531,7 @@ export function prepareCurveTransforms(
         source,
         data,
         metadata,
+        ranges,
       );
     offsets.set(item.plot.plotSlotId, { x, y });
     errorTransforms.set(item.plot.plotSlotId, () => ({
@@ -516,8 +569,9 @@ export function prepareCurveTransforms(
       segments: subset.segments(item.segments as SeriesRow[][]),
     };
   });
-  const stack = panel.stack;
-  if (stack) {
+  let stackGeometryCount = 0;
+  let interpolationWork = 0;
+  for (const stack of stacks) {
     const members = stack.members.flatMap((id) => {
       const item = prepared.find(
         (p) => p.plot.plotSlotId === id && p.plot.visible !== false,
@@ -525,12 +579,6 @@ export function prepareCurveTransforms(
       return item ? [item] : [];
     });
     if (members.length) {
-      if (
-        members.reduce((sum, m) => sum + m.segments.flat().length, 0) *
-          members.length >
-        5000000
-      )
-        throw new Error('堆叠插值运算超过五百万次上限，请减少曲线或数据点');
       const interpolators = members.map((m) =>
         createCurveInterpolator(m.segments),
       );
@@ -546,6 +594,10 @@ export function prepareCurveTransforms(
       const samples = new Map<number, Sample | undefined>();
       const sampleAt = (x: number): Sample | undefined => {
         if (samples.has(x)) return samples.get(x);
+        // 同一 X 的堆叠结果会被所有曲线和数据视图复用，只计首次采样。
+        interpolationWork += interpolators.length;
+        if (interpolationWork > 5_000_000)
+          throw new Error('堆叠插值运算超过五百万次上限，请减少曲线或数据点');
         const interpolated = interpolators.map((f) => f(x));
         if (interpolated.some((v) => v === undefined)) {
           samples.set(x, undefined);
@@ -610,7 +662,8 @@ export function prepareCurveTransforms(
             }
           }
       const commonKnots = [...knotSet].sort((a, b) => a - b);
-      if (commonKnots.length * members.length > CURVE_GEOMETRY_LIMIT)
+      stackGeometryCount += commonKnots.length * members.length;
+      if (stackGeometryCount > CURVE_GEOMETRY_LIMIT)
         throw new Error('堆叠共同网格超过二十万点上限，请减少数据点');
       const transformed = new Map<string, PreparedPlot>();
       for (const [index, item] of members.entries()) {

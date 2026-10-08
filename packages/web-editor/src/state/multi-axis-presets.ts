@@ -2,6 +2,7 @@ import type { Axis, FigureTemplate, Panel } from '@plot-fig/figure-schema';
 import { changeAllChartTypes } from './chart-operations.js';
 import { assertTemplate, newIdentifier } from './publication-utils.js';
 import type { WorkspaceEditor } from './workspace-editor.js';
+import { reserveMultiAxisFrame } from './multi-axis-frame.js';
 
 export const multiAxisChoices = {
   'double-y': '双纵轴图',
@@ -397,16 +398,17 @@ export function applyMultiAxisPreset(
         ? overlayY(source, [
             { position: 'left' },
             { position: 'right' },
-            { position: 'right', offsetPt: 36 },
+            { position: 'right', offsetPt: 60 },
           ])
         : preset === 'quad-y'
           ? overlayY(source, [
               { position: 'left' },
               { position: 'right' },
-              { position: 'left', offsetPt: 36 },
-              { position: 'right', offsetPt: 36 },
+              { position: 'left', offsetPt: 60 },
+              { position: 'right', offsetPt: 60 },
             ])
           : stackedSharedX(source);
+  if (preset !== 'stacked-shared-x') reserveMultiAxisFrame(next.template);
   setMarker(next.template, preset, sourceFrame);
   assertTemplate(next.template);
   return next;

@@ -82,15 +82,6 @@
   color: var(--ui-muted);
   font-size: var(--ui-font-caption);
 }
-.right-stack .plot-settings-card > .plot-confirm-actions {
-  margin: 0;
-  padding: 12px;
-  border-bottom: 1px solid var(--ui-border);
-}
-.marker-more {
-  width: 100%;
-  margin-top: 8px;
-}
 .property-field-error {
   display: block;
   color: var(--ui-danger);
@@ -440,13 +431,13 @@
 .preview-toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
-  padding: 10px 0;
-  margin-bottom: 14px;
-  border-top: 1px solid var(--ui-border);
-  border-bottom: 1px solid var(--ui-border);
+  align-items: flex-start;
+  gap: 8px 12px;
+  padding: 10px;
+  margin-bottom: 6px;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--ui-subtle);
 }
 .preview-toolbar-settings,
 .preview-toolbar-settings > [role='group'],
@@ -454,18 +445,85 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 8px 12px;
   min-width: 0;
+}
+.preview-toolbar-settings {
+  flex: 1 1 100%;
 }
 .preview-toolbar-settings .origin-menu-bar {
   gap: 8px;
 }
 .preview-toolbar button:not([role='menuitem']) {
-  min-height: 34px;
-  padding: 6px 10px;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 5px 8px;
+  border-radius: 6px;
   font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
 }
 .preview-toolbar-data {
-  gap: 8px;
+  gap: 8px 12px;
+}
+.preview-tool-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+.preview-group-label {
+  flex: 0 0 auto;
+  margin-right: 3px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 32px;
+}
+.preview-toolbar .preview-tool-glyph {
+  display: block;
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  line-height: 20px;
+}
+.preview-tool-figure > .property-trigger {
+  color: var(--ui-primary);
+  background: var(--ui-selected);
+  border-color: var(--ui-border-strong);
+}
+.preview-toolbar .layer-format-buttons {
+  gap: 4px;
+}
+.preview-toolbar .editor-history-status,
+.preview-toolbar .dataset-batch-pending {
+  flex-basis: 100%;
+  max-width: 280px;
+  overflow-wrap: anywhere;
+}
+.preview-interaction-help {
+  margin: 0 0 8px;
+  color: var(--ui-muted);
+  font-size: 11px;
+}
+.preview-interaction-help summary {
+  width: fit-content;
+  min-height: 28px;
+  line-height: 28px;
+  cursor: pointer;
+}
+.preview-interaction-help summary:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.preview-interaction-help p {
+  margin: 4px 0 8px;
+  line-height: 1.6;
+}
+.preview-card .preview-stage {
+  margin-top: 8px;
+}
+.annotation-drag-status:empty {
+  display: none;
 }

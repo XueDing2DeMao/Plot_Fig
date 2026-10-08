@@ -1,18 +1,20 @@
-import type { ExportFormat } from '../browser/export-service-client.js';
-import type { VectorOptions } from '../browser/export-service-client.js';
+import type { ExportFormat } from '../browser/figure-export.js';
 import { createSvgBlob } from '../browser/figure-export.js';
 import { createPublicationPng } from '../browser/publication-export.js';
-import { exportVector } from '../browser/export-service-client.js';
 export async function exportBatchBytes(
   svg: string,
   format: ExportFormat,
-  options: VectorOptions & { signal: AbortSignal },
+  options: { dpi: number; signal: AbortSignal },
 ) {
+  options.signal.throwIfAborted();
+  if (format !== 'svg' && format !== 'png')
+    throw new Error('仅支持 SVG 和 PNG 导出');
   const blob =
     format === 'svg'
       ? createSvgBlob(svg)
-      : format === 'png'
-        ? await createPublicationPng(svg, options.dpi)
-        : await exportVector(svg, format, options);
-  return new Uint8Array(await blob.arrayBuffer());
+      : await createPublicationPng(svg, options.dpi);
+  options.signal.throwIfAborted();
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  options.signal.throwIfAborted();
+  return bytes;
 }

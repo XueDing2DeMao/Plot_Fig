@@ -1,9 +1,10 @@
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { originNativeImportPlugin } from './server/origin-plugin.js';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), originNativeImportPlugin()],
   build: {
     rollupOptions: {
       output: {

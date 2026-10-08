@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { loadFigurePayload } from './load.js';
 import { chartTemplate } from '../../../tests/helpers/chart-fixtures.js';
@@ -9,7 +10,7 @@ it('migrates a 1.0.0 XY template without changing inputs or styles', () => {
   if (result.ok)
     expect(withoutLegacyAxisRangeFlags(result.value)).toEqual({
       ...old,
-      schemaVersion: '1.22.0',
+      schemaVersion: CURRENT_SCHEMA_VERSION,
     });
   expect(old.schemaVersion).toBe('1.0.0');
 });
@@ -37,8 +38,10 @@ it('migrates a document and its nested template together', () => {
   const result = loadFigurePayload(old);
   expect(result.ok).toBe(true);
   if (result.ok && result.value.kind === 'figure-document') {
-    expect(result.value.schemaVersion).toBe('1.22.0');
-    expect(result.value.templateSnapshot.schemaVersion).toBe('1.22.0');
+    expect(result.value.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.value.templateSnapshot.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION,
+    );
   }
 });
 it('rejects new charts pretending to be old data and mixed document versions', () => {

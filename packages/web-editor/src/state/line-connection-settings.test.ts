@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { emptyWorkspace } from '@plot-fig/data-binding';
 import {
@@ -93,7 +94,7 @@ it.each(['straight', 'step-h', 'step-v', 'spline'])(
     const serialized = serializeWorkspaceProject(next, emptyWorkspace());
     expect(JSON.parse(serialized)).toMatchObject({
       version: '2.0.0',
-      template: { schemaVersion: '1.22.0' },
+      template: { schemaVersion: CURRENT_SCHEMA_VERSION },
     });
     expect(parseWorkspaceProject(serialized)).toMatchObject({
       ok: true,

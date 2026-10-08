@@ -38,6 +38,98 @@ function fixture(values: number[][], xs?: number[][]) {
   };
 }
 describe('curve transforms', () => {
+  it.each(['normal', 'percent'] as const)(
+    'stacks one hundred curves on a shared X grid in %s mode without counting cached samples again',
+    (mode) => {
+      const f = fixture(
+        Array.from({ length: 100 }, (_, index) =>
+          Array.from({ length: 1000 }, () => index + 1),
+        ),
+      );
+      const result = prepareCurveTransforms(
+        {
+          ...f.panel,
+          stack: { mode, members: f.panel.plotSlots.map((p) => p.plotSlotId) },
+        },
+        f.prepared,
+        f.data,
+      );
+      const last = result.lines.get('p99')!;
+      expect(last).toHaveLength(1);
+      expect(last[0]).toHaveLength(1000);
+      expect(last[0]![0]).toMatchObject({
+        x: 0,
+        y: mode === 'normal' ? 5050 : 100,
+      });
+      expect(last[0]!.at(-1)?.y).toBeCloseTo(mode === 'normal' ? 5050 : 100);
+      expect(f.prepared[99]!.xyRows!.rawRows[0]!.y).toBe(100);
+    },
+  );
+  it('stacks many curves with two distinct X grids within the geometry limit', () => {
+    const f = fixture(
+      Array.from({ length: 100 }, () => Array(1000).fill(1)),
+      Array.from({ length: 100 }, (_, index) =>
+        Array.from({ length: 1000 }, (_, x) => x + (index % 2) / 2),
+      ),
+    );
+    const result = prepareCurveTransforms(
+      {
+        ...f.panel,
+        stack: {
+          mode: 'normal',
+          members: f.panel.plotSlots.map((p) => p.plotSlotId),
+        },
+      },
+      f.prepared,
+      f.data,
+    );
+    const last = result.lines.get('p99')!;
+    expect(last).toHaveLength(1);
+    expect(last[0]).toHaveLength(1998);
+    expect(last[0]![0]).toMatchObject({ x: 0.5, y: 100 });
+    expect(last[0]!.at(-1)).toMatchObject({ x: 999, y: 100 });
+  });
+  it('still rejects a common stack grid above the geometry limit', () => {
+    const f = fixture(
+      Array.from({ length: 100 }, () => Array(1001).fill(1)),
+      Array.from({ length: 100 }, (_, index) =>
+        Array.from({ length: 1001 }, (_, x) => x + (index % 2) / 2),
+      ),
+    );
+    expect(() =>
+      prepareCurveTransforms(
+        {
+          ...f.panel,
+          stack: {
+            mode: 'normal',
+            members: f.panel.plotSlots.map((p) => p.plotSlotId),
+          },
+        },
+        f.prepared,
+        f.data,
+      ),
+    ).toThrow(/堆叠共同网格.*二十万点上限/);
+  });
+  it('bounds real uncached stack interpolation even for rows outside the selected segments', () => {
+    const f = fixture(Array.from({ length: 100 }, () => [1, 1]));
+    f.prepared[0]!.xyRows!.rawRows = Array.from(
+      { length: 50_001 },
+      (_, sourceIndex) => ({ sourceIndex, x: sourceIndex + 10, y: 1 }),
+    );
+    expect(() =>
+      prepareCurveTransforms(
+        {
+          ...f.panel,
+          stack: {
+            mode: 'normal',
+            members: f.panel.plotSlots.map((p) => p.plotSlotId),
+          },
+        },
+        f.prepared,
+        f.data,
+      ),
+    ).toThrow(/堆叠插值.*五百万.*上限/);
+  });
   it('bounds fill interpolation work even when overlapping source intervals produce no polygons', () => {
     const f = fixture([
       [1, 1],

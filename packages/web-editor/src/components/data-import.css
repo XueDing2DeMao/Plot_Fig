@@ -73,3 +73,22 @@
 .import-entry-error {
   color: var(--ui-danger);
 }
+.sheet-selection {
+  max-height: 240px;
+  overflow-y: auto;
+}
+.import-sheet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+.import-sheet-row label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.import-sheet-row button {
+  max-width: 50%;
+  overflow-wrap: anywhere;
+}

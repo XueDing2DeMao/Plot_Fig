@@ -302,7 +302,11 @@ export function renderPlot(
         const transform = raw && geometry?.errorTransform?.(raw);
         return range && transform
           ? (range.map((v) =>
-              prefix === 'x' ? v + transform.xOffset : transform.mapY(v),
+              prefix === 'x'
+                ? transform.mapX
+                  ? transform.mapX(v)
+                  : v + transform.xOffset
+                : transform.mapY(v),
             ) as [number, number])
           : range;
       },

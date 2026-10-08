@@ -1,5 +1,7 @@
 # P4 出版编辑与导出验收
 
+> 历史记录。2026-09-28 已按用户要求移除 PDF/EPS 本机转换服务及调用模块；当前导出支持 SVG/PNG/ZIP。下文的四格式与转换器结果仅描述 2026-09-08 的版本。
+
 日期：2026-09-08。执行来源：[已认可设计](superpowers/specs/2026-09-08-p4-publication-design.md)与[执行计划](superpowers/plans/2026-09-08-p4-publication.md)。保留 P0–P3 的已有工作区改动，未执行 commit、push 或历史修改。
 
 ## 功能与入口
@@ -39,7 +41,7 @@
 
 ## 使用条件与界限
 
-PDF/EPS 需启动[本地转换服务](../packages/export-service/README.md)并填写当次令牌。服务只处理本机数据，不提供远程托管。
+当时的 PDF/EPS 需启动本地转换服务并填写当次令牌；该模块已于 2026-09-28 移除。
 
 LaTeX 标记以原文显示，编辑器提示使用 Unicode；堆叠柱不支持误差棒；Panel 上限 16，批次上限 50，输入合计 100 MiB、输出合计 200 MiB。PNG 最大 64 MP/16384px 边长，DPI 72–2400；PDF/EPS 文字排版受本机字体可用性影响。
 

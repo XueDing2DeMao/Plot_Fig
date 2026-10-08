@@ -6,6 +6,16 @@ export function originCanvasTarget(
   template: FigureTemplate,
   element: Element,
 ): PropertyObjectRef | null {
+  const annotationId = element
+    .closest('[data-annotation-id]')
+    ?.getAttribute('data-annotation-id');
+  // 图例条目仍按曲线编辑文字；其余注释的数值属性位于图页的“注释”页。
+  if (
+    annotationId &&
+    !element.closest('[data-plot-slot-id]') &&
+    template.annotations.some((note) => note.annotationId === annotationId)
+  )
+    return { kind: 'page' };
   const panelId = element
     .closest('[data-panel-id]')
     ?.getAttribute('data-panel-id');

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 // @vitest-environment jsdom
 import {
   openPropertyFeature,
@@ -577,7 +578,7 @@ it('retains applied ticks after cancel and project roundtrip while discarding la
     initial.panels[0]!.axes[0]!.extensions,
   );
   if (!reopened.ok) throw new Error('project should reopen');
-  expect(reopened.template.schemaVersion).toBe('1.22.0');
+  expect(reopened.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   cleanup();
   render(
     <AxisPropertiesDialog
@@ -637,7 +638,7 @@ it('round trips four different side configurations and reconstructs each side of
   expect(JSON.parse(text)).toMatchObject({
     kind: 'plot-fig-project',
     version: '2.0.0',
-    template: { schemaVersion: '1.22.0' },
+    template: { schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   const reopened = parseWorkspaceProject(text);
   expect(reopened).toEqual({ ok: true, template: applied, workspace });
@@ -692,7 +693,7 @@ it('preserves a legacy project minor count of 101 while editing major ticks, but
   );
   expect(reopened.ok).toBe(true);
   if (!reopened.ok) throw new Error('legacy project should reopen');
-  expect(reopened.template.schemaVersion).toBe('1.22.0');
+  expect(reopened.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   const onApply = vi.fn<(template: FigureTemplate) => void>();
   render(
     <AxisPropertiesDialog

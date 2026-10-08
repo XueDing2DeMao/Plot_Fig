@@ -1,0 +1,28 @@
+.color-map-preset {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.color-map-preset select {
+  width: 100%;
+  min-width: 0;
+}
+.color-map-preview {
+  height: 20px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+}
+.color-map-endpoints {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--ui-font-small);
+  color: var(--ui-muted);
+}
+.color-map-custom summary {
+  cursor: pointer;
+  padding-block: 6px;
+}
+.color-map-custom > .property-grid {
+  margin-bottom: 6px;
+}

@@ -1,0 +1,67 @@
+{
+  "purpose": "M0 baseline acceptance fixtures; production project schema is unchanged.",
+  "samples": [
+    {
+      "id": "S1",
+      "file": "S1-three-xy.plotfig.json",
+      "dataRows": 9,
+      "columns": 5,
+      "plots": 3,
+      "expected": "Three XY curves with a page legend, page text and 27 visible Y error bars; preview, SVG export and save/reopen preserve the model."
+    },
+    {
+      "id": "S2",
+      "repositoryFile": "artifacts/stacking-2026-09-24/LD-XRD-94-stacked.plotfig.json",
+      "dataRows": 800,
+      "columns": 95,
+      "plots": 94,
+      "expected": "Reuse original grouped and vertically offset curves; no edits to the historical file."
+    },
+    {
+      "id": "S3",
+      "repositoryFile": "artifacts/heatmap-2026-09-24/LD-XRD-heatmap.plotfig.json",
+      "tableSizes": [
+        [800, 95],
+        [75200, 3]
+      ],
+      "plots": 95,
+      "expected": "Reuse original project containing 94 curves and a 75200-cell heatmap; additionally render the isolated heatmap layer and its colorbar."
+    },
+    {
+      "id": "S4",
+      "repositoryFile": "artifacts/F8/quad-y.plotfig.json",
+      "tableSizes": [
+        [9, 8],
+        [9, 8]
+      ],
+      "plots": 4,
+      "expected": "Reuse original four-axis project and preserve all panel, axis and data references."
+    },
+    {
+      "id": "S5",
+      "file": "S5-table-batch.plotfig.json",
+      "tableSizes": [
+        [9, 5],
+        [9, 5],
+        [9, 5],
+        [9, 5]
+      ],
+      "expected": "Three uniquely named matching tables export successfully; fourth table has duplicate A and missing C, fails mapping without changing the original workspace."
+    },
+    {
+      "id": "S6",
+      "file": "S6-legacy-1.14.plotfig.json",
+      "copiedFrom": "artifacts/F4.1/formal-sampled.plotfig.json",
+      "projectVersion": "2.0.0",
+      "schemaVersion": "1.14.0",
+      "dataRows": 6,
+      "columns": 2,
+      "expected": "Authentic historical project, copied byte for byte; migration changes only schemaVersion and explicit plain text defaults. Data, existing appearance settings and reopened export remain identical."
+    }
+  ],
+  "reproduce": [
+    "pnpm exec tsx --tsconfig artifacts/M0-2026-09-28/samples/tsconfig.probe.json artifacts/M0-2026-09-28/samples/create-fixtures.mts",
+    "pnpm exec vitest run tests/m0-baseline.test.ts --maxWorkers=2 --reporter=verbose",
+    "pnpm exec tsx --tsconfig artifacts/M0-2026-09-28/samples/tsconfig.probe.json artifacts/M0-2026-09-28/samples/verify-samples.mts"
+  ]
+}

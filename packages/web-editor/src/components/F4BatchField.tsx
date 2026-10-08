@@ -1,5 +1,7 @@
 import { useRef } from 'react';
-import type { PlotSlot } from '@plot-fig/figure-schema';
+import type { PlotSlot, Panel } from '@plot-fig/figure-schema';
+import type { DataBindingSet } from '@plot-fig/data-binding';
+import { LayerStackFields } from './LayerStackFields.js';
 import type { BatchField } from '../state/batch-property-fields.js';
 import { PropertyNumberDraftContext } from './PropertyInputs.js';
 import { LineMappingFields } from './LineMappingFields.js';
@@ -19,6 +21,8 @@ export function F4BatchField({
   onChange,
   onReset,
   plots = [],
+  panel,
+  data,
 }: {
   field: BatchField;
   common: { mixed: boolean; value?: unknown };
@@ -27,6 +31,8 @@ export function F4BatchField({
   onChange: (text: string) => void;
   onReset: () => void;
   plots?: readonly PlotSlot[] | undefined;
+  panel?: Panel | undefined;
+  data?: DataBindingSet | undefined;
 }) {
   const texts = useRef<Record<string, string>>({});
   const mixed = text === undefined && common.mixed,
@@ -43,6 +49,11 @@ export function F4BatchField({
         ? ''
         : JSON.stringify({ value, texts: texts.current }),
     );
+  const layerPanel = panel ? { ...panel } : undefined;
+  if (layerPanel) {
+    if (draft.value) layerPanel.layerStack = draft.value;
+    else delete layerPanel.layerStack;
+  }
   return (
     <fieldset className="batch-field" disabled={disabled}>
       <legend>{field.label}</legend>
@@ -93,6 +104,13 @@ export function F4BatchField({
             value={draft.value}
             plots={plots}
             onChange={update}
+          />
+        )}
+        {field.key === 'layerStack' && layerPanel && (
+          <LayerStackFields
+            panel={layerPanel}
+            data={data}
+            onChange={(next) => update(next.layerStack)}
           />
         )}
         {field.key === 'labelOverrides' && (

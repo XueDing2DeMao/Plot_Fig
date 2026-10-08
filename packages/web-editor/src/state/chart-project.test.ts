@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   createDataTable,
@@ -108,7 +109,7 @@ it('migrates real 1.0 snapshots inside both legacy CSV and workspace project env
   const migrated = parseWorkspaceProject(JSON.stringify(legacy));
   expect(migrated).toMatchObject({
     ok: true,
-    template: { schemaVersion: '1.22.0' },
+    template: { schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   if (!migrated.ok) return;
   const v2 = JSON.parse(
@@ -117,7 +118,7 @@ it('migrates real 1.0 snapshots inside both legacy CSV and workspace project env
   v2.template = { ...template, schemaVersion: '1.0.0' };
   expect(parseWorkspaceProject(JSON.stringify(v2))).toMatchObject({
     ok: true,
-    template: { schemaVersion: '1.22.0' },
+    template: { schemaVersion: CURRENT_SCHEMA_VERSION },
     workspace: migrated.workspace,
   });
 });

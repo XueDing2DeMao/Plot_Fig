@@ -11,7 +11,7 @@ import {
 } from '../artifacts/F4.2B/schema-proposal.mjs';
 
 it('integrates the approved 1.11 proposal into the application', () => {
-  expect(CURRENT_SCHEMA_VERSION).toBe('1.22.0');
+  expect(CURRENT_SCHEMA_VERSION).toBe('1.24.0');
 });
 it.each(['toString', 'valueOf', '__proto__', 'not-a-figure'])(
   'rejects an unsupported payload kind %s before looking up validators',

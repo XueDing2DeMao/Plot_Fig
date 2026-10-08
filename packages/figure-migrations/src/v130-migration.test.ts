@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { withoutMigratedPlainText } from '../../../tests/helpers/figure-payloads.js';
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
@@ -42,26 +43,26 @@ describe('1.3 migration compatibility in the current chain', () => {
         ok: true,
         migratedFrom: version,
         diagnostics: [],
-        value: { schemaVersion: '1.22.0' },
+        value: { schemaVersion: CURRENT_SCHEMA_VERSION },
       });
       if (!result.ok) return;
       if (version === '0.1.0') {
         const { id, title, tags, ...rest } = before;
         expect(withoutLegacyAxisRangeFlags(result.value)).toEqual({
           ...rest,
-          schemaVersion: '1.22.0',
+          schemaVersion: CURRENT_SCHEMA_VERSION,
           templateId: id,
           metadata: { name: title, tags },
         });
       } else {
         expect(withoutMigratedPlainText(result.value)).toEqual({
           ...before,
-          schemaVersion: '1.22.0',
+          schemaVersion: CURRENT_SCHEMA_VERSION,
           ...(kind === 'document'
             ? {
                 templateSnapshot: {
                   ...before.templateSnapshot,
-                  schemaVersion: '1.22.0',
+                  schemaVersion: CURRENT_SCHEMA_VERSION,
                 },
               }
             : {}),
@@ -75,7 +76,7 @@ describe('1.3 migration compatibility in the current chain', () => {
   it.each(['template', 'document'])(
     'loads current %s without migration',
     async (kind) => {
-      const input = await legacy(kind, '1.22.0');
+      const input = await legacy(kind, CURRENT_SCHEMA_VERSION);
       const template = kind === 'document' ? input.templateSnapshot : input;
       template.panels[0].axes[0].majorTicks.generation = {
         mode: 'increment',
@@ -185,7 +186,7 @@ describe('1.3 migration compatibility in the current chain', () => {
     },
   );
 
-  it.each(['1.22.1', '1.23.0', '2.0.0'])(
+  it.each(['1.24.1', '1.25.0', '2.0.0'])(
     'rejects future version %s',
     (schemaVersion) => {
       expect(

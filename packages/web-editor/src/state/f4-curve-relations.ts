@@ -1,5 +1,6 @@
 import type { DataBindingSet } from '@plot-fig/data-binding';
 import type { Panel, PlotSlot } from '@plot-fig/figure-schema';
+import { remapLayerStack } from './origin-layer-stack.js';
 import {
   materializeCurveOffsets,
   resolveCurveGroups,
@@ -15,8 +16,15 @@ export function detachedCurve(
     resolveCurveGroups(panel).plotSlots.find((p) => p.plotSlotId === plotId)!,
   );
   if (plot.kind === 'xy' || plot.kind === 'area') {
-    const transform = materializeCurveOffsets(panel, plotId, data);
-    if (transform) plot.transform = transform;
+    const controlled = panel.layerStack?.members.includes(plotId);
+    const transform = controlled
+      ? { ...plot.transform }
+      : materializeCurveOffsets(panel, plotId, data);
+    if (controlled && transform) {
+      delete transform.offsetX;
+      delete transform.offsetY;
+    }
+    if (transform && Object.keys(transform).length) plot.transform = transform;
     else delete plot.transform;
     if (
       plot.transform?.fill?.target === 'next' &&
@@ -118,6 +126,20 @@ export function removeCurveRelations(panel: Panel, removedId: string): void {
     panel.stack.members = panel.stack.members.filter((id) => id !== removedId);
     if (panel.stack.members.length < 2) delete panel.stack;
   }
+  if (panel.layerStack) {
+    const stack = panel.layerStack;
+    stack.members = stack.members.filter((id) => id !== removedId);
+    stack.subgroups = stack.subgroups
+      .map((group) => ({
+        ...group,
+        members: group.members.filter((id) => id !== removedId),
+      }))
+      .filter((group) => group.members.length);
+    stack.individual.values = stack.individual.values.filter(
+      (value) => value.plotSlotId !== removedId,
+    );
+    if (!stack.members.length) stack.mode = 'none';
+  }
 }
 
 export function remapCurveRelations(
@@ -128,6 +150,8 @@ export function remapCurveRelations(
     group.members = group.members.map((id) => names.get(id)!);
   if (panel.stack)
     panel.stack.members = panel.stack.members.map((id) => names.get(id)!);
+  if (panel.layerStack)
+    panel.layerStack = remapLayerStack(panel.layerStack, names);
   for (const plot of panel.plotSlots) {
     if (
       (plot.kind === 'xy' || plot.kind === 'area') &&

@@ -8,6 +8,7 @@ import { layerBatchItems } from '../batch/layer-items.js';
 import { batchArchive } from '../batch/archive.js';
 import { downloadBlob } from '../browser/figure-export.js';
 import { useBatchRunner } from './useBatchRunner.js';
+import { exportBatchBytes } from '../batch/export-bytes.js';
 
 vi.mock('../browser/figure-export.js', async (original) => ({
   ...(await original<object>()),
@@ -15,7 +16,7 @@ vi.mock('../browser/figure-export.js', async (original) => ({
 }));
 vi.mock('../batch/archive.js', () => ({ batchArchive: vi.fn() }));
 vi.mock('../batch/export-bytes.js', () => ({
-  exportBatchBytes: async (svg: string) => new TextEncoder().encode(svg),
+  exportBatchBytes: vi.fn(async (svg: string) => new TextEncoder().encode(svg)),
 }));
 afterEach(() => {
   cleanup();
@@ -48,14 +49,7 @@ it.each(['automatic', 'repeat'] as const)(
       dpi: 300,
       includeProject: false,
     };
-    const hook = renderHook(() =>
-      useBatchRunner(items, options, {
-        dpi: 300,
-        token: '',
-        textToPath: false,
-        flattenTransparency: false,
-      }),
-    );
+    const hook = renderHook(() => useBatchRunner(items, options));
     if (mode === 'repeat')
       await act(async () => {
         await hook.result.current.start();
@@ -85,3 +79,53 @@ it.each(['automatic', 'repeat'] as const)(
     expect(hook.result.current.busy).toBe(false);
   },
 );
+
+it('discards completion from an obsolete configuration while an export is pending', async () => {
+  const model = importTables(
+    { template: defaultTemplate(), workspace: emptyWorkspace() },
+    [
+      createDataTable({
+        tableId: 'a',
+        source: { name: 'a', kind: 'csv' },
+        rows: [
+          ['x', 'y'],
+          ['0', '1'],
+          ['1', '2'],
+        ],
+      }),
+    ],
+  );
+  const items = layerBatchItems(
+    model,
+    model.template.panels.map((p) => p.panelId),
+  );
+  const options = {
+    formats: ['svg' as const],
+    dpi: 300,
+    includeProject: false,
+  };
+  let release!: (bytes: Uint8Array<ArrayBuffer>) => void;
+  vi.mocked(exportBatchBytes).mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  const hook = renderHook(({ settings }) => useBatchRunner(items, settings), {
+    initialProps: { settings: options },
+  });
+  let run!: Promise<void>;
+  act(() => {
+    run = hook.result.current.start();
+  });
+  await waitFor(() => expect(release).toBeTypeOf('function'));
+  hook.rerender({ settings: { ...options, dpi: 600 } });
+  await act(async () => {
+    release(new Uint8Array([1]));
+    await run;
+  });
+  expect(hook.result.current.result).toBeUndefined();
+  expect(hook.result.current.records).toEqual([]);
+  await act(() => hook.result.current.download());
+  expect(downloadBlob).not.toHaveBeenCalled();
+});

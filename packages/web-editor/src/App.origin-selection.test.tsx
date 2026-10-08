@@ -9,6 +9,7 @@ import type { PropertyObjectRef } from './state/property-objects.js';
 import { tableActions, figureActions } from './state/workspace-actions.js';
 import type { WorkspaceEditor } from './state/workspace-editor.js';
 import { useWorkspaceEditor } from './state/use-workspace-editor.js';
+import { createEditorHistory } from './state/editor-history.js';
 
 vi.mock('./state/use-workspace-editor.js', () => ({
   useWorkspaceEditor: vi.fn(),
@@ -44,6 +45,7 @@ function setup() {
     workspace: emptyWorkspace(),
     activePanelId: original.panelId,
   };
+  let historyVersion = 0;
   const onPanel = vi.fn<(activePanelId: string) => void>();
   function updateMock() {
     const update = vi.fn(
@@ -60,8 +62,19 @@ function setup() {
       ...model,
       model,
       combinedPreview: false,
+      zoom: {
+        session: {},
+        coordinates: undefined,
+        message: '',
+        canUndo: false,
+        canReset: false,
+        zoom: vi.fn(),
+        undo: vi.fn(),
+        reset: vi.fn(),
+      },
       ...tableActions(model, update),
       ...figureActions(update),
+      onAnnotationMove: vi.fn(() => true),
       onPanel: (activePanelId) =>
         update((current) => ({ ...current, activePanelId })),
       activePanel: model.template.panels.find(
@@ -69,12 +82,18 @@ function setup() {
       )!,
       update,
       onOpen: vi.fn(async () => undefined),
+      onRecover: vi.fn(async () => false),
       onSave: vi.fn(),
       status: 'idle',
       unsavedChanges: false,
       message: '',
       projectErrors: [],
       openedVersion: 0,
+      contentRevision: 0,
+      historyVersion,
+      history: createEditorHistory(model),
+      undo: vi.fn(() => false),
+      redo: vi.fn(() => false),
       data: undefined,
       svg: `<svg xmlns="http://www.w3.org/2000/svg" role="img">${model.template.panels
         .map(
@@ -97,12 +116,13 @@ function setup() {
   selectObject(originalAxis);
   return {
     onPanel,
-    removeSelectedPanel() {
+    removeSelectedPanel(restoring = false) {
       model = {
         ...model,
         template: { ...model.template, panels: model.template.panels.slice(1) },
         activePanelId: 'replacement',
       };
+      if (restoring) historyVersion += 1;
       updateMock();
       view.rerender(<App />);
     },
@@ -154,6 +174,25 @@ it('keeps a removed layer selection stale and does not open an axis on the fallb
   expect(app.onPanel).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: '图层管理' }));
   expect(screen.getByRole('menuitem', { name: /图层属性/ })).toBeDisabled();
+});
+
+it('falls back to the restored active panel when history recovery removes the selected object', () => {
+  const app = setup();
+  app.removeSelectedPanel(true);
+
+  const axis = openAxisMenu();
+  expect(axis).toBeEnabled();
+  fireEvent.click(axis);
+  expect(opened).toHaveBeenCalledTimes(1);
+  expect((opened.mock.calls[0]![0] as CustomEvent).detail).toEqual({
+    target: {
+      kind: 'axis',
+      panelId: 'replacement',
+      axisId: 'replacement-axis-y',
+    },
+    dialog: 'axis',
+  });
+  expect(app.onPanel).not.toHaveBeenCalled();
 });
 
 it.each(['canvas', 'preview tabs'] as const)(

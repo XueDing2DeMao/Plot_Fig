@@ -56,7 +56,29 @@ function AxisScaleFields({ value, onChange, onResetRange, onFitRange }: Props) {
     return (
       <fieldset className="property-group">
         <legend>分类轴</legend>
-        <p>按类别首次出现顺序排列，范围自动确定。可在显示页切换反向。</p>
+        <p>
+          保持类别顺序。范围按类别带边界计算：0 到 3
+          显示前三个类别；两项留空显示全部。可在显示页切换反向。
+        </p>
+        <div className="property-grid">
+          <PropertyInput
+            label={`${prefix}最小值`}
+            inputMode="decimal"
+            placeholder="自动"
+            value={axis.min}
+            onChange={(e) => update({ min: e.target.value })}
+          />
+          <PropertyInput
+            label={`${prefix}最大值`}
+            inputMode="decimal"
+            placeholder="自动"
+            value={axis.max}
+            onChange={(e) => update({ max: e.target.value })}
+          />
+        </div>
+        <button className="property-auto" type="button" onClick={onResetRange}>
+          恢复{prefix}自动范围
+        </button>
       </fieldset>
     );
   return (

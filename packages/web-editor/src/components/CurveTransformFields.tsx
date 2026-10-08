@@ -321,10 +321,12 @@ export function PanelStackFields({
   value,
   plots,
   onChange,
+  hideToggle = false,
 }: {
   value: PanelStack | undefined;
   plots: readonly PlotSlot[];
   onChange: (next: PanelStack | undefined) => void;
+  hideToggle?: boolean;
 }) {
   const eligible = plots.filter((p) => p.kind === 'xy' || p.kind === 'area');
   const anchor = eligible.find((p) => value?.members.includes(p.plotSlotId));
@@ -337,29 +339,31 @@ export function PanelStackFields({
   return (
     <fieldset className="property-group">
       <legend>曲线堆叠</legend>
-      <PropertyCheck
-        label="启用曲线堆叠"
-        checked={!!value}
-        onChange={(on) => {
-          const first = eligible[0];
-          onChange(
-            on
-              ? {
-                  mode: 'normal',
-                  members: first
-                    ? eligible
-                        .filter(
-                          (p) =>
-                            p.xAxisId === first.xAxisId &&
-                            p.yAxisId === first.yAxisId,
-                        )
-                        .map((p) => p.plotSlotId)
-                    : [],
-                }
-              : undefined,
-          );
-        }}
-      />
+      {!hideToggle && (
+        <PropertyCheck
+          label="启用曲线堆叠"
+          checked={!!value}
+          onChange={(on) => {
+            const first = eligible[0];
+            onChange(
+              on
+                ? {
+                    mode: 'normal',
+                    members: first
+                      ? eligible
+                          .filter(
+                            (p) =>
+                              p.xAxisId === first.xAxisId &&
+                              p.yAxisId === first.yAxisId,
+                          )
+                          .map((p) => p.plotSlotId)
+                      : [],
+                  }
+                : undefined,
+            );
+          }}
+        />
+      )}
       {value && (
         <>
           <PropertySelect

@@ -1,10 +1,11 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import { validTemplate } from '../schema/fixtures.js';
 import { validateFigureTemplate } from './validate.js';
 
 function configuredAxis(generation: unknown, scale = 'linear') {
   const template: any = structuredClone(validTemplate);
-  template.schemaVersion = '1.22.0';
+  template.schemaVersion = CURRENT_SCHEMA_VERSION;
   const axis = template.panels[0].axes[0];
   axis.scale = scale;
   axis.majorTicks.generation = generation;

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadFigurePayload } from '@plot-fig/figure-migrations';
@@ -23,7 +24,10 @@ function setup() {
 }
 it('1.15迁移只升级版本且保持已有SVG逐字节不变', () => {
   const { template, data } = setup();
-  expect(template).toEqual({ ...old.template, schemaVersion: '1.21.0' });
+  expect(template).toEqual({
+    ...old.template,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+  });
   const r = renderFigureSvg(template, data);
   expect(r.ok).toBe(true);
   if (r.ok)

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 // @vitest-environment jsdom
 import {
   openPropertyFeature,
@@ -634,7 +635,7 @@ it('15 discards unapplied appearance after cancel and preserves applied appearan
   expect(JSON.parse(serialized)).toMatchObject({
     kind: 'plot-fig-project',
     version: '2.0.0',
-    template: { schemaVersion: '1.22.0' },
+    template: { schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   const reopened = parseWorkspaceProject(serialized);
   expect(reopened).toEqual({ ok: true, template: applied, workspace });

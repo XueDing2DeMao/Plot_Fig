@@ -3,6 +3,35 @@ import { IdentifierSchema } from './common.js';
 import { MARKER_SHAPES } from '../marker-geometry.js';
 import { Compile } from 'typebox/compile';
 const closed = { additionalProperties: false };
+const mappingFields = {
+  colors: Type.Array(Type.String({ pattern: '^#[0-9a-fA-F]{6}$' }), {
+    minItems: 2,
+    maxItems: 64,
+  }),
+  domain: Type.Optional(
+    Type.Object({ min: Type.Number(), max: Type.Number() }, closed),
+  ),
+  reverse: Type.Optional(Type.Boolean()),
+  label: Type.Optional(Type.String({ maxLength: 128 })),
+  colorbar: Type.Optional(Type.Object({ visible: Type.Boolean() }, closed)),
+};
+const CurveGroupColorMappingSchema = Type.Union([
+  Type.Object({ source: Type.Literal('index'), ...mappingFields }, closed),
+  Type.Object(
+    {
+      source: Type.Literal('values'),
+      ...mappingFields,
+      values: Type.Array(
+        Type.Object(
+          { plotSlotId: IdentifierSchema, value: Type.Number() },
+          closed,
+        ),
+        { maxItems: 8192 },
+      ),
+    },
+    closed,
+  ),
+]);
 export const CurveStyleLists = {
   colors: Type.Optional(
     Type.Array(Type.String({ pattern: '^#[0-9a-fA-F]{6}$' }), {
@@ -36,6 +65,8 @@ export const CurveGroupSchema = Type.Object(
     mode: Type.Enum(['dependent', 'independent']),
     increment: Type.Enum(['synchronized', 'nested']),
     step: Type.Integer({ minimum: 1, maximum: 64 }),
+    colorIncrement: Type.Optional(Type.Enum(['cycle', 'stretch', 'binned'])),
+    colorMapping: Type.Optional(CurveGroupColorMappingSchema),
     ...CurveStyleLists,
   },
   closed,

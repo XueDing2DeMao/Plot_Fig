@@ -84,11 +84,13 @@ export function DraftPreview({
   error,
   warnings,
   hidden,
+  panelId,
 }: {
   svg: string | undefined;
   error: string;
   warnings: string[];
   hidden: boolean;
+  panelId?: string | undefined;
 }) {
   return (
     <section
@@ -98,11 +100,14 @@ export function DraftPreview({
     >
       <div>
         <h3>图形预览</h3>
-        <p className="property-hint">点击应用后，主图与导出结果同步更新。</p>
+        <p className="property-hint">
+          {panelId !== undefined && '仅预览当前编辑图层。'}
+          点击应用后，主图与导出结果同步更新。
+        </p>
       </div>
       <div className="property-draft-stage">
         {!hidden && svg ? (
-          <SvgSurface svg={svg} label="属性预览图" />
+          <SvgSurface svg={svg} label="属性预览图" panelId={panelId} />
         ) : (
           <p className="property-hint">
             {error ? '修正参数后恢复图形预览' : '导入数据后显示预览'}

@@ -1,4 +1,5 @@
 import {
+  CURRENT_SCHEMA_VERSION,
   canonicalizeFigurePayload,
   validateFigureDocument,
   validateFigureTemplate,
@@ -22,7 +23,7 @@ import {
 
 const validDocument = {
   kind: 'figure-document',
-  schemaVersion: '1.22.0',
+  schemaVersion: CURRENT_SCHEMA_VERSION,
   documentId: 'document-1',
   templateSnapshot: validTemplate,
   dataSources: [
@@ -51,11 +52,14 @@ describe('root package entry', () => {
       'AxisScaleOptionsSchema',
       'CURRENT_SCHEMA_VERSION',
       'FormulaPairSchema',
+      'LayerStackSchema',
       'MARKER_SHAPES',
+      'PaintSchema',
       'axisScaleSpec',
       'canonicalizeFigurePayload',
       'categoricalDimension',
       'compileAxisFormula',
+      'createLayerStack',
       'createNumericScale',
       'defaultLegendLayout',
       'defaultShapeStyle',
@@ -83,6 +87,8 @@ describe('root package entry', () => {
       'validateFigureTemplate',
       'validateFormulaPair',
       'validateLabelOverrides',
+      'validateLayerStack',
+      'validateLayerStackRelations',
       'validateLineMapping',
       'validateMarkerDetails',
       'validateMarkerMapping',
@@ -102,6 +108,9 @@ describe('root package entry', () => {
       'validateV1170Structure',
       'validateV1180Structure',
       'validateV1190Structure',
+      'validateV1210Structure',
+      'validateV1220Structure',
+      'validateV1230Structure',
       'validateV150Structure',
       'validateV160Structure',
       'validateV170Structure',

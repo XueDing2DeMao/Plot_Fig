@@ -5,6 +5,31 @@ import type {
   FillStyle,
   ColorScale,
 } from '@plot-fig/figure-schema';
+import { defaultHeatmapColors } from '../palettes/color-maps.js';
+
+export function defaultColorScale(title = 'Z'): ColorScale {
+  return {
+    colors: [...defaultHeatmapColors],
+    reverse: false,
+    transform: 'linear',
+    interpolation: 'continuous',
+    range: { mode: 'auto' },
+    colorbar: {
+      visible: true,
+      title,
+      mode: 'linked',
+      orientation: 'vertical',
+      side: 'right',
+      length: 1,
+      widthPt: 10,
+      majorTicks: 3,
+      minorTicks: 0,
+      notation: 'auto',
+      precision: 6,
+      endpoints: 'flat',
+    },
+  };
+}
 export type ChartChoice = PlotKind | 'stacked-bar' | 'scatter';
 export const chartChoices: Record<ChartChoice, string> = {
   xy: '折线图',
@@ -47,27 +72,7 @@ function stylesFor(source: PlotSlot): Styles {
     colorScale:
       'colorScale' in source
         ? structuredClone(source.colorScale)
-        : {
-            colors: ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725'],
-            reverse: false,
-            transform: 'linear',
-            interpolation: 'continuous',
-            range: { mode: 'auto' },
-            colorbar: {
-              visible: true,
-              title: 'Z',
-              mode: 'linked',
-              orientation: 'vertical',
-              side: 'right',
-              length: 1,
-              widthPt: 10,
-              majorTicks: 3,
-              minorTicks: 0,
-              notation: 'auto',
-              precision: 6,
-              endpoints: 'flat',
-            },
-          },
+        : defaultColorScale(),
   };
 }
 function barDefault(common: Common, style: Styles, stacked: boolean): PlotSlot {

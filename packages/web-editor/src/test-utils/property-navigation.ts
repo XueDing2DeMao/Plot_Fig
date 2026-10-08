@@ -22,7 +22,7 @@ export function openPropertyFeature(feature: string) {
     背景与边框: '背景',
     显示与裁剪: '显示/速度',
     大小与位置: '大小',
-    曲线组: '堆叠',
+    曲线组: '组',
     高级刻度: '特殊刻度线',
     参考线: '参照线',
     Rug: '轴须',

@@ -4,11 +4,32 @@ import type {
   Annotation,
   PlotSlot,
 } from '@plot-fig/figure-schema';
-import type { Rect } from './geometry.js';
+import { escapeXml, type Rect } from './geometry.js';
 import { renderLegendLayout } from './legend-layout.js';
 import { hasLineAppearance } from './line-appearance.js';
 import type { MarkerLegendSamples } from './marker-details.js';
 type Legend = Extract<Annotation, { kind: 'legend' }>;
+
+function implicitLegendId(template: FigureTemplate, panel: Panel): string {
+  const ids = new Set([
+    template.templateId,
+    ...template.annotations.map((annotation) => annotation.annotationId),
+    ...template.dataSlots.map((slot) => slot.dataSlotId),
+    ...(template.sharedAxisGroups ?? []).map((group) => group.groupId),
+  ]);
+  for (const item of template.panels) {
+    ids.add(item.panelId);
+    for (const axis of item.axes) ids.add(axis.axisId);
+    for (const plot of item.plotSlots) ids.add(plot.plotSlotId);
+    // 预留其他面板的默认名称，保证图例身份不受面板顺序影响。
+    if (item.panelId !== panel.panelId) ids.add('auto-' + item.panelId);
+  }
+  const base = 'auto-' + panel.panelId;
+  let id = base;
+  for (let suffix = 2; ids.has(id); suffix += 1) id = `${base}-${suffix}`;
+  return id;
+}
+
 function entries(
   plots: PlotSlot[],
   ids: Set<string>,
@@ -58,7 +79,7 @@ export function renderSeriesLegend(
     : [
         {
           kind: 'legend',
-          annotationId: 'auto-' + panel.panelId,
+          annotationId: implicitLegendId(template, panel),
           coordinateSpace: 'panel',
           panelId: panel.panelId,
           visible: true,
@@ -66,8 +87,8 @@ export function renderSeriesLegend(
         },
       ];
   return selected
-    .map((legend) =>
-      renderLegendLayout(
+    .map((legend) => {
+      const svg = renderLegendLayout(
         template,
         entries(panel.plotSlots, options.renderedPlotIds, {
           legend,
@@ -78,8 +99,15 @@ export function renderSeriesLegend(
           rect: options.rect,
           ...(options.samples ? { samples: options.samples } : {}),
         },
-      ),
-    )
+      );
+      return legends.length
+        ? svg
+        : svg.replace(
+            /^<g([^>]*)>/,
+            (_match, attributes: string) =>
+              `<g${attributes} data-implicit-legend-panel-id="${escapeXml(panel.panelId)}">`,
+          );
+    })
     .join('');
 }
 export function renderPageLegends(

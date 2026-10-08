@@ -105,7 +105,6 @@ function axisRange(axis: Axis, settings: AxisSettings): Axis['range'] {
     return { mode: 'max-only', max: Number(high) };
   }
   if (!low && !high) return { mode: 'auto' };
-  if (axis.scale === 'category') throw new Error('分类轴使用自动类别范围');
   return fixedAxisRange(axis, settings);
 }
 export function updateAxis(axis: Axis, settings: AxisSettings): void {

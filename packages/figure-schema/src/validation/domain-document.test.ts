@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import type { FigureDocument } from '../schema/figure-document.js';
 import type { FigureTemplate } from '../schema/figure-template.js';
@@ -12,7 +13,7 @@ const createDocument = (
   templateSnapshot: FigureTemplate = cloneTemplate(),
 ): FigureDocument => ({
   kind: 'figure-document',
-  schemaVersion: '1.22.0',
+  schemaVersion: CURRENT_SCHEMA_VERSION,
   documentId: 'document-1',
   templateSnapshot,
   dataSources: [

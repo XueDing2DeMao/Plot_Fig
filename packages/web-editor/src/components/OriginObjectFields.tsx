@@ -102,11 +102,16 @@ export function CurveFields({
   axes = [],
   data,
   onCreateAxis,
+  onCurveColors,
+  onOpenGroup,
 }: CategoryProps & {
   tab: string;
   axes?: readonly Axis[];
   data?: DataBindingSet | undefined;
   onCreateAxis?: ((position: 'top' | 'right') => void) | undefined;
+  onCurveColors?:
+    ((colors: readonly string[], continuous: boolean) => void) | undefined;
+  onOpenGroup?: (() => void) | undefined;
 }) {
   if (
     value.plot.kind !== 'xy' &&
@@ -150,7 +155,13 @@ export function CurveFields({
     );
   if (tab === 'line')
     return (
-      <LineFields value={value} onChange={onChange} includeDropLines={false} />
+      <LineFields
+        value={value}
+        onChange={onChange}
+        includeDropLines={false}
+        onCurveColors={onCurveColors}
+        onOpenGroup={onOpenGroup}
+      />
     );
   if (tab === 'symbol-details' && value.plot.kind === 'xy')
     return (

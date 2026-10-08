@@ -63,24 +63,37 @@ export function makeColorScale(
   };
   return { min, max, color };
 }
+type ColorbarRenderLayout = {
+  rect: Rect;
+  index: number;
+  id: string;
+  offset?: number | undefined;
+  availableHeight?: number | undefined;
+  /** 带组色标的共同布局可明确放置现有色条。 */
+  barRect?: Rect | undefined;
+  fractions?: number[];
+};
 export function renderColorbar(
   config: ColorScale,
   values: Array<number | null>,
-  layout: {
-    rect: Rect;
-    index: number;
-    id: string;
-    offset?: number | undefined;
-    availableHeight?: number | undefined;
-  },
+  layout: ColorbarRenderLayout,
 ) {
   if (!config.colorbar.visible) return '';
   const scaleConfig: ColorScale =
       config.colorbar.mode === 'independent' && config.colorbar.range
         ? { ...config, range: { mode: 'fixed', ...config.colorbar.range } }
         : config,
-    scale = makeColorScale(scaleConfig, values),
-    { rect, index, id } = layout,
+    scale = makeColorScale(scaleConfig, values);
+  return renderResolvedColorbar(config, scale, layout);
+}
+
+/** 只负责绘制已解析数值域，组色标不重新计算范围或复制插值。 */
+export function renderResolvedColorbar(
+  config: ColorScale,
+  scale: { min: number; max: number; color: (value: number) => string },
+  layout: ColorbarRenderLayout,
+) {
+  const { rect, index, id } = layout,
     orientation = config.colorbar.orientation ?? 'vertical',
     side =
       config.colorbar.side ?? (orientation === 'vertical' ? 'right' : 'bottom'),
@@ -89,18 +102,25 @@ export function renderColorbar(
     length = config.colorbar.length ?? 1,
     width = config.colorbar.widthPt ?? 10,
     offset = layout.offset ?? index * (vertical ? width + 50 : width + 58),
-    height = vertical ? defaultGeometry.height * length : width,
-    barWidth = vertical ? width : rect.width * length,
-    x = vertical
-      ? side === 'left'
-        ? rect.x - 18 - width - offset
-        : rect.x + rect.width + 18 + offset
-      : rect.x + (rect.width - barWidth) / 2,
-    y = vertical
-      ? defaultGeometry.y + (defaultGeometry.height - height) / 2
-      : side === 'top'
-        ? rect.y - height - 48 - offset
-        : rect.y + rect.height + 48 + offset;
+    height =
+      layout.barRect?.height ??
+      (vertical ? defaultGeometry.height * length : width),
+    barWidth =
+      layout.barRect?.width ?? (vertical ? width : rect.width * length),
+    x =
+      layout.barRect?.x ??
+      (vertical
+        ? side === 'left'
+          ? rect.x - 18 - width - offset
+          : rect.x + rect.width + 18 + offset
+        : rect.x + (rect.width - barWidth) / 2),
+    y =
+      layout.barRect?.y ??
+      (vertical
+        ? defaultGeometry.y + (defaultGeometry.height - height) / 2
+        : side === 'top'
+          ? rect.y - height - 48 - offset
+          : rect.y + rect.height + 48 + offset);
   const fontSize =
     8 *
     (layout.availableHeight === undefined
@@ -114,11 +134,12 @@ export function renderColorbar(
               `<stop offset="${index / colors.length}" stop-color="${color}" /><stop offset="${(index + 1) / colors.length}" stop-color="${color}" />`,
           )
           .join('')
-      : Array.from(
-          { length: 33 },
-          (_, i) =>
-            `<stop offset="${i / 32}" stop-color="${scale.color(scale.min * (1 - i / 32) + scale.max * (i / 32))}" />`,
-        ).join('');
+      : (layout.fractions ?? Array.from({ length: 33 }, (_, i) => i / 32))
+          .map(
+            (t) =>
+              `<stop offset="${t}" stop-color="${scale.color(scale.min * (1 - t) + scale.max * t)}" />`,
+          )
+          .join('');
   const tickCount = config.colorbar.majorTicks ?? 3,
     tickValues =
       scale.min === scale.max

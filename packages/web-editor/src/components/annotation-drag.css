@@ -1,0 +1,22 @@
+.preview-stage .annotation-drag-movable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.preview-stage .annotation-drag-selected {
+  outline: 1px dashed #2965cc;
+  outline-offset: 4px;
+}
+
+.preview-stage .annotation-drag-active,
+.preview-stage[data-annotation-dragging='true'] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.annotation-drag-status {
+  min-height: 1.3em;
+  margin: 6px 0;
+  color: #465b73;
+  font-size: 0.82rem;
+}

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import {
   createDataTable,
@@ -154,7 +155,7 @@ describe('workspace project v2', () => {
     });
     expect(source).toEqual(beforeSave);
     if (!reopened.ok) throw new Error('project should reopen');
-    expect(reopened.template.schemaVersion).toBe('1.22.0');
+    expect(reopened.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(reopened.template.panels[0]).toEqual(beforeSave.template.panels[0]);
     expect(reopened.template.panels[1]!.plotSlots).toEqual([]);
     expect(reopened.template.annotations).toEqual(
@@ -191,7 +192,7 @@ describe('workspace project v2', () => {
     if (!reopened.ok) throw new Error('dual-axis project should reopen');
     const reopenedPanel = reopened.template.panels[0]!;
     const right = reopenedPanel.axes.find((axis) => axis.position === 'right')!;
-    expect(reopened.template.schemaVersion).toBe('1.22.0');
+    expect(reopened.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(reopenedPanel.yAxisAlignment).toEqual({
       leftAxisId: 'axis-y',
       rightAxisId: right.axisId,

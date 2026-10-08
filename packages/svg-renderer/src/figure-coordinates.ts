@@ -10,6 +10,7 @@ import {
 } from './layout-geometry.js';
 import { type Rect } from './geometry.js';
 import { preparePanel } from './panel.js';
+import { planGroupColorbarLayouts } from './group-colorbar-layout.js';
 import { sharedScales } from './shared-scales.js';
 import { prepareAxisScale } from './panel-scales.js';
 import type { PlotScale } from './scales.js';
@@ -31,6 +32,12 @@ export function figureCoordinates(
     ]),
   );
   const shared = sharedScales(template, prepared, data);
+  const groupLayouts = planGroupColorbarLayouts(
+    template,
+    data,
+    prepared,
+    shared,
+  );
   const sharedIds = new Set(
     template.sharedAxisGroups?.flatMap((group) =>
       group.members.map((member) => member.axisId),
@@ -47,11 +54,13 @@ export function figureCoordinates(
   for (const panel of template.panels) {
     if (panel.visible === false) continue;
     const plots = prepared.get(panel.panelId)!;
-    const geometry = layerGeometry(
-      panel.frame,
-      page,
-      colorbarLayout(plots.map((item) => item.plot)),
-    );
+    const geometry =
+      groupLayouts.get(panel.panelId)?.available ??
+      layerGeometry(
+        panel.frame,
+        page,
+        colorbarLayout(plots.map((item) => item.plot)),
+      );
     const scales = new Map<string, PlotScale>();
     for (const axis of panel.axes) {
       const scale =

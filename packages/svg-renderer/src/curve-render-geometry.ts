@@ -8,6 +8,7 @@ export type CurveErrorTransform = (row: SeriesRow) =>
       yScale: number;
       // 在百分比缩放系数过大时，先除后乘以保留有限的误差端点。
       mapY: (value: number) => number;
+      mapX?: (value: number) => number;
     }
   | undefined;
 

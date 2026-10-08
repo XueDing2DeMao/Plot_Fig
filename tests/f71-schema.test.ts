@@ -8,7 +8,7 @@ import { validTemplate } from '../packages/figure-schema/src/schema/fixtures.js'
 
 it('accepts shared rich text layout on axes, legends and annotations', () => {
   const template = structuredClone(validTemplate);
-  expect(CURRENT_SCHEMA_VERSION).toBe('1.22.0');
+  expect(CURRENT_SCHEMA_VERSION).toBe('1.24.0');
   template.schemaVersion = CURRENT_SCHEMA_VERSION;
   const axis = template.panels[0]!.axes[0]!;
   axis.title = {

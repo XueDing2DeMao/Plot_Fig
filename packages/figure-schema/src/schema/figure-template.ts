@@ -1,6 +1,7 @@
 import Type from 'typebox';
-import {CurveGroupsSchema} from './curve-groups.js';
-import {PanelStackSchema} from './curve-transforms.js';
+import { CurveGroupsSchema } from './curve-groups.js';
+import { PanelStackSchema } from './curve-transforms.js';
+import { LayerStackSchema } from './layer-stack.js';
 import { PanelFrameLinkSchema } from './frame-link.js';
 import {
   LayerAppearanceSchema,
@@ -41,6 +42,7 @@ export const PanelSchema = Type.Object(
     plotSlots: Type.Array(PlotSlotSchema),
     groups: Type.Optional(CurveGroupsSchema),
     stack: Type.Optional(PanelStackSchema),
+    layerStack: Type.Optional(LayerStackSchema),
     extensions: Type.Optional(ExtensionBagSchema),
   },
   { additionalProperties: false },

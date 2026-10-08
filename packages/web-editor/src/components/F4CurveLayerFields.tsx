@@ -1,14 +1,17 @@
 import type { Panel } from '@plot-fig/figure-schema';
+import type { DataBindingSet } from '@plot-fig/data-binding';
 import { unlinkCurveGroup } from '@plot-fig/svg-renderer';
 import { CurveGroupFields } from './CurveGroupFields.js';
-import { PanelStackFields } from './CurveTransformFields.js';
+import { LayerStackFields } from './LayerStackFields.js';
 export function F4CurveLayerFields({
   panel,
+  data,
   onChange,
   tab,
   invalid = false,
 }: {
   panel: Panel;
+  data?: DataBindingSet | undefined;
   onChange: (next: Panel) => void;
   tab?: 'groups' | 'stack';
   invalid?: boolean;
@@ -30,16 +33,7 @@ export function F4CurveLayerFields({
         />
       )}
       {(!tab || tab === 'stack') && (
-        <PanelStackFields
-          value={panel.stack}
-          plots={panel.plotSlots}
-          onChange={(stack) => {
-            const next = { ...panel };
-            if (stack) next.stack = stack;
-            else delete next.stack;
-            onChange(next);
-          }}
-        />
+        <LayerStackFields panel={panel} data={data} onChange={onChange} />
       )}
     </>
   );

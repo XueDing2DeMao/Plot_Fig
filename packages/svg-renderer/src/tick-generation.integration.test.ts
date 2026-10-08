@@ -6,7 +6,6 @@ import {
 } from '@plot-fig/figure-schema';
 import { createCurrentTemplate } from '../../../tests/helpers/figure-payloads.js';
 import { chartData } from '../../../tests/helpers/chart-fixtures.js';
-import { validateRequest } from '../../export-service/src/security.js';
 import { renderFigureSvg, validateFixedAxisTicks } from './index.js';
 
 function configure(axis: Axis, generation: MajorTickGeneration) {
@@ -204,36 +203,26 @@ it('rejects unrepresentable minor ticks in an empty fixed graph through the publ
   );
 });
 
-it.each(['pdf', 'eps'] as const)(
-  'preserves exact small-value labels in valid %s export input',
-  (format) => {
-    const template = configuredTemplate({ mode: 'increment', step: 1e-9 });
-    template.panels[0]!.axes[0]!.range = {
-      mode: 'fixed',
-      min: 1e-9,
-      max: 5e-9,
-    };
-    expect(validateFigureTemplate(template).ok).toBe(true);
-    const result = renderFigureSvg(
-      template,
-      chartData({ x: [1e-9, 5e-9], y: [0, 1] }),
-    );
-    expect(result.ok, JSON.stringify(result.diagnostics)).toBe(true);
-    if (!result.ok) return;
-    expect(labels(axisGroups(result.svg)[0]!)).toEqual([
-      '1e-9',
-      '2e-9',
-      '3e-9',
-      '4e-9',
-      '5e-9',
-    ]);
-    const request = {
-      svg: result.svg,
-      format,
-      dpi: 300,
-      textToPath: false,
-      flattenTransparency: false,
-    };
-    expect(validateRequest(request)).toEqual(request);
-  },
-);
+it('preserves exact small-value labels in SVG export output', () => {
+  const template = configuredTemplate({ mode: 'increment', step: 1e-9 });
+  template.panels[0]!.axes[0]!.range = {
+    mode: 'fixed',
+    min: 1e-9,
+    max: 5e-9,
+  };
+  expect(validateFigureTemplate(template).ok).toBe(true);
+  const result = renderFigureSvg(
+    template,
+    chartData({ x: [1e-9, 5e-9], y: [0, 1] }),
+  );
+  expect(result.ok, JSON.stringify(result.diagnostics)).toBe(true);
+  if (!result.ok) return;
+  expect(labels(axisGroups(result.svg)[0]!)).toEqual([
+    '1e-9',
+    '2e-9',
+    '3e-9',
+    '4e-9',
+    '5e-9',
+  ]);
+  expect(result.svg).toContain('xmlns="http://www.w3.org/2000/svg"');
+});

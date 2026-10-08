@@ -1,0 +1,307 @@
+.origin-groups {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.origin-groups > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.origin-group-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+.origin-group-toolbar label {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.origin-groups select {
+  width: 100%;
+  min-width: 0;
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border-strong);
+}
+.origin-group-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 14px;
+}
+.origin-group-settings {
+  min-width: 0;
+}
+.origin-group-mode {
+  display: flex;
+  gap: 24px;
+  border: 1px solid var(--ui-border);
+  padding: 8px;
+}
+.origin-group-mode label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.origin-group-style-fields {
+  border: 0;
+  min-width: 0;
+  padding: 0;
+}
+.origin-group-style-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.origin-group-style-table th,
+.origin-group-style-table td {
+  border: 1px solid var(--ui-border);
+  padding: 5px;
+  text-align: left;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.origin-group-style-table th:first-child {
+  width: 75px;
+}
+.origin-group-style-table th:nth-child(2) {
+  width: 106px;
+}
+.origin-group-colormap {
+  border: 1px solid var(--ui-border);
+  padding: 10px;
+  margin: 12px 0;
+  min-width: 0;
+}
+.origin-group-colormap > label {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.origin-group-colormap input,
+.origin-group-colormap textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.origin-group-colormap > .origin-group-check {
+  display: flex;
+  align-items: center;
+}
+.origin-group-check input {
+  width: auto;
+}
+.origin-group-gradient {
+  height: 24px;
+  border: 1px solid var(--ui-border);
+}
+.origin-group-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin: 3px 0 10px;
+}
+.origin-group-range-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.origin-group-range-inputs label {
+  min-width: 0;
+}
+.origin-group-range-inputs button,
+.origin-group-range-inputs small {
+  grid-column: 1 / -1;
+}
+.origin-group-parameters {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--ui-border);
+  padding: 5px;
+}
+.origin-group-parameters label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.origin-group-parameters span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.origin-group-style-table thead th {
+  position: static;
+}
+.origin-group-style-table thead {
+  background: var(--ui-subtle);
+}
+.origin-group-colors {
+  display: flex;
+  height: 22px;
+  margin-top: 4px;
+}
+.origin-group-import {
+  margin: 12px 0;
+}
+.origin-group-import-scroll {
+  max-height: 240px;
+  overflow: auto;
+}
+.origin-group-import-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.origin-group-import-table th,
+.origin-group-import-table td {
+  padding: 6px;
+  border: 1px solid var(--ui-border);
+  text-align: left;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.origin-group-import-table thead th {
+  position: static;
+  background: var(--ui-subtle);
+}
+.origin-group-import-table th:nth-child(-n + 2) {
+  width: 25%;
+}
+.origin-group-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.origin-group-colors i {
+  flex: 1;
+}
+.origin-group-dash-preview {
+  display: flex;
+  gap: 4px;
+}
+.origin-group-dash-preview svg {
+  width: 25%;
+  height: 18px;
+}
+.origin-group-increment {
+  display: grid;
+  grid-template-columns: 1fr 65px;
+  gap: 10px;
+  margin: 10px 0;
+}
+.origin-group-increment label {
+  display: grid;
+  gap: 5px;
+}
+.origin-group-increment input {
+  width: 100%;
+  min-width: 0;
+}
+.origin-groups details {
+  margin-top: 10px;
+}
+.origin-groups summary {
+  cursor: pointer;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.origin-group-members {
+  min-width: 0;
+}
+.origin-group-members h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.origin-group-members h3 small {
+  color: var(--ui-muted);
+}
+.origin-group-members ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  height: 250px;
+  overflow: auto;
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+}
+.origin-group-members li {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.origin-group-members li button {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ui-text);
+  text-align: left;
+}
+.origin-group-members li button[aria-pressed='true'] {
+  background: var(--ui-subtle);
+  border-color: var(--ui-border-strong);
+}
+.origin-group-members li button > span:first-child {
+  width: 27px;
+  border-top: 2px solid;
+  flex-shrink: 0;
+}
+.origin-group-members li button > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.origin-group-order {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.origin-group-members details label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.origin-group-parent {
+  margin-top: 14px;
+  border: 1px solid var(--ui-border);
+  padding: 8px;
+}
+.origin-group-parent label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.origin-group-parent select,
+.origin-group-parent input {
+  max-width: 250px;
+  width: 100%;
+}
+@media (max-width: 760px) {
+  .origin-group-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .origin-group-members ul {
+    height: 160px;
+  }
+  .origin-group-toolbar {
+    flex-wrap: wrap;
+  }
+}

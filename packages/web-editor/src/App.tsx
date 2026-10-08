@@ -5,11 +5,14 @@ import { LayerDeleteControls } from './components/LayerDeleteControls.js';
 import { LayerCreateControls } from './components/LayerCreateControls.js';
 import { LayerFormatControls } from './components/LayerFormatControls.js';
 import { TemplateLibraryControls } from './components/TemplateLibraryControls.js';
+import { DatasetBatchControls } from './components/DatasetBatchControls.js';
 import { FigurePreview } from './components/FigurePreview.js';
 import { FigurePropertiesPanel } from './components/FigurePropertiesPanel.js';
 import { PlotSettingsPanel } from './components/PlotSettingsPanel.js';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel.js';
 import { ProjectControls } from './components/ProjectControls.js';
+import { ProjectRecoveryControls } from './components/ProjectRecoveryControls.js';
+import { useProjectRecovery } from './state/use-project-recovery.js';
 import { DataImportPanel } from './components/DataImportPanel.js';
 import { WorkspaceTablePanel } from './components/WorkspaceTablePanel.js';
 import { WorkspaceTableList } from './components/WorkspaceTableList.js';
@@ -24,6 +27,7 @@ import { OriginExportDialog } from './components/OriginExportDialog.js';
 import { TemplateLibraryDialog } from './components/TemplateLibraryDialog.js';
 import type { PropertyObjectRef } from './state/property-objects.js';
 import { FigureActionMenus } from './components/FigureActionMenus.js';
+import { EditorHistoryControls } from './components/EditorHistoryControls.js';
 import type { OriginMenuCommand } from './state/origin-menu-model.js';
 import {
   activateOriginWindow,
@@ -103,6 +107,7 @@ function WorkspaceContent({
   onOpen,
   onApplyLayers,
   menus,
+  historyControls,
   onExport,
   onConfirm,
   bindingReveal,
@@ -117,6 +122,7 @@ function WorkspaceContent({
   onOpen: (ref: PropertyObjectRef) => void;
   onApplyLayers: PlotSetup['applyBatch'];
   menus: React.ReactNode;
+  historyControls: React.ReactNode;
   onExport: () => void;
   onConfirm: PlotSetup['confirm'];
   bindingReveal: SeriesRevealRequest | undefined;
@@ -164,6 +170,9 @@ function WorkspaceContent({
                   )
                 }
                 onSeries={setup.onSeries}
+                onBatchY={setup.onBatchY}
+                onMatrixHeatmap={setup.onMatrixHeatmap}
+                batchError={setup.error}
               />
             </section>
           </div>
@@ -173,6 +182,8 @@ function WorkspaceContent({
             onFocusCapture={() => onActivate('graph')}
           >
             <FigurePreview
+              key={editor.openedVersion}
+              restoreVersion={editor.historyVersion}
               template={editor.template}
               layers={setup.template.panels}
               activePanelId={setup.activePanel.panelId}
@@ -189,37 +200,49 @@ function WorkspaceContent({
               onSelectObject={onSelect}
               onOpenObject={onOpen}
               onInlineTextChange={editor.onInlineText}
+              onAnnotationMove={editor.onAnnotationMove}
               svg={editor.svg}
+              zoom={editor.zoom}
               layerActions={
                 <>
-                  <LayerFormatControls
-                    key={editor.openedVersion}
-                    template={setup.template}
-                    activePanelId={setup.activePanel.panelId}
-                    onApply={(_template, snapshot, scope) =>
-                      setup.onLayerFormat(
-                        snapshot,
-                        setup.activePanel.panelId,
-                        scope,
-                      )
-                    }
-                  />
-                  <LayerCreateControls
-                    model={{
-                      template: setup.template,
-                      workspace: setup.workspace,
-                      activePanelId: setup.activePanel.panelId,
-                    }}
-                    onApply={onApplyLayers}
-                  />
-                  <LayerDeleteControls
-                    model={{
-                      template: setup.template,
-                      workspace: setup.workspace,
-                      activePanelId: setup.activePanel.panelId,
-                    }}
-                    onApply={onApplyLayers}
-                  />
+                  <div className="preview-tool-group">
+                    <span className="preview-group-label" aria-hidden="true">
+                      格式
+                    </span>
+                    <LayerFormatControls
+                      key={editor.openedVersion}
+                      template={setup.template}
+                      activePanelId={setup.activePanel.panelId}
+                      onApply={(_template, snapshot, scope) =>
+                        setup.onLayerFormat(
+                          snapshot,
+                          setup.activePanel.panelId,
+                          scope,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="preview-tool-group">
+                    <span className="preview-group-label" aria-hidden="true">
+                      图层
+                    </span>
+                    <LayerCreateControls
+                      model={{
+                        template: setup.template,
+                        workspace: setup.workspace,
+                        activePanelId: setup.activePanel.panelId,
+                      }}
+                      onApply={onApplyLayers}
+                    />
+                    <LayerDeleteControls
+                      model={{
+                        template: setup.template,
+                        workspace: setup.workspace,
+                        activePanelId: setup.activePanel.panelId,
+                      }}
+                      onApply={onApplyLayers}
+                    />
+                  </div>
                 </>
               }
               actions={
@@ -228,23 +251,51 @@ function WorkspaceContent({
                   role="group"
                   aria-label="绘图功能菜单"
                 >
-                  <TemplateLibraryControls
-                    model={{
-                      template: setup.template,
-                      workspace: setup.workspace,
-                      activePanelId: setup.activePanel.panelId,
-                    }}
-                    onApply={setup.applyBatch}
-                  />
-                  <FigurePropertiesPanel
-                    workspace={editor.workspace}
-                    onApplyModel={editor.onModel}
-                    activePanelId={editor.activePanel.panelId}
-                    template={editor.template}
-                    data={editor.data}
-                    onApply={editor.onTemplate}
-                  />
-                  {menus}
+                  <div className="preview-tool-group preview-tool-history">
+                    <span className="preview-group-label" aria-hidden="true">
+                      编辑
+                    </span>
+                    {historyControls}
+                  </div>
+                  <div
+                    className="preview-tool-group preview-tool-figure"
+                    role="group"
+                    aria-label="图形设置工具"
+                  >
+                    <span className="preview-group-label" aria-hidden="true">
+                      图形
+                    </span>
+                    <FigurePropertiesPanel
+                      workspace={editor.workspace}
+                      onApplyModel={editor.onModel}
+                      activePanelId={editor.activePanel.panelId}
+                      template={editor.template}
+                      data={editor.data}
+                      onApply={editor.onTemplate}
+                    />
+                    {menus}
+                  </div>
+                  <div
+                    className="preview-tool-group"
+                    role="group"
+                    aria-label="模板与批量绘图"
+                  >
+                    <span className="preview-group-label" aria-hidden="true">
+                      模板
+                    </span>
+                    <TemplateLibraryControls
+                      model={{
+                        template: setup.template,
+                        workspace: setup.workspace,
+                        activePanelId: setup.activePanel.panelId,
+                      }}
+                      onApply={setup.applyBatch}
+                    />
+                    <DatasetBatchControls
+                      model={editor.model}
+                      pending={setup.pending}
+                    />
+                  </div>
                 </div>
               }
             />
@@ -315,7 +366,7 @@ export default function App() {
   const setup = usePlotSetup(
     editor.model,
     editor.onModel,
-    editor.openedVersion,
+    editor.historyVersion,
   );
   const [bindingReveal, setBindingReveal] = useState<SeriesRevealRequest>();
   const confirmSetup = () => {
@@ -369,6 +420,35 @@ export default function App() {
   const hasUnsavedChanges = editor.unsavedChanges || setup.pending;
   const latestSetup = useRef(setup);
   latestSetup.current = setup;
+  const [recoverySource, setRecoverySource] = useState<{
+    id: string;
+    version: number;
+  }>();
+  const recovery = useProjectRecovery({
+    model: editor.model,
+    contentRevision: editor.contentRevision,
+    projectVersion: editor.openedVersion,
+    recoverySourceId:
+      recoverySource?.version === editor.openedVersion
+        ? recoverySource.id
+        : undefined,
+  });
+  const recoverProject = async (id: string) => {
+    const before = latestSetup.current;
+    const nextVersion = editor.openedVersion + 1;
+    const restored = await editor.onRecover(
+      async () => {
+        const record = await recovery.readDraft(id);
+        if (!record) throw new Error('此恢复草稿已被删除。');
+        return record.projectJson;
+      },
+      () =>
+        before.template === latestSetup.current.template &&
+        before.workspace === latestSetup.current.workspace,
+    );
+    if (restored) setRecoverySource({ id, version: nextVersion });
+    return restored;
+  };
   const openProject = (file: File) => {
     const before = latestSetup.current;
     return editor.onOpen(
@@ -389,6 +469,38 @@ export default function App() {
       selection: { kind: 'panel', panelId: editor.activePanel.panelId },
     }),
   );
+  const restoredVersion = useRef(editor.historyVersion);
+  useEffect(() => {
+    if (restoredVersion.current === editor.historyVersion) return;
+    restoredVersion.current = editor.historyVersion;
+    setOriginState((state) =>
+      state.selection && existsInTemplate(editor.template, state.selection)
+        ? state
+        : selectOriginObject(state, {
+            kind: 'panel',
+            panelId: editor.activePanel.panelId,
+          }),
+    );
+    setPreviewTableId((id) =>
+      editor.workspace.tables.some((table) => table.tableId === id) ? id : null,
+    );
+    setBindingReveal(undefined);
+  }, [
+    editor.historyVersion,
+    editor.template,
+    editor.workspace,
+    editor.activePanel.panelId,
+  ]);
+  const historyBlocked = () => {
+    if (setup.pending) return '请先生成图形或重置待绘图设置，再撤销或重做。';
+    if (
+      document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')
+    )
+      return '请先应用或关闭当前窗口，再撤销或重做。';
+    if (document.querySelector('.inline-chart-text-editor'))
+      return '请先保存或取消图内文字编辑，再撤销或重做。';
+    return undefined;
+  };
   const [auxiliary, setAuxiliary] = useState<'export' | 'templates' | null>(
     null,
   );
@@ -585,11 +697,27 @@ export default function App() {
               onSave={saveProject}
               onOpenFile={openProject}
             />
+            <ProjectRecoveryControls
+              recovery={recovery}
+              hasUnsavedChanges={hasUnsavedChanges}
+              projectVersion={editor.openedVersion}
+              onRestore={recoverProject}
+            />
           </div>
         </div>
         <WorkspaceContent
           editor={editor}
           setup={setup}
+          historyControls={
+            <EditorHistoryControls
+              canUndo={editor.history.canUndo}
+              canRedo={editor.history.canRedo}
+              onUndo={editor.undo}
+              onRedo={editor.redo}
+              blocked={historyBlocked}
+              message={editor.history.message}
+            />
+          }
           onExport={openExport}
           onConfirm={confirmSetup}
           bindingReveal={bindingReveal}

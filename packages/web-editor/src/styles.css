@@ -534,16 +534,12 @@ th:first-child {
   font-style: normal;
 }
 .right-stack .binding-card,
-.right-stack .plot-settings-card,
-.right-stack .column-summary,
-.right-stack .diagnostics {
+.right-stack .column-summary {
   padding: 0;
   overflow: hidden;
 }
 .right-stack .binding-card > .section-kicker,
-.right-stack .plot-settings-card > .section-kicker,
-.right-stack .column-summary > .section-kicker,
-.right-stack .diagnostics > .section-kicker {
+.right-stack .column-summary > .section-kicker {
   margin: 0;
   padding: 16px 18px;
   border-bottom: 1px solid var(--ui-border);
@@ -554,8 +550,7 @@ th:first-child {
 }
 .right-stack .binding-card > .slot-list,
 .right-stack .binding-card > .series-list,
-.right-stack .column-summary > .column-list,
-.right-stack .diagnostics > ul {
+.right-stack .column-summary > .column-list {
   padding: 14px 16px 16px;
 }
 .right-stack .binding-card > label,
@@ -571,32 +566,7 @@ th:first-child {
 .right-stack .binding-card > .chart-type-control .add-series {
   margin-top: 0;
 }
-.right-stack .plot-settings-card > label,
-.right-stack .plot-settings-card > select,
-.right-stack .plot-settings-card > p {
-  margin-left: 16px;
-  margin-right: 16px;
-}
-.right-stack .plot-settings-card > label {
-  margin-top: 16px;
-}
-.right-stack .plot-settings-card > select {
-  width: calc(100% - 32px);
-}
-.right-stack .plot-settings-card > p {
-  margin-bottom: 16px;
-}
-.right-stack .plot-settings-card > .plot-appearance-choices {
-  margin-left: 16px;
-  margin-right: 16px;
-}
-.right-stack .plot-settings-card > .plot-confirm-actions {
-  margin-right: 16px;
-  margin-bottom: 16px;
-  margin-left: 16px;
-}
-.column-list,
-.diagnostics ul {
+.column-list {
   display: grid;
   gap: 8px;
 }
@@ -616,26 +586,6 @@ th:first-child {
 .column-row code {
   color: var(--ui-success);
   font-size: var(--ui-font-caption);
-}
-.diagnostics ul {
-  margin: 0;
-  list-style: none;
-}
-.diagnostics li {
-  display: grid;
-  gap: 3px;
-  padding: 9px;
-  border-left: 3px solid var(--ui-border-strong);
-  background: var(--ui-subtle);
-  font-size: var(--ui-font-caption);
-  overflow-wrap: anywhere;
-}
-.diagnostics li strong {
-  color: var(--ui-muted);
-  font-size: var(--ui-font-caption);
-}
-.diagnostics li span {
-  color: var(--ui-muted);
 }
 .empty-copy {
   margin: 0;

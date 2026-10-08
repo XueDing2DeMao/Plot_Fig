@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { withoutAxisIdentityGroups } from '../../../tests/helpers/figure-payloads.js';
 import { withoutMigratedPlainText } from '../../../tests/helpers/figure-payloads.js';
 import { expect, it } from 'vitest';
@@ -15,7 +16,7 @@ it('完整F4迁移只更新1.16版本，已应用的符号细节和旧SVG保持'
   if (!r.ok) return;
   expect(withoutMigratedPlainText(r.value)).toEqual({
     ...before,
-    schemaVersion: '1.22.0',
+    schemaVersion: CURRENT_SCHEMA_VERSION,
   });
   expect(before).toEqual(baseline.template);
   const svg = renderFigureSvg(r.value as never, baseline.data);

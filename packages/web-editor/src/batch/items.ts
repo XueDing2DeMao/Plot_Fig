@@ -1,8 +1,15 @@
 import { bindWorkspace } from '@plot-fig/data-binding';
 import { rescaleFigureRanges } from '@plot-fig/svg-renderer';
-import type { ColumnRef } from '@plot-fig/data-binding';
+import type { FigureTemplate } from '@plot-fig/figure-schema';
+import {
+  resolveBatchColumns,
+  sourceColumnNames,
+  hasMultipleBatchSources,
+  type BatchColumnMappings,
+} from './column-mapping.js';
 import type { WorkspaceEditor } from '../state/workspace-editor.js';
-import { parseWorkspaceProject } from '../state/workspace-project.js';
+import { batchXYTemplate } from './xy-template.js';
+import { synchronizeCurveOneAxisTitles } from '../state/axis-title-bindings.js';
 export type BatchItem = {
   id: string;
   name: string;
@@ -17,79 +24,92 @@ export const BATCH_LIMITS = {
 export function tableBatchItems(
   model: WorkspaceEditor,
   ids: string[],
+  settings: {
+    template?: FigureTemplate;
+    columnNames?: Record<string, string>;
+    columnMappings?: BatchColumnMappings;
+    autoXY?: boolean;
+  } = {},
 ): BatchItem[] {
   if (ids.length > BATCH_LIMITS.items) throw new Error('批次最多 50 项');
-  const names = Object.fromEntries(
-    Object.entries(model.workspace.slotBindings).map(([id, ref]) => [
-      id,
-      model.workspace.tables
-        .find((t) => t.tableId === ref.tableId)
-        ?.columns.find((c) => c.columnId === ref.columnId)?.name,
-    ]),
-  );
+  const template = settings.template ?? model.template;
+  const currentTemplate =
+    !settings.template || settings.template === model.template;
+  const names =
+    settings.columnNames ??
+    (currentTemplate ? sourceColumnNames(template, model.workspace) : {});
+  const multipleSources =
+    currentTemplate && hasMultipleBatchSources(template, model.workspace);
   return ids.map((id) => {
     const table = model.workspace.tables.find((t) => t.tableId === id);
     if (!table) return { id, name: id, error: '数据表不存在' };
-    const next = structuredClone(model),
-      bindings: Record<string, ColumnRef> = {};
-    for (const [slot, name] of Object.entries(names)) {
-      const columns = table.columns.filter((c) => c.name === name);
-      if (columns.length !== 1)
-        return { id, name: table.name, error: '列名缺失或重复：' + name };
-      bindings[slot] = { tableId: id, columnId: columns[0]!.columnId };
-    }
-    next.workspace = {
-      tables: [structuredClone(table)],
-      activeTableId: id,
-      slotBindings: bindings,
-    };
-    const resolved = rescaleFigureRanges({
-      before: model.template,
-      candidate: next.template,
-      beforeData: bindWorkspace(model.template, model.workspace),
-      data: bindWorkspace(next.template, next.workspace),
-      reason: 'initialize',
-    });
-    const errors = resolved.diagnostics.filter((d) => d.severity === 'error');
-    if (errors.length)
+    try {
+      const overrides = settings.columnMappings?.[id] ?? {};
+      if (
+        multipleSources &&
+        template.dataSlots.some(
+          (s) =>
+            (s.required || names[s.dataSlotId] !== undefined) &&
+            !Object.hasOwn(overrides, s.dataSlotId),
+        )
+      )
+        throw new Error(
+          `${table.name}：原图依赖多张表，请逐项显式确认全部数据槽映射`,
+        );
+      const workspace = {
+        tables: [structuredClone(table)],
+        activeTableId: id,
+        slotBindings: {},
+      };
+      const itemTemplate = batchXYTemplate(
+        template,
+        workspace,
+        names,
+        overrides,
+        settings.autoXY ?? true,
+      );
+      const remapped: WorkspaceEditor = {
+        ...model,
+        template: structuredClone(itemTemplate),
+        workspace: {
+          ...workspace,
+          slotBindings: resolveBatchColumns(
+            itemTemplate,
+            workspace,
+            names,
+            overrides,
+            !!settings.template,
+            settings.autoXY ?? true,
+          ),
+        },
+      };
+      const next =
+        (settings.autoXY ?? true)
+          ? synchronizeCurveOneAxisTitles(model, remapped)
+          : remapped;
+      const resolved = rescaleFigureRanges({
+        before: model.template,
+        candidate: next.template,
+        beforeData: bindWorkspace(model.template, model.workspace),
+        data: bindWorkspace(next.template, next.workspace),
+        // 当前图形沿用主图的数据变更策略，同表同绑定不重置已显示的窗口。
+        reason: settings.template ? 'initialize' : 'change',
+      });
+      const errors = resolved.diagnostics.filter((d) => d.severity === 'error');
+      if (errors.length)
+        return {
+          id,
+          name: table.name,
+          error: errors.map((d) => d.message).join('；'),
+        };
+      next.template = resolved.template;
+      return { id, name: table.name, model: next };
+    } catch (error) {
       return {
         id,
         name: table.name,
-        error: errors.map((d) => d.message).join('；'),
+        error: error instanceof Error ? error.message : '无法绑定数据表',
       };
-    next.template = resolved.template;
-    return { id, name: table.name, model: next };
-  });
-}
-export async function projectBatchItems(files: File[]): Promise<BatchItem[]> {
-  if (
-    files.length > BATCH_LIMITS.items ||
-    files.reduce((n, f) => n + f.size, 0) > BATCH_LIMITS.inputBytes
-  )
-    throw new Error('批次最多 50 项、总输入不超过 100 MiB');
-  const items: BatchItem[] = [];
-  for (const [i, file] of files.entries())
-    try {
-      const result = parseWorkspaceProject(await file.text());
-      items.push(
-        result.ok
-          ? {
-              id: String(i),
-              name: file.name,
-              model: { template: result.template, workspace: result.workspace },
-            }
-          : {
-              id: String(i),
-              name: file.name,
-              error: result.diagnostics.map((d) => d.message).join('; '),
-            },
-      );
-    } catch (e) {
-      items.push({
-        id: String(i),
-        name: file.name,
-        error: e instanceof Error ? e.message : '读取失败',
-      });
     }
-  return items;
+  });
 }

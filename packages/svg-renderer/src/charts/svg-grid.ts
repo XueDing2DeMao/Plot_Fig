@@ -7,7 +7,7 @@ import {
   type ChartContext,
 } from './svg-marks.js';
 import { makeColorScale } from './color-scale.js';
-import { MAX_CONTOUR_WORK, type Grid } from './grid.js';
+import { gridCellBounds, MAX_CONTOUR_WORK, type Grid } from './grid.js';
 import { extent } from './statistics.js';
 import { triangleBands, triangleContours } from './irregular-grid.js';
 import type { PreparedPlot } from './prepared.js';
@@ -52,6 +52,13 @@ export function renderHeatmap(
       if (z === null && !plot.heatmap?.missingColor) return '';
       const x = grid.x[i % grid.x.length]!,
         y = grid.y[Math.floor(i / grid.x.length)]!;
+      const [xLow, xHigh] = gridCellBounds(grid.x, i % grid.x.length);
+      const [yLow, yHigh] = gridCellBounds(
+        grid.y,
+        Math.floor(i / grid.x.length),
+      );
+      const dx = xHigh - xLow,
+        dy = yHigh - yLow;
       if (z !== null && plot.heatmap?.interpolation === 'bilinear') {
         const column = i % grid.x.length,
           row = Math.floor(i / grid.x.length),
@@ -78,10 +85,10 @@ export function renderHeatmap(
               ? rectangle(context, {
                   role: 'heatmap-cell',
                   range: {
-                    x1: x - grid.dx / 2 + (sx * grid.dx) / steps,
-                    x2: x - grid.dx / 2 + ((sx + 1) * grid.dx) / steps,
-                    y1: y - grid.dy / 2 + (sy * grid.dy) / steps,
-                    y2: y - grid.dy / 2 + ((sy + 1) * grid.dy) / steps,
+                    x1: xLow + (sx * dx) / steps,
+                    x2: xLow + ((sx + 1) * dx) / steps,
+                    y1: yLow + (sy * dy) / steps,
+                    y2: yLow + ((sy + 1) * dy) / steps,
                   },
                   style: `fill="${plot.heatmap.missingColor}"${border}`,
                 })
@@ -94,10 +101,10 @@ export function renderHeatmap(
           return rectangle(context, {
             role: 'heatmap-cell',
             range: {
-              x1: x - grid.dx / 2 + (sx * grid.dx) / steps,
-              x2: x - grid.dx / 2 + ((sx + 1) * grid.dx) / steps,
-              y1: y - grid.dy / 2 + (sy * grid.dy) / steps,
-              y2: y - grid.dy / 2 + ((sy + 1) * grid.dy) / steps,
+              x1: xLow + (sx * dx) / steps,
+              x2: xLow + ((sx + 1) * dx) / steps,
+              y1: yLow + (sy * dy) / steps,
+              y2: yLow + ((sy + 1) * dy) / steps,
             },
             style: `data-interpolation="bilinear" fill="${scale.color(interpolated)}"${border}`,
           });
@@ -107,10 +114,10 @@ export function renderHeatmap(
         rectangle(context, {
           role: 'heatmap-cell',
           range: {
-            x1: x - grid.dx / 2,
-            x2: x + grid.dx / 2,
-            y1: y - grid.dy / 2,
-            y2: y + grid.dy / 2,
+            x1: xLow,
+            x2: xHigh,
+            y1: yLow,
+            y2: yHigh,
           },
           style: `fill="${z === null ? plot.heatmap!.missingColor : scale.color(z)}"${plot.heatmap?.cellBorder?.visible ? ` ${lineAttributes(plot.heatmap.cellBorder)}` : ''}`,
         }) +
@@ -136,7 +143,10 @@ export function renderHeatmap(
         })
         .join('')
     : '';
-  return cells + (plot.heatmap?.interpolation === 'bilinear' ? labels : '');
+  // 密集的相邻单元共用像素边界，避免栅格化时抗锯齿露出背景细缝。
+  return plot.heatmap?.interpolation === 'bilinear'
+    ? cells + labels
+    : `<g shape-rendering="crispEdges">${cells}</g>`;
 }
 type Contour = Extract<PreparedPlot['plot'], { kind: 'contour' }>;
 function levelsFor(plot: Contour, range: [number, number]) {

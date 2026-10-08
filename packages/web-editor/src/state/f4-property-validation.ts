@@ -7,6 +7,7 @@ import {
   validateCurveTransform,
   validateCurveGroupsStructure,
   validatePanelStack,
+  validateLayerStack,
 } from '@plot-fig/figure-schema';
 export function validateF4Property(key: string, value: unknown): void {
   const validators: Record<string, (value: never) => void> = {
@@ -18,6 +19,7 @@ export function validateF4Property(key: string, value: unknown): void {
     transform: validateCurveTransform,
     groups: validateCurveGroupsStructure,
     stack: validatePanelStack,
+    layerStack: validateLayerStack,
   };
   const validate = validators[key];
   if (!validate) throw new Error('不支持此 F4 属性');

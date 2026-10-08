@@ -165,7 +165,11 @@ describe.each(axisCases)('$name range input', ({ name, dimension, axisId }) => {
     expect(input).toHaveValue('-1');
     expect(screen.getByLabelText(`${dimension} 轴最大值`)).toHaveValue('1');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '应用' }));
+    if (axisId.startsWith('axis-')) {
+      expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
+      expect(onApply).not.toHaveBeenCalled();
+    }
+    fireEvent.click(screen.getByRole('button', { name: '确定' }));
     expect(
       onApply.mock.lastCall![0].panels[0]!.axes.find(
         (axis) => axis.axisId === axisId,
@@ -180,7 +184,8 @@ it('resets ranges when chart orientation changes the axis types', () => {
   const horizontal = applyHorizontalOrientation(template);
   const onApply = showDialog(horizontal);
   selectAxis('左 Y 轴');
-  expect(screen.queryByLabelText('Y 轴最小值')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Y 轴最小值')).toHaveValue('');
+  expect(screen.getByLabelText('Y 轴最大值')).toHaveValue('');
   expect(screen.getByText('分类轴')).toBeInTheDocument();
   selectAxis('下 X 轴');
   expect(screen.getByLabelText('X 轴最小值')).toHaveValue('');
@@ -204,6 +209,43 @@ it('resets ranges when chart orientation changes the axis types', () => {
       }),
     ]),
   );
+});
+
+it('treats restored plot properties as unchanged regardless of object key order', () => {
+  const template = defaultTemplate();
+  const plot = template.panels[0]!.plotSlots[0]!;
+  if (plot.kind !== 'xy') throw new Error('expected XY plot');
+  plot.markerStyle = Object.fromEntries(
+    Object.entries(plot.markerStyle!).reverse(),
+  ) as NonNullable<typeof plot.markerStyle>;
+  const original = structuredClone(template);
+  const onApply = showDialog(template, undefined, {
+    kind: 'plot',
+    panelId: 'panel-main',
+    plotSlotId: 'series-1',
+  });
+  const apply = screen.getByRole('button', { name: '应用' });
+  const width = screen.getByLabelText('线宽 (pt)');
+  expect(apply).toBeDisabled();
+  fireEvent.change(width, { target: { value: '2' } });
+  expect(apply).toBeEnabled();
+  fireEvent.change(width, { target: { value: '1.5' } });
+  expect(apply).toBeDisabled();
+  const unload = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(unload);
+  expect(unload.defaultPrevented).toBe(false);
+  fireEvent.click(apply);
+  expect(onApply).not.toHaveBeenCalled();
+
+  fireEvent.change(width, { target: { value: '2' } });
+  fireEvent.click(apply);
+  expect(onApply).toHaveBeenCalledOnce();
+  expect(apply).toBeDisabled();
+  fireEvent.change(width, { target: { value: '3' } });
+  expect(apply).toBeEnabled();
+  fireEvent.change(width, { target: { value: '2' } });
+  expect(apply).toBeDisabled();
+  expect(template).toEqual(original);
 });
 
 it.each([
@@ -369,7 +411,7 @@ it('edits exact axes in separate layer windows without overwriting saved page ed
     (axis) => axis.axisId === 'frame-x-second',
   )!.range = { mode: 'fixed', min: -0.25, max: 0.75 };
   expected.panels[0]!.axes.find((axis) => axis.axisId === 'frame-y')!.title = {
-    format: 'plain',
+    format: 'auto',
     text: 'Right first',
     fontFamily: 'Arial',
     fontSizePt: 12,
@@ -413,7 +455,7 @@ it('opens the active empty layer then edits its axis independently, retaining th
     screen
       .getByLabelText('修改后的图形预览')
       .querySelector('[data-plot-slot-id="series-1"]'),
-  ).toBeInTheDocument();
+  ).not.toBeInTheDocument();
   fireEvent.change(screen.getByLabelText('图层宽度 (%)'), {
     target: { value: '30' },
   });

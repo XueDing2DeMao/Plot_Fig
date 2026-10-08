@@ -5,7 +5,6 @@ import {
   chartData,
   chartTemplate,
 } from '../../../tests/helpers/chart-fixtures.js';
-import { validateRequest } from '../../export-service/src/security.js';
 import { renderFigureSvg } from './index.js';
 import { preparePanel, renderPanel } from './panel.js';
 
@@ -145,7 +144,7 @@ it('renders the label formula before divisor and styling without moving data or 
     background: 'white',
     anchor: 'start',
   });
-  const { doc, svg } = render(template),
+  const { doc } = render(template),
     x = group(doc),
     labels = x.querySelectorAll('[data-role="tick-label"]');
   expect(Array.from(labels, (label) => label.textContent)).toEqual([
@@ -174,16 +173,8 @@ it('renders the label formula before divisor and styling without moving data or 
   expect(doc.querySelector('[data-role="plots"]')!.outerHTML).toBe(
     baseline.doc.querySelector('[data-role="plots"]')!.outerHTML,
   );
-  for (const format of ['pdf', 'eps'] as const)
-    expect(() =>
-      validateRequest({
-        svg,
-        format,
-        dpi: 300,
-        textToPath: false,
-        flattenTransparency: false,
-      }),
-    ).not.toThrow();
+  expect(doc.querySelector('parsererror')).toBeNull();
+  expect(doc.querySelector('script, foreignObject')).toBeNull();
 });
 
 it('renders persisted wrapping, line-height and overlap filtering while retaining every tick', () => {

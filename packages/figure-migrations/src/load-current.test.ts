@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { readFile } from 'node:fs/promises';
 import {
   canonicalizeFigurePayload,
@@ -74,7 +75,7 @@ describe('loadFigurePayload current and versioned flows', () => {
     if (result.ok) {
       const expected: any = {
         ...(migrateV010ToV100(input) as object),
-        schemaVersion: '1.22.0',
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       };
       for (const panel of expected.panels) {
         for (const axis of panel.axes) axis.tickLabels.textFormat = 'plain';
@@ -114,7 +115,7 @@ describe('loadFigurePayload current and versioned flows', () => {
     },
   );
 
-  it.each(['1.22.1', '1.23.0', '2.0.0'])(
+  it.each(['1.24.1', '1.25.0', '2.0.0'])(
     'rejects future schemaVersion %s using full semver ordering',
     (schemaVersion) => {
       expectSingleDiagnostic(

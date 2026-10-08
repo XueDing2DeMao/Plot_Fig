@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   chartData,
@@ -70,7 +71,7 @@ it('从1.12迁移只改版本且保留旧图SVG，不允许新参数冒充旧格
   const result = loadFigurePayload(old);
   expect(result.ok).toBe(true);
   if (!result.ok) return;
-  expect(result.value.schemaVersion).toBe('1.21.0');
+  expect(result.value.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   expect({ ...result.value, schemaVersion: '1.12.0' }).toEqual(old);
   Object.assign(old.panels[0]!.plotSlots[0]!.markerStyle!, { rotationDeg: 10 });
   expect(loadFigurePayload(old).ok).toBe(false);

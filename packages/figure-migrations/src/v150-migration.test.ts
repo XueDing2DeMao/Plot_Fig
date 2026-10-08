@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { readFile } from 'node:fs/promises';
 import { expect, it } from 'vitest';
 import { loadFigurePayload } from './load.js';
@@ -21,7 +22,7 @@ it.each(['template', 'document'])(
     const before = structuredClone(input);
     expect(loadFigurePayload(input)).toMatchObject({
       ok: true,
-      value: { schemaVersion: '1.22.0' },
+      value: { schemaVersion: CURRENT_SCHEMA_VERSION },
     });
     expect(input).toEqual(before);
     for (const patch of [

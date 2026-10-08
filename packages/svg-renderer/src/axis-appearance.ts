@@ -179,7 +179,11 @@ function prepareAppearance(
     },
     context,
   );
-  const plan = options.tickPlan ?? planAxisGridTicks(axis, scale, options.grid);
+  let plan = options.tickPlan ?? planAxisGridTicks(axis, scale, options.grid);
+  const fitCategories =
+    scale.categories !== undefined &&
+    options.tickPlan === undefined &&
+    options.tickLabels?.overlap !== 'keep';
   if (
     (options.tickPlan || isAdvancedAxis(axis)) &&
     plan.major.length + plan.minor.length > MAX_AXIS_TICKS
@@ -201,17 +205,18 @@ function prepareAppearance(
       previous = tick.value;
     }
   }
-  const placements = axis.tickLabels.visible
-    ? plan.major.flatMap((tick, index) => {
-        const interval = options.tickLabels?.position === 'interval';
-        const next = plan.major[index + 1];
-        if (interval && !next) return [];
-        const ratio = interval
-          ? tick.ratio + (next!.ratio - tick.ratio) / 2
-          : tick.ratio;
-        return [labelPlacement(axis, layout, scale, tick, ratio, options)];
-      })
-    : [];
+  const placements =
+    axis.tickLabels.visible || fitCategories
+      ? plan.major.flatMap((tick, index) => {
+          const interval = options.tickLabels?.position === 'interval';
+          const next = plan.major[index + 1];
+          if (interval && !next) return [];
+          const ratio = interval
+            ? tick.ratio + (next!.ratio - tick.ratio) / 2
+            : tick.ratio;
+          return [labelPlacement(axis, layout, scale, tick, ratio, options)];
+        })
+      : [];
   const labelLayoutEnabled = (
     [
       'anchor',
@@ -225,7 +230,7 @@ function prepareAppearance(
   ).some((key) => options.tickLabels?.[key] !== undefined);
   // 字体、颜色、格式和前后缀不应顺带把旧类别文字重排为多行。
   // 未启用标签布局时按 SVG 的空白折叠估计边界，输出仍保留原始文字。
-  const labels = layoutAxisLabels(
+  let labels = layoutAxisLabels(
     labelLayoutEnabled
       ? placements
       : placements.map((item) => ({
@@ -234,6 +239,7 @@ function prepareAppearance(
         })),
     {
       fontSizePt: axis.tickLabels.fontSizePt,
+      ...(fitCategories ? { overlap: 'hide' as const } : {}),
       ...options.tickLabels,
       ...(options.tickLabels?.textFormat === undefined
         ? {}
@@ -248,7 +254,23 @@ function prepareAppearance(
       label.text = placements[i]!.text;
       label.lines = [{ text: label.text, x: label.x, y: label.y }];
     }
-  return { layout, plan, labels };
+  let sourceIndices: number[] | undefined;
+  if (fitCategories && labels.some((label) => !label.visible)) {
+    // 分类轴按实际文字布局抽取刻度，网格同步；不改变分类带或柱体数据。
+    const retained = plan.major.flatMap((tick, index) =>
+      labels[index]?.visible || tick.special ? [index] : [],
+    );
+    plan = {
+      major: retained.map((index) => plan.major[index]!),
+      minor: [],
+    };
+    sourceIndices = retained;
+    labels = retained.flatMap((index) =>
+      labels[index] ? [labels[index]!] : [],
+    );
+  }
+  if (!axis.tickLabels.visible) labels = [];
+  return { layout, plan, labels, sourceIndices };
 }
 
 // 共用布局与数值校验，但不构造整幅刻度/标签 SVG，供无数据时的草稿门禁使用。
@@ -260,7 +282,11 @@ export function validateAxisAppearance(
   context?: AxisLayoutContext,
 ): void {
   if (!axis.visible) return;
-  if (Object.keys(options).length === 0 && !isAdvancedAxis(axis)) {
+  if (
+    Object.keys(options).length === 0 &&
+    !isAdvancedAxis(axis) &&
+    !scale.categories
+  ) {
     planAxisTicks(axis, scale);
     return;
   }
@@ -302,16 +328,60 @@ export function renderAxisAppearance(
   const gridLayer = options.grid?.layer ?? 'back';
   if (
     !axis.visible ||
-    (Object.keys(options).length === 0 && !isAdvancedAxis(axis))
+    (Object.keys(options).length === 0 &&
+      !isAdvancedAxis(axis) &&
+      !scale.categories)
   )
-    return { axisSvg: renderAxis(axis, rect, scale), gridSvg: '', gridLayer };
-  const { layout, plan, labels } = prepareAppearance(
+    return {
+      axisSvg: renderAxis(axis, rect, scale, undefined, context?.onBounds),
+      gridSvg: '',
+      gridLayer,
+    };
+  const { layout, plan, labels, sourceIndices } = prepareAppearance(
     axis,
     rect,
     scale,
     options,
     context,
   );
+  const onBounds = context?.onBounds;
+  const measureSegment = (segment: AxisSegment, width: number) =>
+    onBounds?.({
+      x: Math.min(segment.x1, segment.x2) - width / 2,
+      y: Math.min(segment.y1, segment.y2) - width / 2,
+      width: Math.abs(segment.x2 - segment.x1) + width,
+      height: Math.abs(segment.y2 - segment.y1) + width,
+    });
+  if (onBounds) {
+    if (layout.line) measureSegment(layout.line, axis.line.widthPt);
+    labels
+      .filter((label) => label.visible)
+      .forEach((label) => onBounds(label.bounds));
+    if (axis.majorTicks.visible)
+      for (const tick of plan.major)
+        measureSegment(
+          axisTickSegment(
+            layout,
+            tick.ratio,
+            tick.special?.lengthPt ?? axis.majorTicks.lengthPt,
+            options.majorTicks?.direction,
+          ),
+          axis.majorTicks.widthPt,
+        );
+    if (axis.minorTicks.visible)
+      for (const tick of plan.minor)
+        measureSegment(
+          axisTickSegment(
+            layout,
+            tick.ratio,
+            options.minorTicks?.lengthMode === 'auto'
+              ? axis.majorTicks.lengthPt / 2
+              : axis.minorTicks.lengthPt,
+            options.minorTicks?.direction,
+          ),
+          axis.minorTicks.widthPt,
+        );
+  }
   const line = layout.line
     ? scale.segments
       ? scale.segments
@@ -388,6 +458,15 @@ export function renderAxisAppearance(
     if (tick.special?.leaderPt) {
       const p = axisPointAt(layout, tick.ratio),
         length = tick.special.leaderPt * layout.outward;
+      measureSegment(
+        {
+          x1: p.x,
+          y1: p.y,
+          x2: p.x + (layout.horizontal ? 0 : length),
+          y2: p.y + (layout.horizontal ? length : 0),
+        },
+        axis.line.widthPt,
+      );
       extras += segmentSvg(
         'special-tick-leader',
         {
@@ -406,6 +485,12 @@ export function renderAxisAppearance(
         p = axisPointAt(layout, ratio),
         size = axis.advanced?.breaks?.markSizePt ?? 5;
       const shape = axis.advanced?.breaks?.mark ?? 'slash';
+      onBounds?.({
+        x: p.x - size - axis.line.widthPt / 2,
+        y: p.y - size - axis.line.widthPt / 2,
+        width: 2 * size + axis.line.widthPt,
+        height: 2 * size + axis.line.widthPt,
+      });
       if (shape === 'zigzag') {
         const coords = layout.horizontal
           ? `${p.x - size},${p.y - size / 2} ${p.x - size / 3},${p.y + size / 2} ${p.x + size / 3},${p.y - size / 2} ${p.x + size},${p.y + size / 2}`
@@ -442,6 +527,12 @@ export function renderAxisAppearance(
       const points = layout.horizontal
         ? `${p.x},${p.y} ${p.x - direction * size},${p.y - size / 2} ${p.x - direction * size},${p.y + size / 2}`
         : `${p.x},${p.y} ${p.x - size / 2},${p.y + direction * size} ${p.x + size / 2},${p.y + direction * size}`;
+      onBounds?.({
+        x: p.x - size,
+        y: p.y - size,
+        width: 2 * size,
+        height: 2 * size,
+      });
       extras += `<polygon data-role="axis-arrow" points="${points}" fill="${escapeXml(axis.line.color)}"/>`;
     }
   const extraLabel = (
@@ -455,6 +546,25 @@ export function renderAxisAppearance(
     const p = axisPointAt(layout, tick.ratio),
       x = p.x + (layout.horizontal ? 0 : layout.outward * distance),
       y = p.y + (layout.horizontal ? layout.outward * distance : fontSize / 3);
+    if (onBounds)
+      onBounds(
+        layoutAxisLabels(
+          [
+            {
+              text,
+              x,
+              y,
+              anchor: layout.horizontal
+                ? 'middle'
+                : layout.outward < 0
+                  ? 'end'
+                  : 'start',
+            },
+          ],
+          { fontSizePt: fontSize, format: 'plain' },
+          axis.dimension,
+        )[0]!.bounds,
+      );
     return `<text data-role="${role}" x="${formatNumber(x)}" y="${formatNumber(y)}" text-anchor="${layout.horizontal ? 'middle' : layout.outward < 0 ? 'end' : 'start'}" font-family="${escapeXml(axis.tickLabels.fontFamily)}" font-size="${formatNumber(fontSize)}" fill="${escapeXml(color)}">${escapeXml(text)}</text>`;
   };
   let tableExtent = 0;
@@ -478,8 +588,13 @@ export function renderAxisAppearance(
       const texts = plan.major.map(
         (tick, i) =>
           (row.title ? row.title + ': ' : '') +
-          (advancedAxisLabel(axis, scale, tick.value, i, row) ??
-            formatAxisLabel(tick.value, axis.tickLabels)),
+          (advancedAxisLabel(
+            axis,
+            scale,
+            tick.value,
+            scale.categories ? tick.value : (sourceIndices?.[i] ?? i),
+            row,
+          ) ?? formatAxisLabel(tick.value, axis.tickLabels)),
       );
       const distance = tableExtent + gap + (layout.horizontal ? fontSize : 0);
       plan.major.forEach((tick, i) => {
@@ -551,7 +666,7 @@ export function renderAxisAppearance(
       : `<defs><clipPath id="${escapeXml(clipId)}"><rect x="${formatNumber(rect.x)}" y="${formatNumber(rect.y)}" width="${formatNumber(rect.width)}" height="${formatNumber(rect.height)}" /></clipPath></defs>${grid}`
     : '';
   return {
-    axisSvg: `<g data-role="axis-${axis.dimension}">${line}${minors}${majors}${extras}${renderAppearanceTitle(axis, layout, titleOptions)}</g>`,
+    axisSvg: `<g data-role="axis-${axis.dimension}">${line}${minors}${majors}${extras}${renderAppearanceTitle(axis, layout, titleOptions, onBounds)}</g>`,
     gridSvg,
     gridLayer,
   };

@@ -89,12 +89,12 @@ it('rejects duplicate, irregular and oversized grids before allocating the produ
     prepareGrid({ x: [0, 1, 0, 0], y: [0, 0, 1, 1], z: [1, 2, 3, 4] }, false),
   ).toThrow(/重复/);
   expect(() =>
-    prepareGrid({ x: [0, 1, 3], y: [0, 1, 0], z: [1, 2, 3] }, false),
+    prepareGrid({ x: [0, 1, 3], y: [0, 1, 0], z: [1, 2, 3] }, true),
   ).toThrow(/等间距/);
   const count = Math.ceil(Math.sqrt(MAX_GRID_CELLS)) + 1;
   const coordinates = Array.from({ length: count }, (_, i) => i);
   expect(() =>
-    prepareGrid({ x: coordinates, y: coordinates, z: coordinates }, false),
+    prepareGrid({ x: coordinates, y: coordinates, z: coordinates }, true),
   ).toThrow(/超过/);
 });
 

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 // @vitest-environment jsdom
 import { openPropertyFeature } from '../test-utils/property-navigation.js';
 import '@testing-library/jest-dom/vitest';
@@ -123,7 +124,7 @@ it('正式弹窗保留小数草稿，原子绑定，单点样式与保存重开�
   expect(plot.markerOverrides?.points).toEqual([
     { row: 2, style: { sizePt: 12.5 } },
   ]);
-  expect(reopened.template.schemaVersion).toBe('1.22.0');
+  expect(reopened.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   expect(
     renderFigureSvg(
       reopened.template,
@@ -140,7 +141,7 @@ it('来源变化且另有非法输入时仍暂停旧单点覆盖，可清除后�
     source: markerSourceForPlot(plot, data)!,
     points: [{ row: 1, style: { sizePt: 9 } }],
   };
-  data.columns[1]!.values[0] = 8;
+  current.workspace.tables[0]!.rows[1]![1] = 8;
   render(
     <FigurePropertiesDialog
       {...current}

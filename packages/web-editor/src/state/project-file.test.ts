@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import { bindDataSlots, inferDataBindingSet } from '@plot-fig/data-binding';
 import { defaultTemplate } from './editor-state.js';
@@ -29,7 +30,10 @@ describe('project file', () => {
     expect(JSON.parse(first)).toMatchObject({
       kind: 'plot-fig-project',
       version: '1.0.0',
-      document: { kind: 'figure-document', schemaVersion: '1.22.0' },
+      document: {
+        kind: 'figure-document',
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
       data: { sourceName: 'xy.csv', csvText },
     });
     expect(parseProjectFile(first)).toMatchObject({

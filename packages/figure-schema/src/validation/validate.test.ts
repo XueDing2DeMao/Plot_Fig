@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import { validTemplate } from '../schema/fixtures.js';
 import { validateFigureDocument, validateFigureTemplate } from './validate.js';
@@ -7,7 +8,7 @@ const cloneTemplate = () => structuredClone(validTemplate);
 const createDocument = () =>
   ({
     kind: 'figure-document',
-    schemaVersion: '1.22.0',
+    schemaVersion: CURRENT_SCHEMA_VERSION,
     documentId: 'document-1',
     templateSnapshot: cloneTemplate(),
     dataSources: [

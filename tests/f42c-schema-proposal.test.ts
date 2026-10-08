@@ -25,7 +25,7 @@ const extras = {
   dropLines: { vertical: { target: { mode: 'value', value: -0.5 } } },
 };
 it('integrates the approved 1.12 proposal into the application', () => {
-  expect(CURRENT_SCHEMA_VERSION).toBe('1.22.0');
+  expect(CURRENT_SCHEMA_VERSION).toBe('1.24.0');
   const template = createCurrentTemplate();
   Object.assign(template.panels[0]!.plotSlots[0]!, extras);
   expect(validateFigureTemplate(template).ok).toBe(true);

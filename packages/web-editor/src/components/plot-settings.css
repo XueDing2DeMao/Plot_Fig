@@ -1,33 +1,71 @@
-.plot-settings-card {
-  padding: 18px;
+.card.plot-settings-card {
+  --ui-control-height: 32px;
+  padding: 0;
+  overflow: hidden;
+}
+.plot-settings-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.plot-settings-heading {
+  min-width: 0;
+}
+.plot-settings-heading h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.plot-settings-state {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--ui-font-caption);
+  color: var(--ui-muted);
+}
+.plot-settings-state[data-state='pending'] {
+  color: var(--ui-warning);
+}
+.plot-settings-state[data-state='error'] {
+  color: var(--ui-danger);
+}
+.plot-settings-body {
+  display: grid;
+  gap: 14px;
+  padding: 12px;
 }
 .plot-type-label {
   display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
   gap: 8px;
-  margin-bottom: 18px;
+  font-size: var(--ui-font-small);
 }
 .plot-confirm-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-end;
-  margin-top: 18px;
+  margin-left: auto;
+}
+.plot-confirm-actions button {
+  padding: 5px 8px;
+  font-size: var(--ui-font-small);
 }
 .plot-confirm-actions .primary-action {
   color: var(--ui-on-primary);
   background: var(--ui-primary);
   border-color: var(--ui-primary);
-  min-width: 80px;
-}
-.plot-mode-label {
-  margin-bottom: 8px;
-  color: var(--ui-heading);
-  font-size: var(--ui-font-small);
+  min-width: 68px;
 }
 .plot-mode-select {
   width: 100%;
   min-height: var(--ui-control-height);
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid var(--ui-border-strong);
   border-radius: var(--ui-radius-control);
   color: var(--ui-heading);
@@ -38,15 +76,42 @@
   outline: 2px solid var(--ui-focus);
   outline-offset: 2px;
 }
-.plot-mode-help {
-  margin: 9px 0 0;
+.plot-settings-help {
+  padding-top: 8px;
+  border-top: 1px solid var(--ui-border);
   color: var(--ui-muted);
   font-size: var(--ui-font-small);
   line-height: 1.45;
 }
+.plot-settings-help summary {
+  width: fit-content;
+  cursor: pointer;
+}
+.plot-settings-help p {
+  margin: 8px 0 0;
+}
+.plot-settings-help summary:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+.plot-settings-body > :is(.workspace-hint, .workspace-error) {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--ui-radius-control);
+  font-size: var(--ui-font-small);
+  overflow-wrap: anywhere;
+}
+.plot-settings-body > .workspace-hint {
+  color: var(--ui-warning);
+  background: var(--ui-subtle);
+}
+.plot-settings-body > .workspace-error {
+  color: var(--ui-danger);
+  background: var(--ui-danger-bg);
+}
 .plot-appearance-choices {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 .visual-choice-group {
   min-width: 0;
@@ -55,7 +120,7 @@
   border: 0;
 }
 .visual-choice-group legend {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   padding: 0;
   color: var(--ui-heading);
   font-size: var(--ui-font-small);
@@ -63,7 +128,7 @@
 }
 .visual-choice-grid {
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 .line-choice-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -84,12 +149,13 @@
   opacity: 0;
 }
 .visual-choice-body {
+  position: relative;
   display: grid;
-  min-height: 56px;
+  min-height: 48px;
   place-items: center;
   align-content: center;
   gap: 2px;
-  padding: 5px 3px;
+  padding: 4px 2px;
   border: 1px solid var(--ui-border-strong);
   border-radius: var(--ui-radius-control);
   color: var(--ui-heading);
@@ -109,11 +175,37 @@
   overflow: visible;
 }
 .marker-choice-grid .visual-choice-body svg {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
+}
+.visual-choice-group .marker-choice-heading {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.plot-settings-card .marker-more {
+  min-height: 28px;
+  padding: 3px 5px;
+  border-color: transparent;
+  background: transparent;
+  font-size: var(--ui-font-caption);
+  font-weight: 500;
+}
+.plot-settings-card .marker-more:hover {
+  background: var(--ui-selected);
+}
+.choice-selected-mark {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
 }
 .visual-choice:hover .visual-choice-body {
-  border-color: var(--ui-primary);
+  background: var(--ui-subtle);
 }
 .visual-choice > input:checked + .visual-choice-body {
   border-color: var(--ui-primary);
@@ -152,4 +244,32 @@
 path.choice-marker {
   fill: none;
   stroke-linecap: round;
+}
+@media (max-width: 600px), (pointer: coarse) {
+  .card.plot-settings-card {
+    --ui-control-height: 44px;
+  }
+  .plot-confirm-actions button {
+    min-width: 44px;
+  }
+  .plot-settings-card .marker-more {
+    min-height: 44px;
+  }
+  .plot-settings-help summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    width: 100%;
+    list-style: none;
+  }
+  .plot-settings-help summary::-webkit-details-marker {
+    display: none;
+  }
+  .plot-settings-help summary::before {
+    content: '›';
+    margin-right: 6px;
+  }
+  .plot-settings-help[open] summary::before {
+    transform: rotate(90deg);
+  }
 }

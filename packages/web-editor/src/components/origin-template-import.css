@@ -1,0 +1,39 @@
+.origin-template-import {
+  display: grid;
+  gap: 0.65rem;
+  border-top: 1px solid var(--ui-border, #d8dee8);
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  min-width: 0;
+}
+.origin-template-import h4,
+.origin-template-import p {
+  margin: 0;
+}
+.origin-template-import details {
+  max-height: 16rem;
+  overflow: auto;
+}
+.origin-template-import li {
+  overflow-wrap: anywhere;
+  margin: 0.35rem 0;
+}
+.origin-template-import li code {
+  display: block;
+  font-size: 0.8em;
+}
+.origin-template-sample {
+  min-width: 0;
+  background: white;
+  border: 1px solid #d8dee8;
+}
+.origin-template-sample svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.origin-template-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

@@ -1,0 +1,94 @@
+.card.diagnostics-panel {
+  --diagnostic-color: var(--ui-muted);
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.diagnostics-panel .diagnostics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 11px 14px;
+}
+.diagnostics-panel .diagnostics-header h2 {
+  margin: 0;
+  color: var(--ui-heading);
+  font-size: 14px;
+  font-weight: 600;
+}
+.diagnostics-panel .diagnostics-empty {
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+  white-space: nowrap;
+}
+.diagnostics-panel .diagnostics-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.diagnostics-panel [data-severity='error'] {
+  --diagnostic-color: var(--ui-danger);
+}
+.diagnostics-panel [data-severity='warning'] {
+  --diagnostic-color: var(--ui-warning);
+}
+.diagnostics-panel .diagnostics-count {
+  padding: 2px 7px;
+  border: 1px solid var(--ui-border);
+  border-radius: 5px;
+  background: var(--ui-subtle);
+  color: var(--diagnostic-color);
+  font-size: var(--ui-font-caption);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.diagnostics-panel .diagnostics-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--ui-border);
+  list-style: none;
+}
+.diagnostics-panel .diagnostics-list li {
+  min-width: 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--diagnostic-color);
+  border-radius: 4px;
+  background: var(--ui-subtle);
+  overflow-wrap: anywhere;
+}
+.diagnostics-panel .diagnostics-item-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-bottom: 4px;
+}
+.diagnostics-panel .diagnostics-severity {
+  color: var(--diagnostic-color);
+  font-size: var(--ui-font-small);
+  font-weight: 600;
+}
+.diagnostics-panel .diagnostics-item-heading code {
+  min-width: 0;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-caption);
+  white-space: normal;
+}
+.diagnostics-panel .diagnostics-list p {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: var(--ui-font-small);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.diagnostics-panel .diagnostics-limit {
+  margin: 0;
+  padding: 0 14px 12px;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+  overflow-wrap: anywhere;
+}

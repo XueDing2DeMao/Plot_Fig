@@ -32,10 +32,18 @@ describe('P3 chart protocol', () => {
     c.panels[0].plotSlots[0].levels = { mode: 'values', values: [1, 1] };
     expect(validateFigureTemplate(c).ok).toBe(false);
   });
-  it('rejects category fixed ranges and visible minor ticks', () => {
+  it('accepts category windows but rejects invalid ranges and minor ticks', () => {
     const t: any = chartTemplate('box');
     t.panels[0].axes[0].range = { mode: 'fixed', min: 0, max: 2 };
-    expect(validateFigureTemplate(t).ok).toBe(false);
+    expect(validateFigureTemplate(t).ok).toBe(true);
+    for (const range of [
+      { mode: 'fixed', min: 2, max: 2 },
+      { mode: 'fixed', min: NaN, max: 2 },
+      { mode: 'min-only', min: 0 },
+    ]) {
+      t.panels[0].axes[0].range = range;
+      expect(validateFigureTemplate(t).ok).toBe(false);
+    }
     t.panels[0].axes[0].range = { mode: 'auto' };
     t.panels[0].axes[0].minorTicks.visible = true;
     expect(validateFigureTemplate(t).ok).toBe(false);

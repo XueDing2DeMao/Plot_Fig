@@ -1,7 +1,6 @@
 import type { TemplateLibraryState } from './useTemplateLibrary.js';
 import { SvgSurface } from './SvgSurface.js';
 import { TemplateMappingFields } from './TemplateMappingFields.js';
-import { applyJournalPreset, journalPresets } from '../templates/styles.js';
 export function TemplateNavigation({ state }: { state: TemplateLibraryState }) {
   const { search, setSearch, builtins, custom, selected, choose } = state;
   return (
@@ -50,7 +49,12 @@ export function TemplateApplyFields({
     prepare,
   } = state;
   if (!selected)
-    return <p>暂无模板。可将当前图形保存为我的模板，或导入模板 JSON。</p>;
+    return (
+      <p>
+        暂无模板。可将当前图形保存为我的模板，或导入 JSON、Origin OTP / OTPU
+        模板。
+      </p>
+    );
   return (
     <>
       {' '}
@@ -88,44 +92,5 @@ export function TemplatePreview({ state }: { state: TemplateLibraryState }) {
         <p>导入数据后查看当前图形预览。左侧缩略图使用示例数据。</p>
       )}
     </aside>
-  );
-}
-
-export function JournalPresetFields({
-  state,
-}: {
-  state: TemplateLibraryState;
-}) {
-  const { draft } = state;
-  return (
-    <fieldset>
-      <legend>期刊尺寸预设</legend>
-      {journalPresets.map((p) => (
-        <button
-          key={p.id}
-          onClick={() =>
-            draft.change((m) => ({
-              ...m,
-              template: applyJournalPreset(m.template, p),
-            }))
-          }
-        >
-          {p.name}
-        </button>
-      ))}
-      <p>
-        预设核对日期：2026-09-08。字体范围和 DPI
-        是编辑建议，投稿前以目标期刊当前要求为准。
-      </p>
-      {draft.draft.template.publicationPreset?.sourceUrl && (
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href={draft.draft.template.publicationPreset.sourceUrl}
-        >
-          查看预设来源
-        </a>
-      )}
-    </fieldset>
   );
 }

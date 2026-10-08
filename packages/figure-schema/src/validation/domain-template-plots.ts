@@ -7,6 +7,7 @@ import { plotBindingEntries } from '../plot-contract.js';
 import { validateChartDomain } from './domain-charts.js';
 import { validateAxisAppearance } from './domain-axis-appearance.js';
 import { validateF4PanelRelations } from '../schema/curve-relations.js';
+import { validateLayerStackRelations } from '../schema/layer-stack.js';
 import {
   axisScaleSpec,
   isPositiveLogAxis,
@@ -40,14 +41,20 @@ function validateAxisRange(axis: Axis, path: string): ValidationIssue[] {
     return [domainIssue(path, (error as Error).message)];
   }
   if (axis.scale === 'category') {
-    return axis.range.mode !== 'auto' ||
+    const validRange =
+      axis.range.mode === 'auto' ||
+      (axis.range.mode === 'fixed' &&
+        Number.isFinite(axis.range.min) &&
+        Number.isFinite(axis.range.max) &&
+        axis.range.min < axis.range.max);
+    return !validRange ||
       axis.rescale !== undefined ||
       axis.minorTicks.visible ||
       axis.minorTicks.count !== 0
       ? [
           domainIssue(
             path,
-            'category axes require auto range and no minor ticks',
+            'category axes require auto or finite increasing fixed range and no minor ticks',
           ),
         ]
       : [];
@@ -316,6 +323,7 @@ export function validatePanelDomain(
   const frame = panel.frame;
   try {
     validateF4PanelRelations(panel);
+    validateLayerStackRelations(panel);
   } catch (error) {
     issues.push(domainIssue(`/panels/${panelIndex}`, (error as Error).message));
   }

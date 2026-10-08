@@ -24,6 +24,7 @@ it('shows an empty template center while keeping create and import actions', asy
 
   expect(await screen.findByText('暂无模板')).toBeInTheDocument();
   expect(screen.queryByText('单图 · 学术折线')).not.toBeInTheDocument();
+  expect(screen.queryByText('期刊尺寸预设')).not.toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: '保存预览为我的模板' }),
   ).toBeEnabled();

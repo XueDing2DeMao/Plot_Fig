@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   createCurrentDocument,
@@ -19,9 +20,11 @@ it.each(['figure-template', 'figure-document'] as const)(
     Object.assign(template, { schemaVersion: '1.9.0' });
     const original = structuredClone(input);
     const expected = structuredClone(input);
-    Object.assign(expected, { schemaVersion: '1.22.0' });
+    Object.assign(expected, { schemaVersion: CURRENT_SCHEMA_VERSION });
     if (expected.kind === 'figure-document')
-      Object.assign(expected.templateSnapshot, { schemaVersion: '1.22.0' });
+      Object.assign(expected.templateSnapshot, {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      });
     expect(loadFigurePayload(input)).toMatchObject({
       ok: true,
       value: expected,

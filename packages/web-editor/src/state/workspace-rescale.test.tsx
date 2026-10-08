@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 // @vitest-environment jsdom
 import { useState } from 'react';
 import { act, renderHook } from '@testing-library/react';
@@ -113,7 +114,7 @@ it('updates real bound data, preserves manual windows for styles, and round trip
   );
   expect(reopened).toMatchObject({
     ok: true,
-    template: { schemaVersion: '1.22.0' },
+    template: { schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   if (reopened.ok) expect(reopened.template).toEqual(saved.template);
   act(() =>

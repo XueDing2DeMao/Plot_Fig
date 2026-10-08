@@ -3,6 +3,8 @@ const IMAGE_LOAD_TIMEOUT_MS = 15000;
 const MAX_PNG_EDGE = 8192;
 const BASE_PNG_WIDTH = 1000;
 
+export type ExportFormat = 'svg' | 'png';
+
 export function createSvgBlob(svg: string): Blob {
   if (!svg.trim()) throw new Error('请先生成图形');
   return new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
@@ -93,7 +95,7 @@ export async function rasterizePng(output: {
 export function downloadBlob(
   blob: Blob,
   sourceName: string,
-  extension: 'svg' | 'png' | 'pdf' | 'eps' | 'json' | 'zip',
+  extension: ExportFormat | 'json' | 'zip',
 ): void {
   const base =
     sourceName

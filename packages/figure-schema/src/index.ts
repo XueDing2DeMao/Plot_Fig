@@ -155,3 +155,12 @@ export {
 
 export { PaintSchema, type Paint } from './schema/paint.js';
 export { validateV1210Structure } from './validation/structural.js';
+export { validateV1220Structure } from './validation/structural.js';
+export { validateV1230Structure } from './validation/structural.js';
+export {
+  LayerStackSchema,
+  createLayerStack,
+  validateLayerStack,
+  validateLayerStackRelations,
+  type LayerStack,
+} from './schema/layer-stack.js';

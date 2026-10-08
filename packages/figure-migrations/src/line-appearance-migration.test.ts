@@ -23,10 +23,12 @@ it.each(['figure-template', 'figure-document'] as const)(
     Object.assign(template, { schemaVersion: '1.10.0' });
     const original = structuredClone(input),
       expected = structuredClone(input);
-    Object.assign(expected, { schemaVersion: '1.22.0' });
+    Object.assign(expected, { schemaVersion: CURRENT_SCHEMA_VERSION });
     if (expected.kind === 'figure-document')
-      Object.assign(expected.templateSnapshot, { schemaVersion: '1.22.0' });
-    expect(CURRENT_SCHEMA_VERSION).toBe('1.22.0');
+      Object.assign(expected.templateSnapshot, {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      });
+    expect(CURRENT_SCHEMA_VERSION).toBe('1.24.0');
     expect(findMigrationStep(kind, '1.10.0')?.targetVersion).toBe('1.11.0');
     expect(loadFigurePayload(input)).toMatchObject({
       ok: true,

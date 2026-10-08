@@ -5,7 +5,6 @@ import { TemplateStorageFields } from './TemplateStorageFields.js';
 import {
   TemplateNavigation,
   TemplateApplyFields,
-  JournalPresetFields,
   TemplatePreview,
 } from './TemplateLibraryParts.js';
 export function TemplateLibraryDialog({
@@ -42,7 +41,6 @@ export function TemplateLibraryDialog({
         <TemplateNavigation state={state} />
         <section className="publication-form publication-fields">
           <TemplateApplyFields state={state} />
-          <JournalPresetFields state={state} />
           <TemplateStorageFields state={state} />
           {message && <p role="status">{message}</p>}
           {draft.error && <p role="alert">{draft.error}</p>}

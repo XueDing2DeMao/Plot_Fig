@@ -28,7 +28,7 @@ it('候选自动范围也拒绝不在对数定义域内的锚点', () => {
 it('1.18候选只升版本，1.17声明继续拒绝新增尺度和字段', () => {
   const original = chartTemplate('xy'),
     candidate = migrateCandidate(original);
-  expect(CURRENT_SCHEMA_VERSION).toBe('1.22.0');
+  expect(CURRENT_SCHEMA_VERSION).toBe('1.24.0');
   expect(original.schemaVersion).toBe('1.17.0');
   expect({ ...candidate, schemaVersion: '1.17.0' }).toEqual(original);
   candidate.panels[0].axes[1].scale = 'log2';

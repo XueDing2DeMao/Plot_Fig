@@ -6,6 +6,7 @@ import {
   PropertyNumber,
 } from './PropertyInputs.js';
 import { SignedNumber } from './ChartInputs.js';
+import { ColorMapPreset } from './ColorMapPreset.js';
 type Props = {
   value: ColorScale;
   onChange: (value: ColorScale) => void;
@@ -278,23 +279,27 @@ export function ColorFields({ value, onChange, section = 'all' }: Props) {
   return (
     <fieldset className="property-group">
       <legend>颜色映射</legend>
-      {value.colors.map((_, index) => (
-        <ColorStop
-          key={index}
-          index={index}
-          value={value}
-          onChange={onChange}
-        />
-      ))}
-      <button
-        type="button"
-        disabled={value.colors.length >= 32}
-        onClick={() =>
-          onChange({ ...value, colors: [...value.colors, '#fde725'] })
-        }
-      >
-        添加色标
-      </button>
+      <ColorMapPreset value={value} onChange={onChange} />
+      <details className="color-map-custom">
+        <summary>自定义色阶</summary>
+        {value.colors.map((_, index) => (
+          <ColorStop
+            key={index}
+            index={index}
+            value={value}
+            onChange={onChange}
+          />
+        ))}
+        <button
+          type="button"
+          disabled={value.colors.length >= 32}
+          onClick={() =>
+            onChange({ ...value, colors: [...value.colors, '#fde725'] })
+          }
+        >
+          添加色标
+        </button>
+      </details>
       <ColorDomain value={value} onChange={onChange} />
       <PropertySelect
         label="颜色映射尺度"

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { readFile } from 'node:fs/promises';
 import { canonicalizeFigurePayload } from '@plot-fig/figure-schema';
 import { describe, expect, expectTypeOf, it } from 'vitest';
@@ -64,7 +65,7 @@ describe('root package entry', () => {
       ).toBe(
         canonicalizeFigurePayload({
           ...(migrateV010ToV100(legacy) as object),
-          schemaVersion: '1.22.0',
+          schemaVersion: CURRENT_SCHEMA_VERSION,
         }),
       );
     }

@@ -6,6 +6,7 @@ import {
 } from '../templates/library-storage.js';
 import { downloadBlob } from '../browser/figure-export.js';
 import { PropertyInput as Input } from './PropertyInputs.js';
+import { OriginTemplateImport } from './OriginTemplateImport.js';
 function TemplateMetadata({ state: s }: { state: State }) {
   const rename = () => {
     const selected = s.selected;
@@ -117,6 +118,7 @@ export function TemplateStorageFields({ state }: { state: State }) {
       <TemplateMetadata state={state} />
       <TemplateDelete state={state} />
       <TemplateFiles state={state} />
+      <OriginTemplateImport onSave={state.saveImported} />
     </fieldset>
   );
 }

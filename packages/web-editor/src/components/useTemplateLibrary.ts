@@ -1,5 +1,6 @@
 import type { WorkspaceEditor } from '../state/workspace-editor.js';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { FigureTemplate } from '@plot-fig/figure-schema';
 import type { ColumnRef } from '@plot-fig/data-binding';
 
 import {
@@ -7,25 +8,40 @@ import {
   templateThumbnail,
   type TemplateEntry,
 } from '../templates/catalog.js';
-import { listTemplates } from '../templates/library-storage.js';
+import { listTemplates, saveTemplate } from '../templates/library-storage.js';
 import { suggestMappings, applyFullTemplate } from '../templates/mapping.js';
 import { applyTemplateStyle } from '../templates/styles.js';
 import { useModelPreviewDraft } from './use-model-preview-draft.js';
 function useTemplateRecords() {
+  const mounted = useRef(true);
   const builtins = useMemo(builtInTemplates, []),
     [custom, setCustom] = useState<TemplateEntry[]>([]),
     [message, setMessage] = useState('');
-  const reload = async () => setCustom(await listTemplates());
+  const reload = async () => {
+    const entries = await listTemplates();
+    if (mounted.current) setCustom(entries);
+  };
   useEffect(() => {
-    void reload().catch((e) => setMessage(e.message));
+    mounted.current = true;
+    void reload().catch((e) => {
+      if (mounted.current) setMessage(e.message);
+    });
+    return () => {
+      mounted.current = false;
+    };
   }, []);
-  const run = async (fn: () => Promise<unknown>) => {
+  const run = async <T>(fn: () => Promise<T>): Promise<T | undefined> => {
+    if (!mounted.current) return;
     try {
-      await fn();
+      const value = await fn();
       await reload();
-      setMessage('模板库已更新');
+      if (mounted.current) {
+        setMessage('模板库已更新');
+        return value;
+      }
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : '模板操作失败');
+      if (mounted.current)
+        setMessage(e instanceof Error ? e.message : '模板操作失败');
     }
   };
   return { builtins, custom, message, run };
@@ -101,6 +117,19 @@ export function useTemplateLibrary(model: WorkspaceEditor) {
       },
     };
   };
+  const saveImported = async (template: FigureTemplate) => {
+    const id = await records.run(() => saveTemplate(template));
+    if (!id) return false;
+    choice.setSearch('');
+    choice.choose({
+      id,
+      template,
+      name: template.metadata.name,
+      tags: template.metadata.tags,
+      builtIn: false,
+    });
+    return true;
+  };
   useEffect(() => {
     const entries = [...records.builtins, ...records.custom];
     const updated = selected && entries.find((e) => e.id === selected.id);
@@ -108,6 +137,15 @@ export function useTemplateLibrary(model: WorkspaceEditor) {
     else if (entries[0]) choice.choose(entries[0]);
     else choice.setSelected(undefined);
   }, [records.custom]);
-  return { ...records, ...choice, draft, thumbnail, prepare, renamed, model };
+  return {
+    ...records,
+    ...choice,
+    draft,
+    thumbnail,
+    prepare,
+    renamed,
+    saveImported,
+    model,
+  };
 }
 export type TemplateLibraryState = ReturnType<typeof useTemplateLibrary>;

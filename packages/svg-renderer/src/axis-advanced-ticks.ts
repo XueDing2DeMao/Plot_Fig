@@ -206,7 +206,13 @@ export function extendedTickPlan(
     .sort((a, b) => a.value - b.value)
     .map((tick, index) => {
       const label =
-        tick.label ?? advancedAxisLabel(axis, scale, tick.value, index);
+        tick.label ??
+        advancedAxisLabel(
+          axis,
+          scale,
+          tick.value,
+          scale.categories ? tick.value : index,
+        );
       return { ...tick, ...(label === undefined ? {} : { label }) };
     });
   plan.minor = plan.minor.filter((t) => !majors.has(t.value));

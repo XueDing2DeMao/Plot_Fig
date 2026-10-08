@@ -3,6 +3,7 @@ import type { DataBindingSet, DataWorkspace } from '@plot-fig/data-binding';
 import type { WorkspaceEditor } from '../state/workspace-editor.js';
 import type { FigureTemplate } from '@plot-fig/figure-schema';
 import { useFigurePropertyDraft } from './use-figure-property-draft.js';
+import { samePropertyValue } from './property-draft-patches.js';
 import { PropertyNumberDraftContext } from './PropertyInputs.js';
 import {
   listPropertyObjects,
@@ -139,7 +140,7 @@ function PlotDetailsDialog(props: Props) {
     version: number;
   }>();
   const [applied, setApplied] = useState(() =>
-    JSON.stringify([props.template, props.workspace]),
+    structuredClone([props.template, props.workspace]),
   );
   const ref = useRef<HTMLDialogElement>(null);
   const draft = useFigurePropertyDraft(
@@ -154,10 +155,11 @@ function PlotDetailsDialog(props: Props) {
   const effectiveTemplate = batch.session
     ? (batch.preview ?? draft.template)
     : draft.template;
-  useBeforeUnload(
-    JSON.stringify([effectiveTemplate, draft.workspace]) !== applied ||
-      draft.errors.length > 0,
+  const dirty = !samePropertyValue(
+    [effectiveTemplate, draft.workspace],
+    applied,
   );
+  useBeforeUnload(dirty || draft.errors.length > 0);
   const preview = usePropertyPreview(
     effectiveTemplate,
     effectiveData,
@@ -202,7 +204,7 @@ function PlotDetailsDialog(props: Props) {
             : draft.selection.panelId,
       });
     else props.onApply(effectiveTemplate);
-    setApplied(JSON.stringify([effectiveTemplate, draft.workspace]));
+    setApplied(structuredClone([effectiveTemplate, draft.workspace]));
     if (batch.session) {
       draft.changeGeometry(effectiveTemplate);
       batch.applied(effectiveTemplate);
@@ -235,6 +237,7 @@ function PlotDetailsDialog(props: Props) {
           {batch.session ? (
             <PropertyBatchEditor
               session={batch.session}
+              data={effectiveData}
               onChange={batch.update}
               error={error}
               onDiscard={batch.close}
@@ -271,6 +274,11 @@ function PlotDetailsDialog(props: Props) {
           )}
         </PropertyNumberDraftContext.Provider>
         <DraftPreview
+          panelId={
+            draft.selection.kind === 'page'
+              ? undefined
+              : draft.selection.panelId
+          }
           hidden={!showPreview}
           svg={preview.svg ?? lastValidSvg.current}
           error={error}
@@ -327,9 +335,7 @@ function PlotDetailsDialog(props: Props) {
         onConfirm={confirm}
         disabled={Boolean(error)}
         applyDisabled={
-          Boolean(error) ||
-          JSON.stringify([effectiveTemplate, draft.workspace]) === applied ||
-          (!!batch.session && !batch.ready)
+          Boolean(error) || !dirty || (!!batch.session && !batch.ready)
         }
         onBatch={
           !batch.session && draft.selection.kind !== 'page'

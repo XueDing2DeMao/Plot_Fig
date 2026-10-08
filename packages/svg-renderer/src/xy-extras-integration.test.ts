@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   chartData,
@@ -30,9 +31,9 @@ it.each(['figure-template', 'figure-document'])(
     if (input.templateSnapshot) input.templateSnapshot.schemaVersion = '1.11.0';
     const before = structuredClone(input),
       expected = structuredClone(input);
-    expected.schemaVersion = '1.21.0';
+    expected.schemaVersion = CURRENT_SCHEMA_VERSION;
     if (expected.templateSnapshot)
-      expected.templateSnapshot.schemaVersion = '1.21.0';
+      expected.templateSnapshot.schemaVersion = CURRENT_SCHEMA_VERSION;
     const loaded = loadFigurePayload(input);
     expect(loaded).toMatchObject({ ok: true, value: expected });
     expect(input).toEqual(before);

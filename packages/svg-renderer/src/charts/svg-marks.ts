@@ -4,7 +4,7 @@ import { renderBarError } from './bar-errors.js';
 import { escapeXml as esc, formatNumber as n, type Rect } from '../geometry.js';
 import { lineAppearanceAttributes } from '../line-appearance.js';
 import type { PlotScale } from '../scales.js';
-import type { PreparedPlot } from './prepared.js';
+import type { BarMark, PreparedPlot } from './prepared.js';
 import type { DataBindingSet } from '@plot-fig/data-binding';
 import type { RenderDiagnostic } from '../types.js';
 import { renderChartDataLabels } from '../chart-data-labels.js';
@@ -47,6 +47,7 @@ function bandRange(
   item: PreparedPlot,
   context: ChartContext,
   key: string,
+  bar?: BarMark,
 ): [number, number] {
   const plot = item.plot;
   if (plot.kind !== 'bar' && plot.kind !== 'box')
@@ -57,14 +58,52 @@ function bandRange(
   const width = plot.width,
     gap = plot.kind === 'bar' ? plot.gap : 0.1;
   const overlap = plot.kind === 'bar' ? (plot.overlap ?? 0) : 0,
-    unit = width / Math.max(1, item.bandCount - overlap * (item.bandCount - 1)),
-    center = index - width / 2 + unit * (item.bandIndex + 0.5);
-  return [center - (unit * (1 - gap)) / 2, center + (unit * (1 - gap)) / 2];
+    count = bar?.bandCount ?? item.bandCount,
+    band = bar?.bandIndex ?? item.bandIndex,
+    unit = width / Math.max(1, count - overlap * (count - 1)),
+    center = index - width / 2 + unit * (band + 0.5),
+    low = center - (unit * (1 - gap)) / 2,
+    high = center + (unit * (1 - gap)) / 2;
+  return bar?.bandSlice
+    ? [
+        low + ((high - low) * bar.bandSlice.index) / bar.bandSlice.count,
+        low + ((high - low) * (bar.bandSlice.index + 1)) / bar.bandSlice.count,
+      ]
+    : [low, high];
 }
 type ChartLabelOptions = {
   data: DataBindingSet;
   diagnostics: RenderDiagnostic[];
 };
+
+function barFillAttributes(
+  item: PreparedPlot,
+  context: ChartContext,
+  options: { low: number; high: number; style: FillStyle },
+): string {
+  const { low, high, style } = options;
+  const plot = item.plot;
+  if (plot.kind !== 'bar') return fillAttributes(style);
+  const horizontal = plot.orientation === 'horizontal';
+  const scale = horizontal ? context.yScale : context.xScale;
+  const length = horizontal ? context.rect.height : context.rect.width;
+  const width = Math.abs(scale.map(high) - scale.map(low)) * length;
+  if (width >= style.borderWidthPt * 2) return fillAttributes(style);
+  const overlap = plot.overlap ?? 0;
+  const unit =
+    plot.width / Math.max(1, item.bandCount - overlap * (item.bandCount - 1));
+  const spacing = item.bandCount > 1 ? unit * (1 - overlap) : 1;
+  const gap = Math.max(
+    0,
+    Math.abs(scale.map(low + spacing) - scale.map(low)) * length - width,
+  );
+  // 密集窄柱的边框不能盖住填充或侵占相邻柱；数据位置与宽度保持原值。
+  return fillAttributes({
+    ...style,
+    borderWidthPt: Math.min(style.borderWidthPt, width / 2, gap),
+  });
+}
+
 export function renderBars(
   item: PreparedPlot,
   context: ChartContext,
@@ -72,10 +111,16 @@ export function renderBars(
 ): string {
   const plot = item.plot;
   if (plot.kind !== 'bar' && plot.kind !== 'histogram') return '';
-  const marks = item.bars
-    .map((bar) => {
+  const entries = item.layerStackBarsManaged
+    ? (item.layerStackBarMarks ?? [])
+    : item.bars.map((bar) => ({ item, bar }));
+  const marks = entries
+    .map(({ item: source, bar }) => {
+      const current = { ...item, ...source };
+      const plot = source.plot;
+      if (plot.kind !== 'bar' && plot.kind !== 'histogram') return '';
       let [low, high] = bar.category
-        ? bandRange(item, context, bar.category)
+        ? bandRange(current, context, bar.category, bar)
         : [bar.low, bar.high];
       if (plot.kind === 'histogram' && plot.gap) {
         const inset = ((high - low) * plot.gap) / 2;
@@ -111,13 +156,15 @@ export function renderBars(
             ? (plot.options?.negative ?? plot.fillStyle)
             : (plot.options?.positive ?? plot.fillStyle)
           : plot.fillStyle;
-      return (
+      const mark =
         rectangle(context, {
           role: plot.kind === 'bar' ? 'bar' : 'histogram-bin',
           range: range,
-          style: fillAttributes(style),
-        }) + error
-      );
+          style: barFillAttributes(current, context, { low, high, style }),
+        }) + error;
+      return item.layerStackBarsManaged
+        ? `<g data-stack-member="${esc(plot.plotSlotId)}" data-plot-slot-id="${esc(plot.plotSlotId)}">${mark}</g>`
+        : mark;
     })
     .join('');
   const distribution =
@@ -132,11 +179,85 @@ export function renderBars(
     plot.kind === 'histogram' && item.statistics
       ? `<text data-role="histogram-statistics" x="${n(context.rect.x + 6)}" y="${n(context.rect.y + 12)}" font-size="9">${esc(`N=${item.statistics.count}  Mean=${n(item.statistics.mean)}  SD=${n(item.statistics.sd)}  Min=${n(item.statistics.min)}  Max=${n(item.statistics.max)}`)}</text>`
       : '';
-  if (!options || plot.kind !== 'bar' || !plot.dataLabels)
-    return marks + distribution + statistics;
+  const stackDecorations = renderBarStackDecorations(item, context);
+  if (!options || plot.kind !== 'bar')
+    return marks + distribution + statistics + stackDecorations;
   const labels = renderChartDataLabels(item, options.data, context);
   options.diagnostics.push(...labels.diagnostics);
-  return marks + distribution + labels.svg;
+  return marks + distribution + labels.svg + stackDecorations;
+}
+
+function renderBarStackDecorations(
+  item: PreparedPlot,
+  context: ChartContext,
+): string {
+  const plot = item.plot;
+  if (plot.kind !== 'bar') return '';
+  if (!item.layerStackBarConnectors && !item.layerStackBarTotals) return '';
+  const horizontal = plot.orientation === 'horizontal';
+  const dataPoint = (category: number, value: number) =>
+    horizontal ? { x: value, y: category } : { x: category, y: value };
+  const categoryOrder = (horizontal ? context.yScale : context.xScale)
+    .categories;
+  const bars = new Map(item.bars.map((bar) => [bar.category, bar]));
+  const pairs =
+    item.layerStackBarConnectors && categoryOrder
+      ? categoryOrder.slice(1).flatMap((category, index) => {
+          const from = bars.get(categoryOrder[index]!.key),
+            to = bars.get(category.key);
+          return from && to ? [{ from, to }] : [];
+        })
+      : (item.layerStackBarConnectors ?? []);
+  const connectors = pairs
+    .map(({ from, to }) => {
+      const a = bandRange(item, context, from.category!, from),
+        b = bandRange(item, context, to.category!, to),
+        forward = a[0] < b[0],
+        points = [
+          dataPoint(forward ? a[1] : a[0], from.end),
+          dataPoint(forward ? b[0] : b[1], to.end),
+        ];
+      const segments = context.dataClip
+        ? clipDataPolyline(points, context.dataClip)
+        : [points];
+      return segments
+        .map((segment) => {
+          const start = point(context, segment[0]!.x, segment[0]!.y),
+            end = point(context, segment.at(-1)!.x, segment.at(-1)!.y);
+          return `<line data-role="bar-stack-connector" x1="${n(start.x)}" y1="${n(start.y)}" x2="${n(end.x)}" y2="${n(end.y)}" stroke="${esc(plot.fillStyle.borderColor)}" stroke-width="${n(Math.max(0.5, plot.fillStyle.borderWidthPt))}" fill="none" />`;
+        })
+        .join('');
+    })
+    .join('');
+  const totals = (item.layerStackBarTotals ?? [])
+    .map((total) => {
+      const bar = total.bar,
+        [low, high] = bandRange(item, context, bar.category!, bar);
+      const center = (low + high) / 2,
+        data = dataPoint(center, bar.end);
+      const clip = context.dataClip;
+      if (
+        clip &&
+        (data.x < clip.xMin ||
+          data.x > clip.xMax ||
+          data.y < clip.yMin ||
+          data.y > clip.yMax)
+      )
+        return '';
+      const end = point(context, data.x, data.y),
+        base = dataPoint(center, bar.start),
+        start = point(context, base.x, base.y);
+      const direction = horizontal
+        ? end.x >= start.x
+          ? 1
+          : -1
+        : end.y <= start.y
+          ? -1
+          : 1;
+      return `<text data-role="bar-stack-total" x="${n(end.x + (horizontal ? direction * 4 : 0))}" y="${n(end.y + (horizontal ? 0 : direction * 4))}" text-anchor="${horizontal ? (direction > 0 ? 'start' : 'end') : 'middle'}" dominant-baseline="${horizontal ? 'middle' : direction < 0 ? 'auto' : 'hanging'}" fill="${esc(total.color)}" font-size="${n(total.fontSizePt)}">${esc(total.text)}</text>`;
+    })
+    .join('');
+  return connectors + totals;
 }
 
 function renderDistributionCurve(

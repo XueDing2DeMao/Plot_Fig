@@ -29,6 +29,11 @@ import {
   lineAppearanceAttributes,
 } from '@plot-fig/svg-renderer';
 import { normalizeCategoryTransitions } from './axis-category-settings.js';
+import {
+  applyLayerCurveOffsets,
+  readLayerCurveOffsets,
+  type LayerCurveOffsets,
+} from './layer-stack.js';
 import { assertEditableFrame, frameComponents } from './panel-frame-links.js';
 import {
   setOppositeAxisSharing,
@@ -42,7 +47,7 @@ export type PropertyObjectSettings =
       metadata: FigureTemplate['metadata'];
       annotations?: FigureTemplate['annotations'];
     }
-  | ({ kind: 'panel' } & Pick<
+  | ({ kind: 'panel'; curveOffsets?: LayerCurveOffsets } & Pick<
       Panel,
       | 'frame'
       | 'frameLink'
@@ -54,6 +59,7 @@ export type PropertyObjectSettings =
       | 'axisLengthRatio'
       | 'groups'
       | 'stack'
+      | 'layerStack'
     >)
   | {
       kind: 'axis';
@@ -142,6 +148,10 @@ export function readPropertyObjectSettings(
       clip: panel.clip,
       ...(panel.groups ? { groups: structuredClone(panel.groups) } : {}),
       ...(panel.stack ? { stack: structuredClone(panel.stack) } : {}),
+      ...(panel.layerStack
+        ? { layerStack: structuredClone(panel.layerStack) }
+        : {}),
+      curveOffsets: readLayerCurveOffsets(panel),
       ...(panel.name === undefined ? {} : { name: panel.name }),
       ...(panel.visible === undefined ? {} : { visible: panel.visible }),
       ...(panel.appearance === undefined
@@ -337,6 +347,11 @@ export function updatePropertyObjectSettings(
         assertEditableFrame(panel, value.frame);
       panel.frame = structuredClone(value.frame);
       panel.clip = value.clip;
+      if (value.curveOffsets)
+        panel.plotSlots = applyLayerCurveOffsets(
+          panel,
+          value.curveOffsets,
+        ).plotSlots;
       for (const key of [
         'frameLink',
         'name',
@@ -345,6 +360,7 @@ export function updatePropertyObjectSettings(
         'clipMargins',
         'groups',
         'stack',
+        'layerStack',
       ] as const) {
         if (value[key] === undefined) delete panel[key];
         else Object.assign(panel, { [key]: structuredClone(value[key]) });

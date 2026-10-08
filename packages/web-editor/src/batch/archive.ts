@@ -12,8 +12,6 @@ export function batchArchive(
     createdAt: new Date().toISOString(),
     formats: options.formats,
     dpi: options.dpi,
-    textToPath: options.textToPath ?? false,
-    flattenTransparency: options.flattenTransparency ?? false,
     templateId: options.template?.templateId,
     preset: options.template?.publicationPreset,
     records: result.records,

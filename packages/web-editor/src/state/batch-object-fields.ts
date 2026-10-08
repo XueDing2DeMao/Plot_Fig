@@ -19,7 +19,13 @@ import {
 export function panelBatchGroups(): BatchGroup[] {
   return [
     f4Group('panel-curve-groups', '多曲线组', 'groups'),
-    f4Group('panel-stack', '曲线堆叠', 'stack'),
+    {
+      ...f4Group('panel-stack', '曲线堆叠', 'stack'),
+      fields: [
+        ...f4Group('panel-stack', '曲线堆叠', 'stack').fields,
+        ...f4Group('panel-stack', '图层堆叠', 'layerStack').fields,
+      ],
+    },
     {
       id: 'panel-background',
       label: '图层背景',

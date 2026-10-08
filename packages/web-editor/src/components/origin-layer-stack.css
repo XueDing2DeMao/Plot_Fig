@@ -1,0 +1,63 @@
+.origin-stack-offsets {
+  padding: 12px 18px 16px;
+}
+.origin-stack-row {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr);
+  align-items: center;
+  min-height: 38px;
+  gap: 14px;
+}
+.origin-stack-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.origin-stack-inline > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.origin-stack-inline input[aria-label='常量偏移数列'] {
+  width: 190px;
+}
+.origin-stack-inline input[aria-label='间距 (%)'] {
+  width: 72px;
+}
+.origin-stack-options {
+  display: grid;
+  gap: 12px;
+  padding: 6px 10px 16px;
+}
+.origin-stack-indent {
+  margin-left: 24px;
+}
+.origin-layer-stack label:has(input:disabled),
+.origin-layer-stack fieldset:disabled {
+  color: #8c939e;
+}
+.origin-stack-members {
+  padding: 10px;
+  border-top: 1px solid #dce1e8;
+}
+.origin-stack-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0;
+}
+.origin-stack-member-row > select {
+  max-width: 190px;
+}
+@media (max-width: 700px) {
+  .origin-stack-row {
+    grid-template-columns: 75px minmax(0, 1fr);
+    gap: 8px;
+  }
+}

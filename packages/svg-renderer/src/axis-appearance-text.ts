@@ -1,5 +1,5 @@
 import type { Axis } from '@plot-fig/figure-schema';
-import { escapeXml, formatNumber } from './geometry.js';
+import { escapeXml, formatNumber, type Rect } from './geometry.js';
 import { layoutAxisLabels, type AxisLabelLayout } from './axis-label-layout.js';
 import type { AxisLayout } from './axis-layout.js';
 import { layoutText } from './text/layout.js';
@@ -53,6 +53,7 @@ export function renderAppearanceTitle(
   axis: Axis,
   layout: AxisLayout,
   options: AxisTitleAppearance = {},
+  onBounds?: (bounds: Rect) => void,
 ): string {
   if (!axis.title) return '';
   const position = options.position ?? 0.5;
@@ -69,35 +70,34 @@ export function renderAppearanceTitle(
   if (resolvedFormat !== 'plain' || axis.title.layout !== undefined) {
     const resolvedX = x + (options.offsetPt?.x ?? 0);
     const resolvedY = y + (options.offsetPt?.y ?? 0);
-    return renderText(
-      layoutText(
-        axis.title.text,
-        {
-          fontFamily: axis.title.fontFamily,
-          fontSizePt: axis.title.fontSizePt,
-          color: axis.title.color,
-          bold: options.bold ?? false,
-          italic: options.italic ?? false,
-        },
-        {
-          format: axis.title.format,
-          x: resolvedX,
-          y: resolvedY,
-          anchor: 'middle',
-          align: 'center',
-          rotation: options.rotation ?? (horizontal ? 0 : -90),
-          ...axis.title.layout,
-          sourcePath: `/axes/${axis.axisId}/title`,
-        },
-        resolvedFormat === 'plain'
-          ? {}
-          : {
-              measureMath: (source, font) =>
-                typesetMath(source, font.fontSizePt, `axis-${axis.axisId}`),
-            },
-      ),
-      'axis-title',
+    const textLayout = layoutText(
+      axis.title.text,
+      {
+        fontFamily: axis.title.fontFamily,
+        fontSizePt: axis.title.fontSizePt,
+        color: axis.title.color,
+        bold: options.bold ?? false,
+        italic: options.italic ?? false,
+      },
+      {
+        format: axis.title.format,
+        x: resolvedX,
+        y: resolvedY,
+        anchor: 'middle',
+        align: 'center',
+        rotation: options.rotation ?? (horizontal ? 0 : -90),
+        ...axis.title.layout,
+        sourcePath: `/axes/${axis.axisId}/title`,
+      },
+      resolvedFormat === 'plain'
+        ? {}
+        : {
+            measureMath: (source, font) =>
+              typesetMath(source, font.fontSizePt, `axis-${axis.axisId}`),
+          },
     );
+    onBounds?.(textLayout.bounds);
+    return renderText(textLayout, 'axis-title');
   }
   const labels = layoutAxisLabels(
     [{ text: axis.title.text, x, y, anchor: 'middle' }],
@@ -108,5 +108,6 @@ export function renderAppearanceTitle(
     },
     axis.dimension,
   );
+  onBounds?.(labels[0]!.bounds);
   return renderAppearanceText(labels[0]!, axis.title, 'axis-title');
 }

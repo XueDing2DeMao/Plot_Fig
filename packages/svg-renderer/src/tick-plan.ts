@@ -26,8 +26,14 @@ function checkBudget(count: number): void {
 
 function automaticValues(scale: PlotScale): number[] {
   if (scale.categories) {
-    checkBudget(scale.categories.length);
-    return scale.categories.map((_, index) => index);
+    const first = Math.max(0, Math.ceil(scale.min - 0.5));
+    const last = Math.min(
+      scale.categories.length - 1,
+      Math.floor(scale.max - 0.5),
+    );
+    const count = Math.max(0, last - first + 1);
+    checkBudget(count);
+    return Array.from({ length: count }, (_, index) => first + index);
   }
   if (scale.scale === 'linear')
     return generateMajorTicks(scale.min, scale.max, 6);

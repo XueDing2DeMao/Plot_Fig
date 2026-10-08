@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   chartTemplate,
@@ -42,9 +43,11 @@ it('1.13模板/document仅升版本，不添加数据视图，也不能伪装新
       Object.assign(value.templateSnapshot, { schemaVersion: '1.13.0' });
     const before = structuredClone(value),
       expected = structuredClone(value);
-    Object.assign(expected, { schemaVersion: '1.21.0' });
+    Object.assign(expected, { schemaVersion: CURRENT_SCHEMA_VERSION });
     if (expected.kind === 'figure-document')
-      Object.assign(expected.templateSnapshot, { schemaVersion: '1.21.0' });
+      Object.assign(expected.templateSnapshot, {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      });
     expect(loadFigurePayload(value)).toMatchObject({
       ok: true,
       value: expected,

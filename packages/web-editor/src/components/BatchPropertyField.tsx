@@ -1,5 +1,11 @@
 import type { BatchField } from '../state/batch-property-fields.js';
-import type { PlotSlot, Axis, FigureTemplate } from '@plot-fig/figure-schema';
+import type {
+  PlotSlot,
+  Axis,
+  FigureTemplate,
+  Panel,
+} from '@plot-fig/figure-schema';
+import type { DataBindingSet } from '@plot-fig/data-binding';
 import { F5BatchField } from './F5BatchField.js';
 import { F4BatchField } from './F4BatchField.js';
 import { DataViewBatchField } from './DataViewBatchField.js';
@@ -19,6 +25,8 @@ export function BatchPropertyField({
   plots,
   template,
   axis,
+  panel,
+  data,
 }: {
   field: BatchField;
   common: { mixed: boolean; value?: unknown };
@@ -29,6 +37,8 @@ export function BatchPropertyField({
   plots?: readonly PlotSlot[] | undefined;
   template?: FigureTemplate | undefined;
   axis?: Axis | undefined;
+  panel?: Panel | undefined;
+  data?: DataBindingSet | undefined;
 }) {
   const mixed = text === undefined && common.mixed;
   if (field.type === 'f5-object')
@@ -49,7 +59,17 @@ export function BatchPropertyField({
   if (field.type === 'f4-object')
     return (
       <F4BatchField
-        {...{ field, common, text, disabled, onChange, onReset, plots }}
+        {...{
+          field,
+          common,
+          text,
+          disabled,
+          onChange,
+          onReset,
+          plots,
+          panel,
+          data,
+        }}
       />
     );
   if (field.type === 'marker-details')

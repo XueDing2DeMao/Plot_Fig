@@ -1,3 +1,7 @@
+import {
+  colorFraction as fraction,
+  interpolateColor as interpolate,
+} from './continuous-color.js';
 import type { DataColumn, DataValue } from '@plot-fig/data-binding';
 import type { ChartContext } from './charts/chart-point.js';
 import {
@@ -55,15 +59,6 @@ function numericDomain(
   }
   return min <= max ? { min, max } : undefined;
 }
-function fraction(value: number, domain: Domain) {
-  if (domain.min === domain.max) return 0.5;
-  if (value <= domain.min) return 0;
-  if (value >= domain.max) return 1;
-  const span = domain.max - domain.min;
-  return Number.isFinite(span)
-    ? (value - domain.min) / span
-    : (value / 2 - domain.min / 2) / (domain.max / 2 - domain.min / 2);
-}
 function categories(rows: readonly SeriesRow[], column: DataColumn) {
   const values = new Map<string, number>();
   for (const row of [...rows].sort((a, b) => a.sourceIndex - b.sourceIndex)) {
@@ -72,29 +67,6 @@ function categories(rows: readonly SeriesRow[], column: DataColumn) {
   }
   return values;
 }
-function interpolate(colors: string[], t: number) {
-  const index = Math.min(
-      colors.length - 2,
-      Math.floor(t * (colors.length - 1)),
-    ),
-    local = t * (colors.length - 1) - index;
-  const from = colors[index]!,
-    to = colors[index + 1]!;
-  return (
-    '#' +
-    [1, 3, 5]
-      .map((i) =>
-        Math.round(
-          parseInt(from.slice(i, i + 2), 16) * (1 - local) +
-            parseInt(to.slice(i, i + 2), 16) * local,
-        )
-          .toString(16)
-          .padStart(2, '0'),
-      )
-      .join('')
-  );
-}
-
 export function resolveMarkerMapping(
   base: AdvancedMarker,
   rows: readonly SeriesRow[],

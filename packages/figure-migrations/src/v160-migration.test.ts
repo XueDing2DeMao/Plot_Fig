@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { validTemplate } from '../../figure-schema/src/schema/fixtures.js';
 import { loadFigurePayload } from './load.js';
@@ -9,7 +10,7 @@ it('1.5 模板迁移只改变版本且不修改原值', () => {
   expect(read).toMatchObject({
     ok: true,
     migratedFrom: '1.5.0',
-    value: { ...old, schemaVersion: '1.22.0' },
+    value: { ...old, schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   expect(old).toEqual(snapshot);
 });

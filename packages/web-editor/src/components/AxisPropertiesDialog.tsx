@@ -4,6 +4,7 @@ import type { DataBindingSet, DataWorkspace } from '@plot-fig/data-binding';
 import type { FigureTemplate } from '@plot-fig/figure-schema';
 import type { WorkspaceEditor } from '../state/workspace-editor.js';
 import { useFigurePropertyDraft } from './use-figure-property-draft.js';
+import { samePropertyValue } from './property-draft-patches.js';
 import { OriginAxisFields } from './OriginAxisFields.js';
 import { PropertyNumberDraftContext } from './PropertyInputs.js';
 import { OriginTabs, originAxisTabs } from './OriginTabs.js';
@@ -92,10 +93,12 @@ export function AxisPropertiesDialog({
     ? (batch.preview ?? draft.template)
     : draft.template;
   const [applied, setApplied] = useState(() =>
-    JSON.stringify([template, workspace]),
+    structuredClone([template, workspace]),
   );
-  const dirty =
-    JSON.stringify([effectiveTemplate, draft.workspace]) !== applied;
+  const dirty = !samePropertyValue(
+    [effectiveTemplate, draft.workspace],
+    applied,
+  );
   useBeforeUnload(dirty || draft.errors.length > 0);
   const axis = draft.value.kind === 'axis' ? draft.value : undefined;
   const selection = draft.selection.kind === 'axis' ? draft.selection : null;
@@ -143,7 +146,7 @@ export function AxisPropertiesDialog({
         activePanelId: panelId,
       });
     else onApply(effectiveTemplate);
-    setApplied(JSON.stringify([effectiveTemplate, draft.workspace]));
+    setApplied(structuredClone([effectiveTemplate, draft.workspace]));
     if (batch.session) {
       draft.changeGeometry(effectiveTemplate);
       batch.applied(effectiveTemplate);
@@ -333,6 +336,7 @@ export function AxisPropertiesDialog({
           )}
         </div>
         <DraftPreview
+          panelId={selection?.panelId ?? panelId}
           hidden={!showPreview}
           svg={preview.svg ?? lastValidSvg.current}
           error={error}

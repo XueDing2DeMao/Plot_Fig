@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   emptyWorkspace,
@@ -38,7 +39,7 @@ it('1.7 项目保存重开保留两级链、真实绑定和 SVG，拒绝篡改�
     loaded = parseWorkspaceProject(json);
   expect(loaded.ok).toBe(true);
   if (!loaded.ok) throw Error();
-  expect(loaded.template.schemaVersion).toBe('1.22.0');
+  expect(loaded.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   expect(loaded.template).toEqual(t);
   expect(
     renderFigureSvg(

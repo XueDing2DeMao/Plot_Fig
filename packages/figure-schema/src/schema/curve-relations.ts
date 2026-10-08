@@ -27,6 +27,22 @@ export function validateCurveGroups(panel: GroupPanel) {
   const plots = new Map(panel.plotSlots.map((p) => [p.plotSlotId, p])),
     owner = new Set<string>();
   for (const group of panel.groups) {
+    const mapping = group.colorMapping;
+    if (
+      mapping?.domain &&
+      (!Number.isFinite(mapping.domain.min) ||
+        !Number.isFinite(mapping.domain.max) ||
+        mapping.domain.min >= mapping.domain.max)
+    )
+      throw new Error('组颜色映射范围须为递增的两个有限数值');
+    if (mapping?.source === 'values') {
+      const ids = new Set<string>();
+      for (const entry of mapping.values) {
+        if (ids.has(entry.plotSlotId) || !Number.isFinite(entry.value))
+          throw new Error('组颜色映射参数须为有限数值且曲线不能重复');
+        ids.add(entry.plotSlotId);
+      }
+    }
     for (const id of group.members) {
       const plot = plots.get(id);
       if (!plot || !['xy', 'area'].includes(plot.kind))

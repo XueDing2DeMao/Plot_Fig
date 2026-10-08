@@ -31,12 +31,13 @@ it('shows native page and layer categories and keeps background/geometry editabl
     '图层',
     '显示',
     '图例/标题',
+    '注释',
   ]);
   expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
   fireEvent.click(screen.getByRole('tab', { name: '显示' }));
   expect(screen.getByLabelText('图页背景颜色')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /^图层 / }));
-  expect(categories()).toEqual(['背景', '大小', '显示/速度', '堆叠']);
+  expect(categories()).toEqual(['组', '背景', '大小', '显示/速度', '堆叠']);
   expect(
     screen.queryByRole('region', { name: '修改后的图形预览' }),
   ).not.toBeInTheDocument();
@@ -55,6 +56,7 @@ it('uses the point-line categories and adds Pattern only after enabling fill', (
       .getAllByRole('tab')
       .map((tab) => tab.textContent);
   expect(categories()).toEqual([
+    '组',
     '显示',
     '线条',
     '符号',

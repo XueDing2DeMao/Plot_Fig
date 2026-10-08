@@ -227,6 +227,25 @@ it('applies the ratio after the final dual Y alignment range is solved', () => {
   );
   expect(renderFigureSvg(template, data).ok).toBe(true);
 });
+it('rejects compact colorbars whose formatted label font size would be zero', () => {
+  const template = chartTemplate('heatmap');
+  const panel = template.panels[0]!;
+  panel.frame.height = 1e-8;
+  panel.axisLengthRatio = {
+    xAxisId: panel.axes[0]!.axisId,
+    yAxisId: panel.axes[1]!.axisId,
+    ratio: 100,
+  };
+  const result = renderFigureSvg(
+    template,
+    chartData({ x: [0, 1, 0, 1], y: [0, 0, 1, 1], z: [1, 2, 3, 4] }),
+  );
+  expect(result.ok).toBe(false);
+  expect(
+    result.diagnostics.some((d) => d.message.includes('图层尺寸不足')),
+  ).toBe(true);
+});
+
 it.each([0.82, 0.1])(
   'keeps a visible colorbar and its title inside a layer of height %s',
   (height) => {

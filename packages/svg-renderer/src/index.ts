@@ -22,4 +22,5 @@ export {
 } from './line-appearance.js';
 export { unlinkCurveGroup, resolveCurveGroups } from './curve-groups.js';
 export { materializeCurveOffsets } from './curve-transforms.js';
+export { materializeLayerStackOffsets } from './layer-stack-curves.js';
 export { labelSourceForPlot, prepareDataLabelRows } from './data-labels.js';

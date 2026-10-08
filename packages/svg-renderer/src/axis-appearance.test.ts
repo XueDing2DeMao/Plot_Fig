@@ -4,7 +4,6 @@ import { chartTemplate } from '../../../tests/helpers/chart-fixtures.js';
 import { renderAxis } from './axis.js';
 import { renderAxisAppearance } from './axis-appearance.js';
 import { createScale } from './scales.js';
-import { validateSvg } from '../../export-service/src/security.js';
 
 const rect = { x: 30, y: 40, width: 300, height: 160 };
 function sample() {
@@ -92,7 +91,8 @@ it('scales and styles only labels while preserving all tick locations and XML es
   expect(
     doc.querySelectorAll('[data-role="tick-label-background"]'),
   ).toHaveLength(3);
-  expect(() => validateSvg(svg(output.axisSvg))).not.toThrow();
+  expect(doc.querySelector('parsererror')).toBeNull();
+  expect(doc.querySelector('script, foreignObject')).toBeNull();
 });
 it('renders minor grids with hidden minor tick lines and keeps their plan positions', () => {
   const { axis, scale } = sample();

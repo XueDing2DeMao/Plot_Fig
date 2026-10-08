@@ -2,6 +2,9 @@ import type { FigureTemplate } from '@plot-fig/figure-schema';
 import { resolveTextFormat } from '@plot-fig/svg-renderer';
 import type { ReactNode } from 'react';
 import { SvgSurface } from './SvgSurface.js';
+import { usePreviewZoom } from './FigureZoomControls.js';
+import { useAnnotationDrag } from './useAnnotationDrag.js';
+import type { FigureZoomController } from '../state/use-figure-zoom.js';
 import './layer-preview.css';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { PropertyObjectRef } from '../state/property-objects.js';
@@ -29,12 +32,15 @@ export function FigurePreview({
   onSelectObject,
   onOpenObject,
   onInlineTextChange,
+  onAnnotationMove,
   activePanelId,
   combinedPreview,
   layerActions,
   pending = false,
   onExport,
   exportDisabled = false,
+  zoom,
+  restoreVersion = 0,
 }: {
   svg: string | undefined;
   actions?: ReactNode;
@@ -47,10 +53,19 @@ export function FigurePreview({
   pending?: boolean;
   onExport?: () => void;
   exportDisabled?: boolean;
+  zoom?: FigureZoomController | undefined;
+  restoreVersion?: number;
   onSelectObject?: ((ref: PropertyObjectRef) => void) | undefined;
   onOpenObject?: ((ref: PropertyObjectRef) => void) | undefined;
   onInlineTextChange?:
     ((target: InlineChartTextTarget, value: string) => void) | undefined;
+  onAnnotationMove?:
+    | ((
+        annotationId: string,
+        position: { x: number; y: number },
+        implicitPanelId?: string,
+      ) => boolean | void)
+    | undefined;
 }) {
   const layerTabsId = useId();
   const layerPanels = layers ?? template?.panels;
@@ -86,7 +101,29 @@ export function FigurePreview({
   );
   const [inlineEditor, setInlineEditor] = useState<InlineEditor | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const zoomInteraction = usePreviewZoom({
+    stageRef,
+    zoom,
+    template,
+    activePanelId: selectedLayerId,
+    enabled: !!svg && !unappliedLayer && !inlineEditor,
+  });
+  const annotationInteraction = useAnnotationDrag({
+    stageRef,
+    template,
+    coordinates: zoom?.coordinates,
+    enabled: !!svg && !unappliedLayer && !inlineEditor && !pending,
+    boxMode: zoomInteraction.boxMode,
+    contextKey: selectedLayerId,
+    onMove: onAnnotationMove,
+  });
   const inlineFinished = useRef(false);
+  useEffect(() => {
+    // 历史恢复只清理依赖旧对象的编辑状态，保留同一项目中的格式剪贴板。
+    inlineFinished.current = true;
+    setInlineEditor(null);
+    setContextTarget(null);
+  }, [restoreVersion]);
   const target = (element: EventTarget) =>
     template && element instanceof Element
       ? originCanvasTarget(template, element)
@@ -187,7 +224,7 @@ export function FigurePreview({
           {pending ? '有未应用修改' : svg ? '预览已更新' : '等待生成图形'}
         </span>
       </div>
-      {(actions || layerActions) && (
+      {(actions || layerActions || zoomInteraction.controls) && (
         <div className="preview-toolbar" role="group" aria-label="预览工具栏">
           {actions && <div className="preview-toolbar-settings">{actions}</div>}
           {layerActions && (
@@ -199,7 +236,20 @@ export function FigurePreview({
               {layerActions}
             </div>
           )}
+          {zoomInteraction.controls}
         </div>
+      )}
+      {(zoomInteraction.help || (svg && onAnnotationMove)) && (
+        <details className="preview-interaction-help">
+          <summary>操作提示</summary>
+          {zoomInteraction.help}
+          {svg && onAnnotationMove && (
+            <p>
+              图例 / 文字：拖动移动 · 方向键微调 1 像素 · Shift 加速至 10 像素 ·
+              Esc 取消；数据坐标注释请双击后在图页“注释”中调整。
+            </p>
+          )}
+        </details>
       )}
       {combinedPreview && template && template.panels.length > 1 && (
         <p className="layer-preview-note">
@@ -256,8 +306,16 @@ export function FigurePreview({
           当前图层尚未应用，画布将在应用修改后更新。
         </p>
       )}
+      {svg && onAnnotationMove && (
+        <p className="annotation-drag-status" role="status" aria-live="polite">
+          {pending
+            ? '请先应用或重置待绘图设置，再移动图例或文字。'
+            : annotationInteraction.message}
+        </p>
+      )}
       <div
         className="preview-stage"
+        data-zoom-box={zoomInteraction.boxMode}
         id="figure-preview-stage"
         role={hasLayerTabs ? 'tabpanel' : undefined}
         aria-labelledby={
@@ -318,7 +376,7 @@ export function FigurePreview({
           <div className="preview-placeholder">
             <span className="axis-mark">＋</span>
             <p>导入数据并绑定数据列后，点击「生成图形」</p>
-            <small>数据只在浏览器内存中处理</small>
+            <small>数据在本地浏览器处理</small>
           </div>
         )}
         {inlineEditor && (
@@ -363,6 +421,7 @@ export function FigurePreview({
             }}
           />
         )}
+        {zoomInteraction.overlay}
       </div>
       {contextTarget && (
         <div role="menu" aria-label="图形对象菜单">

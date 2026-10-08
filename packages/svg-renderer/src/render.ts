@@ -15,6 +15,7 @@ import { renderPageLegends } from './legend.js';
 import type { MarkerLegendSamples } from './marker-details.js';
 import { pageViewport } from './page-size.js';
 import { resolveCurveGroups } from './curve-groups.js';
+import { planGroupColorbarLayouts } from './group-colorbar-layout.js';
 import type { RenderDiagnostic, RenderResult } from './types.js';
 
 function failure(
@@ -63,6 +64,15 @@ export function renderTemplateSvg(
     );
   }
   const ids = new Set<string>();
+  let groupLayouts: ReturnType<typeof planGroupColorbarLayouts>;
+  try {
+    groupLayouts = planGroupColorbarLayouts(template, data, prepared, shared);
+  } catch (cause) {
+    return failure(
+      'RENDER_TEMPLATE_INVALID',
+      cause instanceof Error ? cause.message : '组色标无法排版',
+    );
+  }
   const detailLegends: MarkerLegendSamples = new Map();
   for (const panel of template.panels) {
     const rendered = renderPanel(template, data, {
@@ -71,6 +81,7 @@ export function renderTemplateSvg(
       shared,
       diagnostics: [],
       purpose: options.purpose ?? 'display',
+      groupLayout: groupLayouts.get(panel.panelId),
     });
     svg += rendered.svg;
     diagnostics.push(...rendered.diagnostics);

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import type { FigureDocument } from '../schema/figure-document.js';
 import type { FigureTemplate } from '../schema/figure-template.js';
@@ -9,7 +10,7 @@ import {
 
 const validDocument = {
   kind: 'figure-document',
-  schemaVersion: '1.22.0',
+  schemaVersion: CURRENT_SCHEMA_VERSION,
   documentId: 'document-1',
   templateSnapshot: validTemplate,
   dataSources: [

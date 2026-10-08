@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { Compile } from 'typebox/compile';
 import { describe, expect, it } from 'vitest';
 import { FigureDocumentSchema } from './figure-document.js';
@@ -5,7 +6,7 @@ import { validTemplate } from './fixtures.js';
 
 const validDocument = {
   kind: 'figure-document',
-  schemaVersion: '1.22.0',
+  schemaVersion: CURRENT_SCHEMA_VERSION,
   documentId: 'document-1',
   templateSnapshot: validTemplate,
   dataSources: [

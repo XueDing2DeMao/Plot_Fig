@@ -7,6 +7,8 @@ import { useWorkspaceFiles } from './use-workspace-files.js';
 import { tableActions, figureActions } from './workspace-actions.js';
 import { isolateLayer, hasLayerAxisLinks } from './layer-batch.js';
 import { multiAxisPreset } from './multi-axis-presets.js';
+import { useFigureZoom } from './use-figure-zoom.js';
+import { setCanvasAnnotationPosition } from './canvas-annotation-drag.js';
 
 export function useWorkspaceEditor() {
   const [model, setModel] = useState<WorkspaceEditor>(() => ({
@@ -57,13 +59,40 @@ export function useWorkspaceEditor() {
     ...(rendered?.diagnostics ?? []),
     ...files.projectErrors,
   ];
+  const zoom = useFigureZoom({
+    template: model.template,
+    view: view.template,
+    data,
+    context: model.workspace,
+    version: files.historyVersion,
+    apply: (template, options) =>
+      files.update((current) => ({ ...current, template }), options),
+  });
   return {
+    zoom,
     model,
     combinedPreview,
     ...model,
     ...files,
     ...tableActions(model, files.update),
     ...figureActions(files.update),
+    onAnnotationMove: (
+      annotationId: string,
+      position: { x: number; y: number },
+      implicitPanelId?: string,
+    ) =>
+      files.update(
+        (current) => ({
+          ...current,
+          template: setCanvasAnnotationPosition(
+            current.template,
+            annotationId,
+            position,
+            implicitPanelId,
+          ),
+        }),
+        { label: '移动图例或文字', exact: true },
+      ),
     data,
     activePanel:
       model.template.panels.find((p) => p.panelId === model.activePanelId) ??

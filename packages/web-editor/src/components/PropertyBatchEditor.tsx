@@ -7,6 +7,7 @@ import { propertyObjectKey } from '../state/property-objects.js';
 import type { PropertyBatchSession } from './use-property-batch.js';
 import { BatchPropertyField } from './BatchPropertyField.js';
 import './property-batch.css';
+import type { DataBindingSet } from '@plot-fig/data-binding';
 
 export function PropertyBatchEditor({
   session,
@@ -14,12 +15,14 @@ export function PropertyBatchEditor({
   onFinish,
   onDiscard,
   error,
+  data,
 }: {
   session: PropertyBatchSession;
   onChange: (patch: Partial<PropertyBatchSession>) => void;
   onFinish: () => void;
   onDiscard: () => void;
   error: string;
+  data?: DataBindingSet | undefined;
 }) {
   const groups = batchGroups(session.baseline, session.source);
   const sourceRef = session.source;
@@ -146,31 +149,40 @@ export function PropertyBatchEditor({
               </p>
               <fieldset className="property-group">
                 <legend>{editing.label}</legend>
-                {editing.fields.map((field) => {
-                  const key = editing.id + '.' + field.key;
-                  return (
-                    <BatchPropertyField
-                      key={key}
-                      field={field}
-                      template={session.baseline}
-                      axis={sourceAxis}
-                      plots={
-                        session.baseline.panels.find(
-                          (p) => p.panelId === sourcePanelId,
-                        )?.plotSlots
-                      }
-                      disabled={!session.targets.length}
-                      common={batchCommonValue(
-                        session.baseline,
-                        session.targets,
-                        key,
-                      )}
-                      text={session.edits[key]}
-                      onChange={(text) => editField(key, text)}
-                      onReset={() => editField(key, undefined)}
-                    />
-                  );
-                })}
+                {editing.fields
+                  .filter(
+                    (field) =>
+                      !(editing.id === 'panel-stack' && field.key === 'stack'),
+                  )
+                  .map((field) => {
+                    const key = editing.id + '.' + field.key;
+                    return (
+                      <BatchPropertyField
+                        key={key}
+                        field={field}
+                        template={session.baseline}
+                        data={data}
+                        panel={session.baseline.panels.find(
+                          (panel) => panel.panelId === sourcePanelId,
+                        )}
+                        axis={sourceAxis}
+                        plots={
+                          session.baseline.panels.find(
+                            (p) => p.panelId === sourcePanelId,
+                          )?.plotSlots
+                        }
+                        disabled={!session.targets.length}
+                        common={batchCommonValue(
+                          session.baseline,
+                          session.targets,
+                          key,
+                        )}
+                        text={session.edits[key]}
+                        onChange={(text) => editField(key, text)}
+                        onReset={() => editField(key, undefined)}
+                      />
+                    );
+                  })}
               </fieldset>
             </>
           )}

@@ -1,6 +1,5 @@
 import type { BatchOptions } from '../batch/queue.js';
 import type { BatchItem } from '../batch/items.js';
-import type { VectorOptions } from '../browser/export-service-client.js';
 import { useEffect, useRef, useState } from 'react';
 
 import { downloadBlob } from '../browser/figure-export.js';
@@ -39,18 +38,21 @@ function useBatchResult() {
     act,
   };
 }
-export function useBatchRunner(
-  items: BatchItem[],
-  options: BatchOptions,
-  vector: VectorOptions,
-) {
+export function useBatchRunner(items: BatchItem[], options: BatchOptions) {
   const state = useBatchResult(),
     controller = useRef<AbortController | undefined>(undefined);
   const running = useRef(false);
+  const configuration = useRef({ items, options });
+  configuration.current = { items, options };
+  const current = () =>
+    configuration.current.items === items &&
+    configuration.current.options === options;
   useEffect(() => () => controller.current?.abort(), []);
   useEffect(() => {
+    controller.current?.abort();
     state.setResult(undefined);
     state.setRecords([]);
+    state.setMessage('');
   }, [items, options]);
   const start = async (retry = false, downloadAfter = false) => {
     if (running.current || state.busy) return;
@@ -61,11 +63,17 @@ export function useBatchRunner(
         controller.current = c;
         const result = await runBatch(items, options, {
           signal: c.signal,
-          onProgress: state.setRecords,
+          onProgress: (records) => {
+            if (current()) state.setRecords(records);
+          },
           ...(retry && state.result ? { previous: state.result } : {}),
           exporter: (svg, format) =>
-            exportBatchBytes(svg, format, { ...vector, signal: c.signal }),
+            exportBatchBytes(svg, format, {
+              dpi: options.dpi,
+              signal: c.signal,
+            }),
         });
+        if (!current()) return;
         state.setResult(result);
         if (downloadAfter && !c.signal.aborted) {
           if (!Object.keys(result.files).length) {
@@ -73,6 +81,7 @@ export function useBatchRunner(
             return;
           }
           const archive = await batchArchive(result, options);
+          if (!current()) return;
           if (c.signal.aborted) {
             state.setMessage('下载已取消，可重新下载已完成的文件与清单');
             return;
@@ -107,6 +116,7 @@ export function useBatchRunner(
         const c = new AbortController();
         controller.current = c;
         const archive = await batchArchive(result, options);
+        if (!current()) return;
         if (c.signal.aborted) {
           state.setMessage('下载已取消，可重新下载已完成的文件与清单');
           return;

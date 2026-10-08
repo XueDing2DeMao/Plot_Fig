@@ -34,6 +34,17 @@ const markerChoices: ReadonlyArray<{
   })),
 ];
 
+const commonMarkers = new Set([
+  'none',
+  'circle',
+  'square',
+  'triangle',
+  'diamond',
+  'plus',
+  'cross',
+  'star',
+]);
+
 function regularPoints(sides: number, inner = 1) {
   return Array.from({ length: sides }, (_, index) => {
     const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
@@ -151,16 +162,6 @@ export function PlotSettingsPanel({
 }) {
   const [showAllMarkers, setShowAllMarkers] = useState(false);
   const markerGroupId = useId();
-  const commonMarkers = new Set([
-    'none',
-    'circle',
-    'square',
-    'triangle',
-    'diamond',
-    'plus',
-    'cross',
-    'star',
-  ]);
   const visibleMarkers = showAllMarkers
     ? markerChoices
     : markerChoices.filter(
@@ -174,121 +175,174 @@ export function PlotSettingsPanel({
       (choice !== '' && choice in multiAxisChoices));
   return (
     <section className="card plot-settings-card" aria-label="图形设置">
-      <p className="section-kicker">图形设置</p>
-      {onConfirm && (
-        <div className="plot-confirm-actions">
-          <button type="button" onClick={onReset} disabled={!pending && !error}>
-            重置待绘图设置
-          </button>
-          <button type="button" className="primary-action" onClick={onConfirm}>
-            {hasFigure ? '应用修改' : '生成图形'}
-          </button>
-        </div>
-      )}
-      {onChoice && (
-        <label className="plot-type-label">
-          图表类型
-          <select
-            className="plot-mode-select"
-            value={choice}
-            onChange={(event) =>
-              onChoice(event.target.value as PlotSetupChoice)
-            }
-          >
-            <option value="" disabled>
-              选择统一图表类型
-            </option>
-            {Object.entries(chartChoices).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-            {Object.entries(multiAxisChoices).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-      {showAppearance && (
-        <div className="plot-appearance-choices">
-          <fieldset className="visual-choice-group">
-            <legend>线型</legend>
-            <div className="visual-choice-grid line-choice-grid">
-              {lineChoices.map((option) => (
-                <label className="visual-choice" key={option.value}>
-                  <input
-                    type="radio"
-                    name="plot-line-dash"
-                    value={option.value}
-                    checked={lineDash === option.value}
-                    aria-label={`线型：${option.label}`}
-                    onChange={() => onLineDashChange(option.value)}
-                  />
-                  <span className="visual-choice-body">
-                    <LinePreview value={option.value} />
-                    <span>{option.label}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <fieldset className="visual-choice-group">
-            <legend>标记符号</legend>
-            <div
-              className="visual-choice-grid marker-choice-grid"
-              id={markerGroupId}
+      <header className="plot-settings-header">
+        <div className="plot-settings-heading">
+          <h2>图形设置</h2>
+          {onConfirm && (
+            <span
+              className="plot-settings-state"
+              data-state={error ? 'error' : pending ? 'pending' : 'ready'}
             >
-              {visibleMarkers.map((option) => (
-                <label className="visual-choice" key={option.value}>
-                  <input
-                    type="radio"
-                    name="plot-marker-shape"
-                    value={option.value}
-                    checked={markerShape === option.value}
-                    aria-label={`标记符号：${option.label}`}
-                    onChange={() => onMarkerShapeChange(option.value)}
-                  />
-                  <span className="visual-choice-body">
-                    <MarkerPreview value={option.value} />
-                    <span>{option.label}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
+              {error
+                ? '应用失败'
+                : pending
+                  ? '待应用'
+                  : hasFigure
+                    ? '已应用'
+                    : '待生成'}
+            </span>
+          )}
+        </div>
+        {onConfirm && (
+          <div className="plot-confirm-actions">
             <button
               type="button"
-              className="marker-more"
-              aria-expanded={showAllMarkers}
-              aria-controls={markerGroupId}
-              onClick={() => setShowAllMarkers(!showAllMarkers)}
+              aria-label="重置待绘图设置"
+              title="重置待绘图设置"
+              onClick={onReset}
+              disabled={!pending && !error}
             >
-              {showAllMarkers ? '收起更多标记' : '更多标记'}
+              重置
             </button>
-          </fieldset>
-          <p className="plot-mode-help">
-            线型和标记符号可组合使用；关闭其中一项时保留另一项显示。
-          </p>
-        </div>
-      )}
-      {onConfirm && (
-        <>
-          <p className="plot-mode-help">
-            当前图层的数据组使用同一种图表类型，应用后更新预览。
-          </p>
-          {pending && (
-            <p className="workspace-hint" role="status">
-              设置尚未应用，图形预览仍为上次应用的结果。
-            </p>
-          )}
-          {error && (
-            <p className="workspace-error" role="alert">
-              {error}
-            </p>
-          )}
-        </>
-      )}
+            <button
+              type="button"
+              className="primary-action"
+              onClick={onConfirm}
+            >
+              {hasFigure ? '应用修改' : '生成图形'}
+            </button>
+          </div>
+        )}
+      </header>
+      <div className="plot-settings-body">
+        {onChoice && (
+          <label className="plot-type-label">
+            图表类型
+            <select
+              className="plot-mode-select"
+              value={choice}
+              onChange={(event) =>
+                onChoice(event.target.value as PlotSetupChoice)
+              }
+            >
+              <option value="" disabled>
+                选择统一图表类型
+              </option>
+              {Object.entries(chartChoices).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+              {Object.entries(multiAxisChoices).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {showAppearance && (
+          <div className="plot-appearance-choices">
+            <fieldset className="visual-choice-group">
+              <legend>线型</legend>
+              <div className="visual-choice-grid line-choice-grid">
+                {lineChoices.map((option) => (
+                  <label className="visual-choice" key={option.value}>
+                    <input
+                      type="radio"
+                      name="plot-line-dash"
+                      value={option.value}
+                      checked={lineDash === option.value}
+                      aria-label={`线型：${option.label}`}
+                      onChange={() => onLineDashChange(option.value)}
+                    />
+                    <span className="visual-choice-body">
+                      {lineDash === option.value && (
+                        <span
+                          className="choice-selected-mark"
+                          aria-hidden="true"
+                        >
+                          ✓
+                        </span>
+                      )}
+                      <LinePreview value={option.value} />
+                      <span>{option.label}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="visual-choice-group" aria-label="标记符号">
+              <legend className="marker-choice-heading">
+                <span>标记符号</span>
+                <button
+                  type="button"
+                  className="marker-more"
+                  aria-expanded={showAllMarkers}
+                  aria-controls={markerGroupId}
+                  onClick={() => setShowAllMarkers(!showAllMarkers)}
+                >
+                  {showAllMarkers ? '收起更多标记' : '更多标记'}
+                </button>
+              </legend>
+              <div
+                className="visual-choice-grid marker-choice-grid"
+                id={markerGroupId}
+              >
+                {visibleMarkers.map((option) => (
+                  <label className="visual-choice" key={option.value}>
+                    <input
+                      type="radio"
+                      name="plot-marker-shape"
+                      value={option.value}
+                      checked={markerShape === option.value}
+                      aria-label={`标记符号：${option.label}`}
+                      onChange={() => onMarkerShapeChange(option.value)}
+                    />
+                    <span className="visual-choice-body">
+                      {markerShape === option.value && (
+                        <span
+                          className="choice-selected-mark"
+                          aria-hidden="true"
+                        >
+                          ✓
+                        </span>
+                      )}
+                      <MarkerPreview value={option.value} />
+                      <span>{option.label}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+        )}
+        {(showAppearance || onConfirm) && (
+          <details className="plot-settings-help">
+            <summary>使用说明</summary>
+            {showAppearance && (
+              <p>线型和标记符号可组合使用；关闭其中一项时保留另一项显示。</p>
+            )}
+            {onConfirm && (
+              <p>当前图层的数据组使用同一种图表类型，应用后更新预览。</p>
+            )}
+          </details>
+        )}
+        {onConfirm && (
+          <>
+            {pending && (
+              <p className="workspace-hint" role="status">
+                设置尚未应用，图形预览仍为上次应用的结果。
+              </p>
+            )}
+            {error && (
+              <p className="workspace-error" role="alert">
+                {error}
+              </p>
+            )}
+          </>
+        )}
+      </div>
     </section>
   );
 }

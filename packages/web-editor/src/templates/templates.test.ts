@@ -1,12 +1,8 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { defaultTemplate } from '../state/default-template.js';
-import { validateFigureTemplate } from '@plot-fig/figure-schema';
 import { builtInTemplates } from './catalog.js';
-import {
-  applyTemplateStyle,
-  applyJournalPreset,
-  journalPresets,
-} from './styles.js';
+import { applyTemplateStyle } from './styles.js';
 import { parseLibraryTemplate } from './library-storage.js';
 it('does not preload templates in the template center', () => {
   expect(builtInTemplates()).toEqual([]);
@@ -34,17 +30,10 @@ it('style application preserves chart kinds, IDs, bindings, titles and data sema
   );
   expect(next.panels[0]!.axes[0]!.tickLabels.fontSizePt).toBe(7);
 });
-it('applies physical journal widths and persists the selected snapshot', () => {
-  const p = journalPresets.find((p) => p.id === 'ieee-single')!;
-  const t = applyJournalPreset(defaultTemplate(), p);
-  expect(t.page.size.width).toEqual({ value: 3.5, unit: 'in' });
-  expect(t.publicationPreset?.presetId).toBe('ieee-single');
-  expect(validateFigureTemplate(t).ok).toBe(true);
-});
 it('validates imported templates before storing them', () => {
   expect(
     parseLibraryTemplate(JSON.stringify(defaultTemplate())).schemaVersion,
-  ).toBe('1.22.0');
+  ).toBe(CURRENT_SCHEMA_VERSION);
   expect(() => parseLibraryTemplate('{"kind":"figure-template"}')).toThrow();
 });
 

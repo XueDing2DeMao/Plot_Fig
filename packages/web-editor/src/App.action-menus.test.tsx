@@ -34,7 +34,18 @@ it('groups drawing tools above the preview and export tools in the export area',
     within(actions)
       .getAllByRole('button')
       .map((button) => button.getAttribute('aria-label') ?? button.textContent),
-  ).toEqual(['模板中心', '图形属性', '坐标轴', '图层管理']);
+  ).toEqual([
+    '撤销',
+    '重做',
+    '图形属性',
+    '坐标轴',
+    '图层管理',
+    '模板中心',
+    '数据表批绘',
+  ]);
+  expect(
+    screen.queryByRole('button', { name: '项目批处理' }),
+  ).not.toBeInTheDocument();
   expect(screen.getByRole('region', { name: '图形预览' })).toContainElement(
     actions,
   );
@@ -65,6 +76,30 @@ it('groups drawing tools above the preview and export tools in the export area',
   expect(document.getElementById('export')).toContainElement(
     screen.getByRole('button', { name: '导出图形' }),
   );
+});
+
+it('keeps compact tool groups accessible and puts optional interaction help behind a disclosure', () => {
+  render(<App />);
+  const toolbar = within(screen.getByRole('group', { name: '预览工具栏' }));
+  expect(
+    toolbar.getByRole('group', { name: '图形设置工具' }),
+  ).toBeInTheDocument();
+  expect(
+    toolbar.getByRole('group', { name: '模板与批量绘图' }),
+  ).toBeInTheDocument();
+  expect(toolbar.getByRole('group', { name: '图层格式' })).toBeInTheDocument();
+  expect(toolbar.getByRole('group', { name: '图形缩放' })).toBeInTheDocument();
+  expect(toolbar.getByRole('button', { name: '撤销' })).toHaveAttribute(
+    'title',
+    expect.stringContaining('Ctrl'),
+  );
+  expect(toolbar.getByRole('button', { name: '放大' })).toHaveAttribute(
+    'title',
+    expect.stringContaining('放大'),
+  );
+  const help = screen.getByText('操作提示').closest('details')!;
+  expect(help).not.toHaveAttribute('open');
+  expect(within(help).getByText(/滚轮：X 轴/)).not.toBeVisible();
 });
 
 it('opens the independent Y axis menu after using the worksheet', () => {

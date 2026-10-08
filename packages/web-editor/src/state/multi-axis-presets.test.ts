@@ -59,12 +59,12 @@ it.each<{
   {
     preset: 'triple-y',
     positions: ['left', 'right', 'right'],
-    offsets: [0, 0, 36],
+    offsets: [0, 0, 60],
   },
   {
     preset: 'quad-y',
     positions: ['left', 'right', 'left', 'right'],
-    offsets: [0, 0, 36, 36],
+    offsets: [0, 0, 60, 60],
   },
 ])(
   'creates $preset as linked overlay layers with shared X',
@@ -168,7 +168,12 @@ it('can switch between generated structural presets', () => {
   expect(quad.template.panels.flatMap((panel) => panel.plotSlots)).toHaveLength(
     4,
   );
-  expect(quad.template.panels[0]!.frame).toEqual(originalFrame);
+  expect(quad.template.panels[0]!.frame.width).toBeLessThan(
+    originalFrame.width,
+  );
+  expect(collapseMultiAxisPreset(quad).template.panels[0]!.frame).toEqual(
+    originalFrame,
+  );
   expect(
     quad.template.panels
       .slice(1)

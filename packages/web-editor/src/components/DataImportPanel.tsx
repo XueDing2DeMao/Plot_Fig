@@ -7,34 +7,44 @@ import './data-import.css';
 
 type ImportState = ReturnType<typeof useImportDraft>;
 const IMPORT_PREVIEW_ROWS = 100;
+const IMPORT_FILE_LIMIT = 50;
+const IMPORT_BATCH_BYTES = 100 * 1024 * 1024;
+function sheetName(state: ImportState, index: number) {
+  const source = state.draft.sheets[index]!.source;
+  return state.files.length > 1
+    ? [source.name, source.sheetName].filter(Boolean).join(' · ')
+    : (source.sheetName ?? source.name);
+}
 function SheetSelection({ state }: { state: ImportState }) {
   return (
     <fieldset className="sheet-selection">
-      <legend>选择要导入的工作表</legend>
-      {state.draft.sheets.map((sheet, index) => (
-        <label key={index}>
-          <input
-            type="checkbox"
-            checked={state.draft.selected.includes(index)}
-            onChange={(e) =>
-              state.setDraft((current) => ({
-                ...current,
-                selected: e.target.checked
-                  ? [...current.selected, index].sort((a, b) => a - b)
-                  : current.selected.filter((i) => i !== index),
-              }))
-            }
-          />
-          {sheet.source.sheetName ?? sheet.source.name}
+      <legend>选择要导入的数据表</legend>
+      {state.draft.sheets.map((_, index) => (
+        <div className="import-sheet-row" key={index}>
+          <label>
+            <input
+              type="checkbox"
+              checked={state.draft.selected.includes(index)}
+              onChange={(e) =>
+                state.setDraft((current) => ({
+                  ...current,
+                  selected: e.target.checked
+                    ? [...current.selected, index].sort((a, b) => a - b)
+                    : current.selected.filter((i) => i !== index),
+                }))
+              }
+            />
+            {sheetName(state, index)}
+          </label>
           <button
             type="button"
             onClick={() =>
               state.setDraft((current) => ({ ...current, active: index }))
             }
           >
-            预览{sheet.source.sheetName}
+            预览 {sheetName(state, index)}
           </button>
-        </label>
+        </div>
       ))}
     </fieldset>
   );
@@ -45,7 +55,7 @@ function RawPreview({ state }: { state: ImportState }) {
   const region = state.draft.regions[state.draft.active]!;
   return (
     <>
-      <h3>{sheet.source.sheetName ?? sheet.source.name}</h3>
+      <h3>{sheetName(state, state.draft.active)}</h3>
       <RegionOptions
         value={region}
         onChange={(value) =>
@@ -81,7 +91,7 @@ function RawPreview({ state }: { state: ImportState }) {
 function ImportDialog({ state }: { state: ImportState }) {
   return (
     <WorkspaceDialog title="导入数据" onClose={state.close}>
-      {!state.file && (
+      {!state.files.length && (
         <div className="paste-input">
           <label>
             粘贴表格文本
@@ -97,16 +107,37 @@ function ImportDialog({ state }: { state: ImportState }) {
           </button>
         </div>
       )}
-      {!/\.xlsx$/i.test(state.file?.name ?? '') && (
+      {(!state.files.length ||
+        state.files.some((file) => !/\.xlsx$/i.test(file.name))) && (
         <TextOptions value={state.options} onChange={state.changeOptions} />
       )}
-      {state.loading && <p role="status">正在读取文件…</p>}
+      {state.files.length > 1 && (
+        <p className="workspace-hint">
+          已选择 {state.files.length}{' '}
+          个文件。默认勾选每个文件的第一张表，可切换预览并分别调整表头与数据行。
+          编码和分隔符应用于本批所有文本文件；更改后重新读取并重置表选择及行设置。
+        </p>
+      )}
+      {state.loading && <p role="status">正在读取文件… {state.reading}</p>}
       {state.draft.sheets.length > 1 && <SheetSelection state={state} />}
       <RawPreview state={state} />
-      {state.error && (
-        <p role="alert" className="workspace-error">
-          {state.error}
-        </p>
+      {(state.error || state.importErrors.length > 0) && (
+        <div role="alert" className="workspace-error">
+          {state.error && <p>{state.error}</p>}
+          {state.importErrors.length > 0 && (
+            <>
+              <p>以下文件或工作表无法导入，其余有效数据仍可确认：</p>
+              <ul>
+                {state.importErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
+      {!state.loading && state.files.length > 1 && (
+        <p role="status">将导入 {state.tables.length} 张数据表</p>
       )}
       <footer className="workspace-actions">
         <button type="button" onClick={state.close}>
@@ -130,7 +161,7 @@ export function DataImportPanel({
   onImport,
   hasData = false,
 }: {
-  onImport: (tables: DataTable[]) => void;
+  onImport: (tables: DataTable[]) => boolean | void;
   hasData?: boolean;
 }) {
   const state = useImportDraft(onImport);
@@ -143,12 +174,20 @@ export function DataImportPanel({
   const helpId = useId();
   const previewFiles = (files: FileList | null) => {
     if (!files?.length || state.open) return;
-    if (files.length !== 1) {
-      setFileError('每次请导入一个文件，可重复追加。');
+    if (files.length > IMPORT_FILE_LIMIT) {
+      setFileError(`每次最多选择 ${IMPORT_FILE_LIMIT} 个文件，请分批导入。`);
+      return;
+    }
+    const selected = Array.from(files);
+    if (
+      selected.reduce((total, file) => total + file.size, 0) >
+      IMPORT_BATCH_BYTES
+    ) {
+      setFileError('本批文件总大小超过 100 MiB，请分批导入。');
       return;
     }
     setFileError('');
-    state.openFile(files[0]!);
+    state.openFiles(selected);
   };
   return (
     <section className="panel import-panel" aria-label="导入数据">
@@ -172,6 +211,7 @@ export function DataImportPanel({
           className="import-file-input"
           aria-label="选择数据文件"
           type="file"
+          multiple
           accept=".csv,.txt,.tsv,.xlsx"
           hidden
           onChange={(event) => {
@@ -223,7 +263,9 @@ export function DataImportPanel({
             </svg>
             {dragging ? '松开以预览文件' : '选择文件'}
           </span>
-          <span className="import-dropzone-hint">或拖拽单个文件到此处</span>
+          <span className="import-dropzone-hint">
+            支持多选，或拖拽多个文件到此处
+          </span>
           <span id={formatsId} className="import-file-formats">
             CSV · TXT · TSV · XLSX
           </span>
@@ -254,7 +296,8 @@ export function DataImportPanel({
           从剪贴板粘贴
         </button>
         <p id={helpId} className="import-entry-note">
-          先预览确认 · 单文件≤{DATA_LIMITS.fileBytes / (1024 * 1024)} MiB
+          先预览确认 · 单文件≤{DATA_LIMITS.fileBytes / (1024 * 1024)} MiB ·
+          每批≤{IMPORT_FILE_LIMIT} 个 / 100 MiB
         </p>
         {fileError && (
           <p role="alert" className="import-entry-error">

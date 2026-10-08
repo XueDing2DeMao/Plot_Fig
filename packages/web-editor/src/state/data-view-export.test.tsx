@@ -53,12 +53,12 @@ it('正式工作区同时提供显示与导出SVG，切换导出抽样不改变�
   expect(count(result.current.exportSvg)).toBe(2);
   expect(result.current.template.panels[0]!.axes).toEqual(axes);
 });
-it('批量预览和SVG/PNG/PDF/EPS输入均遵守完整导出或明确抽样选择', async () => {
+it('批量预览和SVG/PNG输入均遵守完整导出或明确抽样选择', async () => {
   const m = model(),
     plot = m.template.panels[0]!.plotSlots[0]!;
   if (plot.kind !== 'xy') throw new Error('XY');
   const options = {
-    formats: ['svg', 'png', 'pdf', 'eps'] as const,
+    formats: ['svg', 'png'] as const,
     dpi: 300,
     includeProject: true,
   };
@@ -83,8 +83,8 @@ it('批量预览和SVG/PNG/PDF/EPS输入均遵守完整导出或明确抽样选�
       },
     );
     expect(r.records[0]!.status).toBe('success');
-    expect(counts).toEqual(Array(4).fill(sampleExport ? 2 : 4));
-    expect(Object.keys(r.files)).toHaveLength(5);
+    expect(counts).toEqual(Array(2).fill(sampleExport ? 2 : 4));
+    expect(Object.keys(r.files)).toHaveLength(3);
   }
   const shown = renderFigureSvg(
     m.template,

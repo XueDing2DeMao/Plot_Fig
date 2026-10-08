@@ -5,7 +5,7 @@ import {
   CURRENT_SCHEMA_VERSION,
 } from '@plot-fig/figure-schema';
 it('正式1.18接受Log2和跨零SymLog并验证不兼容参数', () => {
-  expect(CURRENT_SCHEMA_VERSION).toBe('1.22.0');
+  expect(CURRENT_SCHEMA_VERSION).toBe('1.24.0');
   const t = chartTemplate('xy'),
     axis = t.panels[0]!.axes[1]!;
   Object.assign(axis, {

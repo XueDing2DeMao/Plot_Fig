@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { emptyWorkspace } from '@plot-fig/data-binding';
 import { validateFigureTemplate } from '@plot-fig/figure-schema';
@@ -246,7 +247,7 @@ it('排列仍用 1.6 保存，重开后图层坐标和 SVG 相同', () => {
   const loaded = parseWorkspaceProject(saved);
   expect(loaded.ok).toBe(true);
   if (!loaded.ok) throw new Error('重开失败');
-  expect(loaded.template.schemaVersion).toBe('1.22.0');
+  expect(loaded.template.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   expect(loaded.template).toEqual(arranged);
   const data = chartData({ x: [-1, 0, 1], y: [1, 2, 3] });
   const result = renderFigureSvg(arranged, data);

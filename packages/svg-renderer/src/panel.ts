@@ -46,9 +46,11 @@ import {
 } from './layout-geometry.js';
 import { renderLayerAppearance } from './layer-appearance.js';
 import { resolveCurveGroups, prepareCurveSubset } from './curve-groups.js';
-import { prepareCurveTransforms } from './curve-transforms.js';
+import { prepareLayerStackTransforms } from './layer-stack-curves.js';
 import { errorRange } from './error-values.js';
 import { renderChartDataLabels } from './chart-data-labels.js';
+import type { GroupColorbarPanelLayout } from './group-colorbar-layout.js';
+import { renderGroupColorbar } from './group-colorbars.js';
 export { COLORBAR_WIDTH } from './layout-geometry.js';
 const MIN_PLOT_WIDTH = 60;
 const MIN_PLOT_HEIGHT = 40;
@@ -155,18 +157,23 @@ export function preparePanel(
           describePlotFailure(plot, data, cause),
         ),
         ...((plot.kind === 'xy' && plot.subset) ||
-        panel.stack?.members.includes(plot.plotSlotId)
+        panel.stack?.members.includes(plot.plotSlotId) ||
+        panel.layerStack?.members.includes(plot.plotSlotId)
           ? { severity: 'error' as const }
           : {}),
       });
     }
   }
-  const failures = arrangeBands(plots);
+  const failures = arrangeBands(plots, panel);
   for (const { item, cause } of failures)
     diagnostics.push(diagnostic(panel, item.plot.plotSlotId, cause));
   const valid = plots.filter((item) => !failures.some((f) => f.item === item));
   try {
-    const transformed = prepareCurveTransforms(panel, valid, data);
+    const transformed = prepareLayerStackTransforms(panel, valid, data);
+    const legacyStackMembers =
+      panel.stack?.members.filter(
+        (id) => !panel.layerStack?.members.includes(id),
+      ) ?? [];
     for (const item of transformed.prepared) {
       item.curveGeometry = {
         lineSegments: transformed.lines.get(item.plot.plotSlotId),
@@ -196,7 +203,11 @@ export function preparePanel(
               index: row.sourceIndex,
               base: row.y,
             }) ?? [];
-          item.xValues.push(...xs.map((v) => v + transform.xOffset));
+          item.xValues.push(
+            ...xs.map((v) =>
+              transform.mapX ? transform.mapX(v) : v + transform.xOffset,
+            ),
+          );
           item.yValues.push(...ys.map(transform.mapY));
         }
       }
@@ -209,7 +220,10 @@ export function preparePanel(
       item.replaceAreaFill =
         item.plot.kind === 'area' &&
         (!!item.plot.transform?.fill ||
-          !!panel.stack?.members.includes(item.plot.plotSlotId));
+          (legacyStackMembers.length >= 2 &&
+            legacyStackMembers.includes(item.plot.plotSlotId)) ||
+          (panel.layerStack?.mode === 'cumulative' &&
+            panel.layerStack.members.includes(item.plot.plotSlotId)));
     }
     return transformed.prepared;
   } catch (cause) {
@@ -434,6 +448,7 @@ function drawAll(
     panel: Panel;
     scales: Map<string, PlotScale>;
     colorbarHeight?: number | undefined;
+    groupLayout?: GroupColorbarPanelLayout | undefined;
     purpose: 'display' | 'export';
   },
   diagnostics: RenderDiagnostic[],
@@ -503,6 +518,7 @@ function drawAll(
             offset: colorOffset,
             id: 'color-' + plot.plotSlotId,
             availableHeight: options.colorbarHeight,
+            barRect: options.groupLayout?.heatmaps.get(plot.plotSlotId),
           },
         );
       }
@@ -544,6 +560,7 @@ type PreparedPanel = {
   plots: PreparedPlot[];
   shared: Map<string, PlotScale>;
   diagnostics: RenderDiagnostic[];
+  groupLayout?: GroupColorbarPanelLayout | undefined;
 };
 export function renderPanel(
   template: FigureTemplate,
@@ -558,19 +575,16 @@ export function renderPanel(
   const { panel, plots, shared, diagnostics } = prepared;
   if (panel.visible === false) return { svg: '', diagnostics, ids: new Set() };
   try {
-    const available = layerGeometry(
-      panel.frame,
-      pageGeometry(template.page).page,
-      colorbarLayout(plots.map((item) => item.plot)),
-    );
+    const available =
+      prepared.groupLayout?.available ??
+      layerGeometry(
+        panel.frame,
+        pageGeometry(template.page).page,
+        colorbarLayout(plots.map((item) => item.plot)),
+      );
     const visiblePlots = panel.plotSlots.filter(
       (plot) => plot.visible !== false,
     );
-    if (
-      available.plot.width < MIN_PLOT_WIDTH ||
-      available.plot.height < MIN_PLOT_HEIGHT
-    )
-      throw new Error('图层尺寸不足以排列颜色条，请扩大图层或隐藏部分颜色条');
     const scales = new Map<string, PlotScale>();
     const sharedIds = new Set(
       template.sharedAxisGroups?.flatMap((group) =>
@@ -605,6 +619,30 @@ export function renderPanel(
       panel.axisLengthRatio,
       effectiveScales,
     );
+    // 比例约束已有按可用高度缩放的竖向色条；普通图层和组色标仍保留最小高度门禁。
+    const compactColorbar =
+      geometry.status === 'active' &&
+      !prepared.groupLayout &&
+      plots.some(
+        ({ plot }) =>
+          (plot.kind === 'heatmap' || plot.kind === 'contour') &&
+          plot.colorScale.colorbar.visible,
+      ) &&
+      plots.every(
+        ({ plot }) =>
+          (plot.kind !== 'heatmap' && plot.kind !== 'contour') ||
+          !plot.colorScale.colorbar.visible ||
+          (plot.colorScale.colorbar.orientation ?? 'vertical') === 'vertical',
+      );
+    if (
+      available.plot.width < MIN_PLOT_WIDTH ||
+      !(available.plot.height > 0) ||
+      (compactColorbar &&
+        Number((8 * Math.min(1, geometry.layer.height / 60)).toFixed(6)) <=
+          0) ||
+      (!compactColorbar && available.plot.height < MIN_PLOT_HEIGHT)
+    )
+      throw new Error('图层尺寸不足以排列颜色条，请扩大图层或隐藏部分颜色条');
     const rect = geometry.plot;
     const clipRect = layerClipRect(panel, rect);
     const drawn = drawAll(
@@ -615,6 +653,7 @@ export function renderPanel(
         panel,
         purpose: prepared.purpose ?? 'display',
         scales: effectiveScales,
+        groupLayout: prepared.groupLayout,
         colorbarHeight:
           geometry.status === 'active' ? geometry.layer.height : undefined,
       },
@@ -622,6 +661,13 @@ export function renderPanel(
     );
     if (visiblePlots.length > 0 && !drawn.ids.size)
       throw new Error('没有可绘制的图表，请检查数据绑定和坐标范围');
+    const groupBars = (prepared.groupLayout?.bars ?? [])
+      .map(({ bar, rect }) => {
+        if (!bar.plotIds.some((id) => drawn.ids.has(id)))
+          throw new Error('组色标没有成功绘制的曲线，请检查数据绑定和坐标范围');
+        return renderGroupColorbar(panel.panelId, bar, rect);
+      })
+      .join('');
     const clipId = 'panel-clip-' + panel.panelId;
     const gridClipId =
       clipRect === rect ? clipId : 'panel-grid-clip-' + panel.panelId;
@@ -761,7 +807,7 @@ export function renderPanel(
           : `${backGrid}${plotLayer}${frontGrid}${axisLayer}`;
     const appearance = renderLayerAppearance(panel, geometry.layer);
     return {
-      svg: `<g data-role="panel" data-panel-id="${escapeXml(panel.panelId)}">${clip}${gridClip}${segmentClips}${appearance.behind}${referenceLayer}${content}${appearance.ahead}${renderSeriesLegend(template, panel, { rect, renderedPlotIds: drawn.ids, samples: drawn.detailLegends })}${drawn.bars}<g data-role="annotations">${annotations}</g></g>`,
+      svg: `<g data-role="panel" data-panel-id="${escapeXml(panel.panelId)}">${clip}${gridClip}${segmentClips}${appearance.behind}${referenceLayer}${content}${appearance.ahead}${renderSeriesLegend(template, panel, { rect, renderedPlotIds: drawn.ids, samples: drawn.detailLegends })}${drawn.bars}${groupBars}<g data-role="annotations">${annotations}</g></g>`,
       diagnostics,
       ids: drawn.ids,
       detailLegends: drawn.detailLegends,

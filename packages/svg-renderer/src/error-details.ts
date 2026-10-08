@@ -147,7 +147,11 @@ function domainRegions(
         ? transform({ x: a, y: b, sourceIndex: i })
         : undefined;
     const plottedX =
-        typeof a === 'number' ? a + (mapping?.xOffset ?? offset.x) : NaN,
+        typeof a === 'number'
+          ? mapping?.mapX
+            ? mapping.mapX(a)
+            : a + (mapping?.xOffset ?? offset.x)
+          : NaN,
       plottedY =
         typeof b === 'number'
           ? mapping
@@ -414,7 +418,9 @@ export function renderAdvancedErrors(
             transform && bounds
               ? (bounds.map((value) =>
                   direction === 'x'
-                    ? value + transform.xOffset
+                    ? transform.mapX
+                      ? transform.mapX(value)
+                      : value + transform.xOffset
                     : transform.mapY(value),
                 ) as [number, number])
               : undefined;

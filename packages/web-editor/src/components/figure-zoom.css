@@ -1,0 +1,40 @@
+.figure-zoom-controls {
+  min-width: 0;
+  max-width: 100%;
+}
+.figure-zoom-controls > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.figure-zoom-controls p {
+  margin: 8px 0 0;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-caption);
+}
+.figure-zoom-controls button[aria-pressed='true'] {
+  background: var(--ui-selected);
+  border-color: var(--ui-primary);
+}
+.figure-zoom-status {
+  line-height: 1.5;
+}
+.figure-zoom-status:empty {
+  display: none;
+}
+.preview-stage[data-zoom-box='true'] {
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+.preview-stage[data-zoom-box='true'] * {
+  cursor: crosshair;
+}
+.figure-zoom-selection {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  border: 1px solid var(--ui-focus);
+  background: color-mix(in srgb, var(--ui-focus) 15%, transparent);
+}

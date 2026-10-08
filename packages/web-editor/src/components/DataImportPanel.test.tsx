@@ -44,22 +44,28 @@ describe('import draft isolation', () => {
     ]);
   });
 
-  it('rejects a multi-file drop without silently importing only the first', () => {
+  it('previews a multi-file drop and imports all selected files together', async () => {
     const onImport = vi.fn();
     render(<DataImportPanel onImport={onImport} />);
     fireEvent.drop(screen.getByRole('button', { name: '选择文件' }), {
       dataTransfer: {
-        files: [new File(['X,Y'], 'a.csv'), new File(['X,Y'], 'b.csv')],
+        files: [
+          new File(['X,Y\n1,2'], 'a.csv'),
+          new File(['X,Y\n3,4'], 'b.csv'),
+        ],
         types: ['Files'],
       },
     });
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      '每次请导入一个文件，可重复追加。',
-    );
     expect(
-      screen.queryByRole('dialog', { name: '导入数据' }),
-    ).not.toBeInTheDocument();
+      await screen.findByRole('checkbox', { name: 'a.csv' }),
+    ).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'b.csv' })).toBeChecked();
     expect(onImport).not.toHaveBeenCalled();
+    await confirmDataImport();
+    expect(onImport).toHaveBeenCalledTimes(1);
+    expect(
+      onImport.mock.calls[0]![0].map((table: DataTable) => table.source.name),
+    ).toEqual(['a.csv', 'b.csv']);
   });
 
   it('validates dropped files using the existing import rules', async () => {

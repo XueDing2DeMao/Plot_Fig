@@ -49,6 +49,16 @@
 .origin-dialog .property-dialog-body {
   grid-template-columns: 190px minmax(0, 1fr);
 }
+.layer-stack-modes,
+.layer-stack-directions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+.layer-stack-offsets input[type='radio'] {
+  min-height: 14px;
+  width: auto;
+}
 .origin-dialog.has-preview {
   width: min(1280px, calc(100vw - 32px));
 }
@@ -110,13 +120,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--ui-font-small);
+  font-size: calc(14px - var(--object-depth) * 1px);
 }
 .origin-object-nav small {
   display: block;
   margin-top: 4px;
   color: var(--ui-muted);
   font-size: var(--ui-font-caption);
+  font-weight: 400;
 }
 .origin-node-icon {
   flex-shrink: 0;

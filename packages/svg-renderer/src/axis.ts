@@ -32,6 +32,7 @@ function renderTick(
   scale: PlotScale,
   tick: PlannedTick,
   precise: boolean,
+  onBounds?: (bounds: Rect) => void,
 ): string {
   const { value, ratio } = tick;
   const label =
@@ -75,6 +76,14 @@ function renderTick(
       ? renderAppearanceText(laidOut, axis.tickLabels, 'tick-label')
       : `<text data-role="tick-label" x="${formatNumber(laidOut.x)}" y="${formatNumber(laidOut.y)}" text-anchor="${anchor}" fill="${escapeXml(axis.tickLabels.color)}" font-family="${escapeXml(axis.tickLabels.fontFamily)}" font-size="${formatNumber(fontSize)}">${escapeXml(label)}</text>`
     : '';
+  if (axis.tickLabels.visible) onBounds?.(laidOut.bounds);
+  if (axis.majorTicks.visible)
+    onBounds?.({
+      x: Math.min(x, x2),
+      y: Math.min(y, y2),
+      width: Math.abs(x - x2),
+      height: Math.abs(y - y2),
+    });
   return line + text;
 }
 
@@ -104,7 +113,11 @@ function renderMinorTicks(
   return parts.join('');
 }
 
-function renderTitle(axis: Axis, rect: Rect): string {
+function renderTitle(
+  axis: Axis,
+  rect: Rect,
+  onBounds?: (bounds: Rect) => void,
+): string {
   if (!axis.title) return '';
   if (axis.dimension === 'x') {
     const y =
@@ -121,6 +134,7 @@ function renderTitle(axis: Axis, rect: Rect): string {
       { fontSizePt: axis.title.fontSizePt, format: axis.title.format },
       axis.dimension,
     )[0]!;
+    onBounds?.(label.bounds);
     return renderAppearanceText(label, axis.title, 'axis-title');
   }
   const x = axis.position === 'left' ? rect.x - 42 : rect.x + rect.width + 42;
@@ -134,6 +148,7 @@ function renderTitle(axis: Axis, rect: Rect): string {
     },
     axis.dimension,
   )[0]!;
+  onBounds?.(label.bounds);
   return renderAppearanceText(label, axis.title, 'axis-title', true);
 }
 
@@ -142,13 +157,21 @@ export function renderAxis(
   rect: Rect,
   scale: PlotScale,
   generation: MajorTickGeneration | undefined = axis.majorTicks.generation,
+  onBounds?: (bounds: Rect) => void,
 ): string {
   if (!axis.visible) return `<g data-role="axis-${axis.dimension}"></g>`;
   const ticks = planAxisTicks(axis, scale, generation);
   const precise = generation !== undefined && generation.mode !== 'auto';
+  const extra = axis.minorTicks.visible ? axis.minorTicks.lengthPt : 0;
+  onBounds?.({
+    x: rect.x - extra,
+    y: rect.y - extra,
+    width: rect.width + extra * 2 + axis.line.widthPt / 2,
+    height: rect.height + extra * 2,
+  });
   const ticksSvg = ticks.major
-    .map((tick) => renderTick(axis, rect, scale, tick, precise))
+    .map((tick) => renderTick(axis, rect, scale, tick, precise, onBounds))
     .join('');
   const minorSvg = renderMinorTicks(axis, rect, ticks.minor);
-  return `<g data-role="axis-${axis.dimension}">${axisLine(axis, rect)}${minorSvg}${ticksSvg}${renderTitle(axis, rect)}</g>`;
+  return `<g data-role="axis-${axis.dimension}">${axisLine(axis, rect)}${minorSvg}${ticksSvg}${renderTitle(axis, rect, onBounds)}</g>`;
 }

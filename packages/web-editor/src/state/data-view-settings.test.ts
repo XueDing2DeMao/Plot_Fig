@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { emptyWorkspace } from '@plot-fig/data-binding';
 import type { XyPlot, XyDataView } from '@plot-fig/figure-schema';
@@ -44,7 +45,7 @@ it('完整保存与重开数据视图，复制曲线、复制图层、移到另�
     json = serializeWorkspaceProject(template, emptyWorkspace());
   expect(JSON.parse(json)).toMatchObject({
     version: '2.0.0',
-    template: { schemaVersion: '1.22.0' },
+    template: { schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   expect(parseWorkspaceProject(json)).toMatchObject({ ok: true, template });
   const copy = duplicateSeries(template, {}, source.plotSlotId);

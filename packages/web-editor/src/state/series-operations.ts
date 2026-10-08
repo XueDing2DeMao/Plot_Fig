@@ -118,6 +118,18 @@ function copiedSeries(
   )!;
   if (recolor) applyPaletteColor(next, plot, target.plotSlots.length);
   target.plotSlots.push(plot);
+  if (target.layerStack?.members.includes(source.plotSlotId)) {
+    target.layerStack.members.push(plotSlotId);
+    const subgroup = target.layerStack.subgroups.find((group) =>
+      group.members.includes(source.plotSlotId),
+    );
+    subgroup?.members.push(plotSlotId);
+    const individual = target.layerStack.individual.values.find(
+      (value) => value.plotSlotId === source.plotSlotId,
+    );
+    if (individual)
+      target.layerStack.individual.values.push({ ...individual, plotSlotId });
+  }
   return {
     template: next,
     overrides: nextOverrides,

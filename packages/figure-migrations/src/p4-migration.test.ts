@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { loadFigurePayload } from './load.js';
 import { chartTemplate } from '../../../tests/helpers/chart-fixtures.js';
@@ -8,7 +9,7 @@ it('loads 1.1 templates as 1.3 without mutating their inputs', () => {
   const result = loadFigurePayload(old);
   expect(result.ok).toBe(true);
   if (result.ok) {
-    expect(result.value.schemaVersion).toBe('1.22.0');
+    expect(result.value.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(
       result.value.kind === 'figure-template' &&
         withoutLegacyAxisRangeFlags(result.value).panels,

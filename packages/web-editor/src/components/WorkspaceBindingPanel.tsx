@@ -8,7 +8,14 @@ import {
   type FigureTemplate,
 } from '@plot-fig/figure-schema';
 import './binding-panel.css';
-import { useId, useRef } from 'react';
+import { useId, useRef, useState } from 'react';
+import { BatchYDialog } from './BatchYDialog.js';
+import { MatrixHeatmapDialog } from './MatrixHeatmapDialog.js';
+import type { MatrixHeatmapSelection } from '../state/matrix-heatmap.js';
+import {
+  batchYBindings,
+  type BatchYSelection,
+} from '../state/batch-y-columns.js';
 import { seriesBindingSummary } from './series-binding-summary.js';
 import {
   useSeriesDisclosure,
@@ -17,6 +24,9 @@ import {
 
 type Plot = FigureTemplate['panels'][number]['plotSlots'][number];
 type Props = {
+  batchError?: string | undefined;
+  onBatchY?: (selection: BatchYSelection) => boolean | void;
+  onMatrixHeatmap?: (selection: MatrixHeatmapSelection) => boolean | void;
   revealRequest?: SeriesRevealRequest | undefined;
   activePanelId?: string | undefined;
   template: FigureTemplate;
@@ -324,11 +334,16 @@ function SeriesCard({
   );
 }
 export function WorkspaceBindingPanel(props: Props) {
+  const [batchPanelId, setBatchPanelId] = useState<string | null>(null);
+  const [matrixPanelId, setMatrixPanelId] = useState<string | null>(null);
   const panel =
     props.template.panels.find(
       (item) => item.panelId === props.activePanelId,
     ) ?? props.template.panels[0]!;
   const plots = panel.plotSlots;
+  const batchSupported = !!plots.at(-1) && !!batchYBindings(plots.at(-1)!);
+  const matrixSupported =
+    plots.length > 0 && plots.every((plot) => plot.kind === 'heatmap');
   const disclosure = useSeriesDisclosure(
     panel.panelId,
     plots.map((plot) => plot.plotSlotId),
@@ -377,6 +392,53 @@ export function WorkspaceBindingPanel(props: Props) {
           </strong>
         </p>
       )}
+      {props.onBatchY && (
+        <div className="binding-batch-entry">
+          <button
+            type="button"
+            disabled={!props.workspace.tables.length || !batchSupported}
+            onClick={() => setBatchPanelId(panel.panelId)}
+          >
+            批量选择 Y 列
+          </button>
+          {!batchSupported && (
+            <p className="workspace-hint">
+              批量 Y 列支持折线、散点、柱形和面积图。
+            </p>
+          )}
+        </div>
+      )}
+      {batchPanelId === panel.panelId && props.onBatchY && (
+        <BatchYDialog
+          panel={panel}
+          workspace={props.workspace}
+          onApply={props.onBatchY}
+          applyError={props.batchError}
+          onClose={() => setBatchPanelId(null)}
+        />
+      )}
+      {matrixSupported && props.onMatrixHeatmap && (
+        <div className="binding-batch-entry">
+          <button
+            type="button"
+            disabled={!props.workspace.tables.length}
+            onClick={() => setMatrixPanelId(panel.panelId)}
+          >
+            矩阵热图
+          </button>
+        </div>
+      )}
+      {matrixSupported &&
+        matrixPanelId === panel.panelId &&
+        props.onMatrixHeatmap && (
+          <MatrixHeatmapDialog
+            panelId={panel.panelId}
+            workspace={props.workspace}
+            onApply={props.onMatrixHeatmap}
+            applyError={props.batchError}
+            onClose={() => setMatrixPanelId(null)}
+          />
+        )}
       <div className="series-list" ref={disclosure.listRef}>
         {plots.map((plot, index) => (
           <SeriesCard

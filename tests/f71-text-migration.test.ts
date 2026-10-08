@@ -11,7 +11,7 @@ it('upgrades 1.20 templates while preserving implicit plain text semantics', () 
   expect(result).toMatchObject({
     ok: true,
     migratedFrom: '1.20.0',
-    value: { schemaVersion: '1.22.0' },
+    value: { schemaVersion: '1.24.0' },
   });
   expect(old).toEqual(before);
   if (result.ok) {
@@ -28,8 +28,8 @@ it('upgrades document and snapshot versions together', () => {
   expect(loadFigurePayload(document)).toMatchObject({
     ok: true,
     value: {
-      schemaVersion: '1.22.0',
-      templateSnapshot: { schemaVersion: '1.22.0' },
+      schemaVersion: '1.24.0',
+      templateSnapshot: { schemaVersion: '1.24.0' },
     },
   });
 });

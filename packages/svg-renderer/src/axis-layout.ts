@@ -15,6 +15,8 @@ export type AxisLayoutOptions = {
 export type AxisLayoutContext = {
   axes: readonly Axis[];
   scales: ReadonlyMap<string, PlotScale>;
+  /** 内部布局测量，复用正式绘制的文字和刻度包围盒。 */
+  onBounds?: ((bounds: Rect) => void) | undefined;
 };
 export type AxisSegment = { x1: number; y1: number; x2: number; y2: number };
 export type AxisLayout = {

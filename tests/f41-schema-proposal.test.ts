@@ -25,7 +25,7 @@ function legacy<T extends { kind: string }>(value: T): T {
   return value;
 }
 it('正式接入已批准的1.14数据视图，保持1.13迁移候选不变', () => {
-  expect(CURRENT_SCHEMA_VERSION).toBe('1.22.0');
+  expect(CURRENT_SCHEMA_VERSION).toBe('1.24.0');
   expect(
     validateFigureTemplate({
       ...migrateProposal(legacy(createCurrentTemplate())),

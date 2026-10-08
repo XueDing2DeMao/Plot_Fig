@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { emptyWorkspace } from '@plot-fig/data-binding';
 import type { MarkerStyle, XyPlot } from '@plot-fig/figure-schema';
@@ -169,7 +170,7 @@ it('retains all marker settings through save/reopen, curve/layer copying and mov
   const json = serializeWorkspaceProject(template, emptyWorkspace());
   expect(JSON.parse(json)).toMatchObject({
     version: '2.0.0',
-    template: { schemaVersion: '1.22.0' },
+    template: { schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   expect(parseWorkspaceProject(json)).toMatchObject({ ok: true, template });
   const copy = duplicateSeries(template, {}, source.plotSlotId);

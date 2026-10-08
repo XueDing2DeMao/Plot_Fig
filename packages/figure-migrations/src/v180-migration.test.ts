@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import { validTemplate } from '../../figure-schema/src/schema/fixtures.js';
 import { createCurrentDocument } from '../../../tests/helpers/figure-payloads.js';
@@ -13,7 +14,7 @@ describe('1.7 to 1.8 migration', () => {
     expect(result).toMatchObject({
       ok: true,
       migratedFrom: '1.7.0',
-      value: { ...old, schemaVersion: '1.22.0' },
+      value: { ...old, schemaVersion: CURRENT_SCHEMA_VERSION },
     });
     expect(old).toEqual(before);
     if (!result.ok || result.value.kind !== 'figure-template')
@@ -35,8 +36,8 @@ describe('1.7 to 1.8 migration', () => {
       ok: true,
       migratedFrom: '1.7.0',
       value: {
-        schemaVersion: '1.22.0',
-        templateSnapshot: { schemaVersion: '1.22.0' },
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        templateSnapshot: { schemaVersion: CURRENT_SCHEMA_VERSION },
       },
     });
   });

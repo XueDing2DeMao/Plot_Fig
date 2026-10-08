@@ -2,7 +2,9 @@ import {
   categoricalDimension,
   type PlotSlot,
   type Axis,
+  type Panel,
 } from '@plot-fig/figure-schema';
+import { arrangeLayerStackBars } from '../layer-stack-bars.js';
 import { prepareXyData } from '../xy-data-view.js';
 import type { DataBindingSet } from '@plot-fig/data-binding';
 import { errorRange } from '../error-values.js';
@@ -13,7 +15,7 @@ import {
   densityCurve,
   sampleSummary,
 } from './statistics.js';
-import { prepareGrid } from './grid.js';
+import { prepareGrid, gridCellBounds } from './grid.js';
 import { triangulate } from './irregular-grid.js';
 import {
   boundColumn,
@@ -322,8 +324,14 @@ function prepareGridPlot(result: PreparedPlot, data: DataBindingSet) {
     );
     result.grid = grid;
     result.skipped = grid.skipped;
-    result.xValues = [grid.x[0]! - grid.dx / 2, grid.x.at(-1)! + grid.dx / 2];
-    result.yValues = [grid.y[0]! - grid.dy / 2, grid.y.at(-1)! + grid.dy / 2];
+    result.xValues = [
+      gridCellBounds(grid.x, 0)[0],
+      gridCellBounds(grid.x, grid.x.length - 1)[1],
+    ];
+    result.yValues = [
+      gridCellBounds(grid.y, 0)[0],
+      gridCellBounds(grid.y, grid.y.length - 1)[1],
+    ];
   }
 }
 export function preparePlot(
@@ -411,7 +419,7 @@ export function preparePlot(
     throw new Error('没有可绘制的有效数据');
   return result;
 }
-export function arrangeBands(plots: PreparedPlot[]) {
+export function arrangeBands(plots: PreparedPlot[], panel?: Panel) {
   const failures: Array<{ item: PreparedPlot; cause: unknown }> = [];
   const groups = new Map<string, PreparedPlot[]>();
   for (const item of plots) {
@@ -424,7 +432,19 @@ export function arrangeBands(plots: PreparedPlot[]) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(item);
   }
-  for (const items of groups.values()) failures.push(...arrangeGroup(items));
+  const controlled = new Set(panel?.layerStack?.members ?? []);
+  for (const items of groups.values())
+    failures.push(...arrangeGroup(items, controlled));
+  if (panel?.layerStack) {
+    const valid = plots.filter((p) => !failures.some((f) => f.item === p));
+    try {
+      arrangeLayerStackBars(panel, valid);
+    } catch (cause) {
+      for (const item of valid)
+        if (controlled.has(item.plot.plotSlotId))
+          failures.push({ item, cause });
+    }
+  }
   return failures;
 }
 function stackBars(item: PreparedPlot, totals: Map<string, number>) {
@@ -460,9 +480,11 @@ function stackBars(item: PreparedPlot, totals: Map<string, number>) {
   item.bars = bars;
   return pending;
 }
-function arrangeGroup(items: PreparedPlot[]) {
+function arrangeGroup(items: PreparedPlot[], controlled: Set<string>) {
   const keyFor = (item: PreparedPlot) =>
-    item.plot.kind === 'bar' && item.plot.layout === 'stacked'
+    item.plot.kind === 'bar' &&
+    item.plot.layout === 'stacked' &&
+    !controlled.has(item.plot.plotSlotId)
       ? 'stack:' + item.plot.stackGroup
       : 'plot:' + item.plot.plotSlotId;
   const failures: Array<{ item: PreparedPlot; cause: unknown }> = [];
@@ -492,6 +514,7 @@ function arrangeGroup(items: PreparedPlot[]) {
   const percentage = items.filter(
     (item) =>
       item.plot.kind === 'bar' &&
+      !controlled.has(item.plot.plotSlotId) &&
       item.plot.layout === 'stacked' &&
       item.plot.options?.percentage,
   );
@@ -541,7 +564,11 @@ function arrangeGroup(items: PreparedPlot[]) {
   let totals = new Map<string, number>();
   for (const item of items) {
     try {
-      if (item.plot.kind === 'bar' && item.plot.layout === 'stacked')
+      if (
+        item.plot.kind === 'bar' &&
+        item.plot.layout === 'stacked' &&
+        !controlled.has(item.plot.plotSlotId)
+      )
         totals = stackBars(item, totals);
       fillDomains(item);
     } catch (cause) {

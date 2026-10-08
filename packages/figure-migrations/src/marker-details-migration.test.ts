@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { withoutMigratedPlainText } from '../../../tests/helpers/figure-payloads.js';
 import { expect, it } from 'vitest';
 import { createCurrentDocument } from '../../../tests/helpers/figure-payloads.js';
@@ -12,10 +13,10 @@ it('1.15文档与模板只迁移版本、输入不变且拒绝旧版本伪装新
   if (migrated.ok)
     expect(withoutMigratedPlainText(migrated.value)).toEqual({
       ...document,
-      schemaVersion: '1.22.0',
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       templateSnapshot: {
         ...document.templateSnapshot,
-        schemaVersion: '1.22.0',
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     });
   expect(document).toEqual(before);

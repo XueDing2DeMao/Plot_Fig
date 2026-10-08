@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { withoutMigratedPlainText } from '../../../tests/helpers/figure-payloads.js';
 import { chartTemplate } from '../../../tests/helpers/chart-fixtures.js';
 import { createCurrentDocument } from '../../../tests/helpers/figure-payloads.js';
@@ -14,12 +15,12 @@ describe('1.15 符号映射保存合同', () => {
     if (loaded.ok)
       expect(withoutMigratedPlainText(loaded.value)).toEqual({
         ...baseline,
-        schemaVersion: '1.22.0',
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       });
   });
   it('正式校验接受三类映射与数值颜色并拒绝不完整绑定和重复原行', () => {
     const value = structuredClone(baseline);
-    value.schemaVersion = '1.22.0';
+    value.schemaVersion = CURRENT_SCHEMA_VERSION;
     const plot = value.panels[0].plotSlots[0];
     value.dataSlots.push({
       dataSlotId: 'colors',
@@ -68,10 +69,10 @@ describe('1.15 符号映射保存合同', () => {
     if (loaded.ok)
       expect(withoutMigratedPlainText(loaded.value)).toEqual({
         ...document,
-        schemaVersion: '1.22.0',
+        schemaVersion: CURRENT_SCHEMA_VERSION,
         templateSnapshot: {
           ...document.templateSnapshot,
-          schemaVersion: '1.22.0',
+          schemaVersion: CURRENT_SCHEMA_VERSION,
         },
       });
     const forged = structuredClone(baseline);

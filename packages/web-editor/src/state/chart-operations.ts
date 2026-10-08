@@ -13,6 +13,7 @@ import {
 } from './chart-defaults.js';
 import { templateIdentifiers } from './series-operations.js';
 import type { WorkspaceEditor } from './workspace-editor.js';
+import { reconcileLayerStackAfterChartChange } from './origin-layer-stack.js';
 import {
   normalizeCategoryAxis,
   resetCategoryCrossings,
@@ -147,6 +148,8 @@ function convertChartType(
   }
 }
 function validateChartChange(next: WorkspaceEditor): WorkspaceEditor {
+  for (const panel of next.template.panels)
+    reconcileLayerStackAfterChartChange(panel);
   const result = validateFigureTemplate(next.template);
   if (!result.ok)
     throw new Error(

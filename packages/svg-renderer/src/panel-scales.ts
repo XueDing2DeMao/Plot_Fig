@@ -128,15 +128,17 @@ export function prepareAxisScale(
       };
     categories.sort((a, b) => rank(a) - rank(b));
   }
+  const min = axis.range.mode === 'fixed' ? axis.range.min : 0;
+  const max = axis.range.mode === 'fixed' ? axis.range.max : categories.length;
   return {
-    min: 0,
-    max: categories.length,
+    min,
+    max,
     scale: 'category',
     categories,
     ...(data ? { data } : {}),
     map: (value) =>
       axis.reverse
-        ? 1 - (value + 0.5) / categories.length
-        : (value + 0.5) / categories.length,
+        ? 1 - (value + 0.5 - min) / (max - min)
+        : (value + 0.5 - min) / (max - min),
   };
 }

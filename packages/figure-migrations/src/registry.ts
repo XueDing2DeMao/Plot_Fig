@@ -1,4 +1,6 @@
 import { migrateV1210ToV1220 } from './migrations/v1.21.0-to-v1.22.0.js';
+import { migrateV1220ToV1230 } from './migrations/v1.22.0-to-v1.23.0.js';
+import { migrateV1230ToV1240 } from './migrations/v1.23.0-to-v1.24.0.js';
 import { migrateV1120ToV1130 } from './migrations/v1.12.0-to-v1.13.0.js';
 import { migrateV1130ToV1140 } from './migrations/v1.13.0-to-v1.14.0.js';
 import { migrateV1140ToV1150 } from './migrations/v1.14.0-to-v1.15.0.js';
@@ -27,10 +29,6 @@ type MigrationStep = Readonly<{
 
 type RegistryEntry = readonly [PayloadKind, string, MigrationStep];
 
-function getStepKey(kind: PayloadKind, schemaVersion: string): string {
-  return `${kind}@${schemaVersion}`;
-}
-
 function freezeStep(step: MigrationStep): MigrationStep {
   return Object.freeze({
     targetVersion: step.targetVersion,
@@ -42,7 +40,7 @@ export function createMigrationRegistry(entries: ReadonlyArray<RegistryEntry>) {
   const steps = new Map<string, MigrationStep>();
 
   for (const [kind, schemaVersion, step] of entries) {
-    const key = getStepKey(kind, schemaVersion);
+    const key = `${kind}@${schemaVersion}`;
     if (steps.has(key)) {
       throw new TypeError(`duplicate migration registry entry for ${key}`);
     }
@@ -53,7 +51,7 @@ export function createMigrationRegistry(entries: ReadonlyArray<RegistryEntry>) {
     kind: PayloadKind,
     schemaVersion: string,
   ): MigrationStep | undefined => {
-    const stored = steps.get(getStepKey(kind, schemaVersion));
+    const stored = steps.get(`${kind}@${schemaVersion}`);
     return stored ? freezeStep(stored) : undefined;
   };
 }
@@ -61,26 +59,30 @@ export function createMigrationRegistry(entries: ReadonlyArray<RegistryEntry>) {
 import { migrateV1100ToV1110 } from './migrations/v1.10.0-to-v1.11.0.js';
 import { migrateV1110ToV1120 } from './migrations/v1.11.0-to-v1.12.0.js';
 const findStoredMigrationStep = createMigrationRegistry([
-  [
-    'figure-template',
-    '1.21.0',
-    { targetVersion: '1.22.0', migrate: migrateV1210ToV1220 },
-  ],
-  [
-    'figure-document',
-    '1.21.0',
-    { targetVersion: '1.22.0', migrate: migrateV1210ToV1220 },
-  ],
-  [
-    'figure-template',
-    '1.20.0',
-    { targetVersion: '1.21.0', migrate: migrateV1200ToV1210 },
-  ],
-  [
-    'figure-document',
-    '1.20.0',
-    { targetVersion: '1.21.0', migrate: migrateV1200ToV1210 },
-  ],
+  ...(['figure-template', 'figure-document'] as const).flatMap(
+    (kind): RegistryEntry[] => [
+      [
+        kind,
+        '1.23.0',
+        { targetVersion: '1.24.0', migrate: migrateV1230ToV1240 },
+      ],
+      [
+        kind,
+        '1.22.0',
+        { targetVersion: '1.23.0', migrate: migrateV1220ToV1230 },
+      ],
+      [
+        kind,
+        '1.21.0',
+        { targetVersion: '1.22.0', migrate: migrateV1210ToV1220 },
+      ],
+      [
+        kind,
+        '1.20.0',
+        { targetVersion: '1.21.0', migrate: migrateV1200ToV1210 },
+      ],
+    ],
+  ),
   [
     'figure-template',
     '1.19.0',

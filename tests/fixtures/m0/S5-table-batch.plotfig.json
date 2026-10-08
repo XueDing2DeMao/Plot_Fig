@@ -1,0 +1,1034 @@
+{
+  "kind": "plot-fig-project",
+  "version": "2.0.0",
+  "template": {
+    "kind": "figure-template",
+    "schemaVersion": "1.22.0",
+    "templateId": "m0-s5-tables",
+    "metadata": {
+      "name": "M0 S5 table batch (3 valid + 1 invalid mapping)",
+      "tags": [
+        "m0",
+        "xy",
+        "deterministic"
+      ]
+    },
+    "page": {
+      "size": {
+        "width": {
+          "value": 180,
+          "unit": "mm"
+        },
+        "height": {
+          "value": 120,
+          "unit": "mm"
+        }
+      },
+      "background": "#ffffff",
+      "margins": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "panels": [
+      {
+        "panelId": "panel-main",
+        "frame": {
+          "x": 0.16,
+          "y": 0.06,
+          "width": 0.81,
+          "height": 0.79
+        },
+        "coordinateSystem": "cartesian-2d",
+        "clip": true,
+        "axes": [
+          {
+            "axisId": "axis-x",
+            "dimension": "x",
+            "position": "bottom",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "rescale": {
+              "mode": "auto",
+              "nice": true,
+              "margin": {
+                "minPercent": 8,
+                "maxPercent": 8
+              }
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "title": {
+              "format": "auto",
+              "text": "X",
+              "fontFamily": "Arial",
+              "fontSizePt": 12,
+              "color": "#000000"
+            }
+          },
+          {
+            "axisId": "axis-y",
+            "dimension": "y",
+            "position": "left",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "rescale": {
+              "mode": "auto",
+              "nice": true,
+              "margin": {
+                "minPercent": 8,
+                "maxPercent": 8
+              }
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": true,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": true,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            },
+            "title": {
+              "format": "auto",
+              "text": "Y",
+              "fontFamily": "Arial",
+              "fontSizePt": 12,
+              "color": "#000000"
+            }
+          },
+          {
+            "axisId": "frame-x",
+            "dimension": "x",
+            "position": "top",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": false,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": false,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            }
+          },
+          {
+            "axisId": "frame-y",
+            "dimension": "y",
+            "position": "right",
+            "scale": "linear",
+            "range": {
+              "mode": "auto"
+            },
+            "reverse": false,
+            "visible": true,
+            "line": {
+              "color": "#000000",
+              "widthPt": 1
+            },
+            "majorTicks": {
+              "visible": false,
+              "lengthPt": 4,
+              "widthPt": 1
+            },
+            "minorTicks": {
+              "visible": false,
+              "count": 0,
+              "lengthPt": 2,
+              "widthPt": 0.8
+            },
+            "tickLabels": {
+              "visible": false,
+              "fontFamily": "Arial",
+              "fontSizePt": 10,
+              "color": "#000000",
+              "notation": "auto",
+              "precision": 6
+            }
+          }
+        ],
+        "plotSlots": [
+          {
+            "plotSlotId": "series-a",
+            "kind": "xy",
+            "mode": "line-markers",
+            "xAxisId": "axis-x",
+            "yAxisId": "axis-y",
+            "bindings": {
+              "x": "slot-x",
+              "y": "slot-a",
+              "yError": "slot-error"
+            },
+            "lineStyle": {
+              "visible": true,
+              "color": "#0072B2",
+              "widthPt": 1.5,
+              "dash": "solid"
+            },
+            "markerStyle": {
+              "visible": true,
+              "shape": "circle",
+              "sizePt": 5,
+              "fill": "#ffffff",
+              "stroke": "#0072B2",
+              "strokeWidthPt": 0.5
+            },
+            "legendEntry": {
+              "visible": true,
+              "text": "Sample A",
+              "source": "manual"
+            },
+            "errorBarStyle": {
+              "visible": true,
+              "color": "#0072B2",
+              "widthPt": 0.8,
+              "capWidthPt": 4
+            }
+          },
+          {
+            "plotSlotId": "series-b",
+            "kind": "xy",
+            "mode": "line-markers",
+            "xAxisId": "axis-x",
+            "yAxisId": "axis-y",
+            "bindings": {
+              "x": "slot-x",
+              "y": "slot-b",
+              "yError": "slot-error"
+            },
+            "lineStyle": {
+              "visible": true,
+              "color": "#D55E00",
+              "widthPt": 1.5,
+              "dash": "solid"
+            },
+            "markerStyle": {
+              "visible": true,
+              "shape": "square",
+              "sizePt": 5,
+              "fill": "#ffffff",
+              "stroke": "#D55E00",
+              "strokeWidthPt": 0.5
+            },
+            "legendEntry": {
+              "visible": true,
+              "text": "Sample B",
+              "source": "manual"
+            },
+            "errorBarStyle": {
+              "visible": true,
+              "color": "#D55E00",
+              "widthPt": 0.8,
+              "capWidthPt": 4
+            }
+          },
+          {
+            "plotSlotId": "series-c",
+            "kind": "xy",
+            "mode": "line-markers",
+            "xAxisId": "axis-x",
+            "yAxisId": "axis-y",
+            "bindings": {
+              "x": "slot-x",
+              "y": "slot-c",
+              "yError": "slot-error"
+            },
+            "lineStyle": {
+              "visible": true,
+              "color": "#009E73",
+              "widthPt": 1.5,
+              "dash": "solid"
+            },
+            "markerStyle": {
+              "visible": true,
+              "shape": "triangle",
+              "sizePt": 5,
+              "fill": "#ffffff",
+              "stroke": "#009E73",
+              "strokeWidthPt": 0.5
+            },
+            "legendEntry": {
+              "visible": true,
+              "text": "Sample C",
+              "source": "manual"
+            },
+            "errorBarStyle": {
+              "visible": true,
+              "color": "#009E73",
+              "widthPt": 0.8,
+              "capWidthPt": 4
+            }
+          }
+        ]
+      }
+    ],
+    "dataSlots": [
+      {
+        "dataSlotId": "slot-x",
+        "name": "X",
+        "role": "x",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "slot-a",
+        "name": "A",
+        "role": "y",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "slot-b",
+        "name": "B",
+        "role": "y",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "slot-c",
+        "name": "C",
+        "role": "y",
+        "valueType": "number",
+        "required": true
+      },
+      {
+        "dataSlotId": "slot-error",
+        "name": "Error",
+        "role": "yError",
+        "valueType": "number",
+        "required": true
+      }
+    ],
+    "annotations": [
+      {
+        "annotationId": "m0-legend",
+        "kind": "legend",
+        "coordinateSpace": "page",
+        "position": {
+          "x": 0.4,
+          "y": 0.91
+        },
+        "visible": true
+      },
+      {
+        "annotationId": "m0-text",
+        "kind": "text",
+        "coordinateSpace": "page",
+        "position": {
+          "x": 0.5,
+          "y": 0.88
+        },
+        "text": "M0 reproducible sample",
+        "format": "plain",
+        "visible": true
+      }
+    ],
+    "theme": {
+      "font": {
+        "family": "Arial",
+        "sizePt": 10,
+        "color": "#000000"
+      },
+      "line": {
+        "color": "#515151",
+        "widthPt": 1.5
+      },
+      "marker": {
+        "shape": "square",
+        "sizePt": 5,
+        "fill": "#515151",
+        "stroke": "#515151"
+      },
+      "palette": [
+        "#515151",
+        "#d62728",
+        "#1f77b4",
+        "#2ca02c"
+      ],
+      "background": "#ffffff"
+    }
+  },
+  "workspace": {
+    "tables": [
+      {
+        "tableId": "m0-table-1",
+        "name": "S1-xy.csv",
+        "source": {
+          "kind": "csv",
+          "name": "S1-xy.csv"
+        },
+        "rows": [
+          [
+            "X",
+            "A",
+            "B",
+            "C",
+            "Error"
+          ],
+          [
+            0,
+            1,
+            2,
+            3,
+            0.12
+          ],
+          [
+            0.5,
+            1.25,
+            2.1666666666666665,
+            3.125,
+            0.13
+          ],
+          [
+            1,
+            1.5,
+            2.3333333333333335,
+            3.25,
+            0.13999999999999999
+          ],
+          [
+            1.5,
+            1.75,
+            2.5,
+            3.375,
+            0.15
+          ],
+          [
+            2,
+            2,
+            2.6666666666666665,
+            3.5,
+            0.16
+          ],
+          [
+            2.5,
+            2.25,
+            2.8333333333333335,
+            3.625,
+            0.16999999999999998
+          ],
+          [
+            3,
+            2.5,
+            3,
+            3.75,
+            0.18
+          ],
+          [
+            3.5,
+            2.75,
+            3.166666666666667,
+            3.875,
+            0.19
+          ],
+          [
+            4,
+            3,
+            3.333333333333333,
+            4,
+            0.2
+          ]
+        ],
+        "region": {
+          "headerRow": 0,
+          "unitRow": null,
+          "dataStartRow": 1
+        },
+        "columns": [
+          {
+            "columnId": "x",
+            "index": 0,
+            "name": "X",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "a",
+            "index": 1,
+            "name": "A",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "b",
+            "index": 2,
+            "name": "B",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "c",
+            "index": 3,
+            "name": "C",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "error",
+            "index": 4,
+            "name": "Error",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          }
+        ],
+        "importDiagnostics": []
+      },
+      {
+        "tableId": "m0-table-2",
+        "name": "S5-valid-2.csv",
+        "source": {
+          "kind": "csv",
+          "name": "S5-valid-2.csv"
+        },
+        "rows": [
+          [
+            "X",
+            "A",
+            "B",
+            "C",
+            "Error"
+          ],
+          [
+            0,
+            1.4,
+            2.4,
+            3.4,
+            0.12
+          ],
+          [
+            0.5,
+            1.65,
+            2.5666666666666664,
+            3.525,
+            0.13
+          ],
+          [
+            1,
+            1.9,
+            2.7333333333333334,
+            3.65,
+            0.13999999999999999
+          ],
+          [
+            1.5,
+            2.15,
+            2.9,
+            3.775,
+            0.15
+          ],
+          [
+            2,
+            2.4,
+            3.0666666666666664,
+            3.9,
+            0.16
+          ],
+          [
+            2.5,
+            2.65,
+            3.2333333333333334,
+            4.025,
+            0.16999999999999998
+          ],
+          [
+            3,
+            2.9,
+            3.4,
+            4.15,
+            0.18
+          ],
+          [
+            3.5,
+            3.15,
+            3.566666666666667,
+            4.275,
+            0.19
+          ],
+          [
+            4,
+            3.4,
+            3.733333333333333,
+            4.4,
+            0.2
+          ]
+        ],
+        "region": {
+          "headerRow": 0,
+          "unitRow": null,
+          "dataStartRow": 1
+        },
+        "columns": [
+          {
+            "columnId": "x",
+            "index": 0,
+            "name": "X",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "a",
+            "index": 1,
+            "name": "A",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "b",
+            "index": 2,
+            "name": "B",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "c",
+            "index": 3,
+            "name": "C",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "error",
+            "index": 4,
+            "name": "Error",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          }
+        ],
+        "importDiagnostics": []
+      },
+      {
+        "tableId": "m0-table-3",
+        "name": "S5-valid-3.csv",
+        "source": {
+          "kind": "csv",
+          "name": "S5-valid-3.csv"
+        },
+        "rows": [
+          [
+            "X",
+            "A",
+            "B",
+            "C",
+            "Error"
+          ],
+          [
+            0,
+            1.6,
+            2.6,
+            3.6,
+            0.12
+          ],
+          [
+            0.5,
+            1.85,
+            2.7666666666666666,
+            3.725,
+            0.13
+          ],
+          [
+            1,
+            2.1,
+            2.9333333333333336,
+            3.85,
+            0.13999999999999999
+          ],
+          [
+            1.5,
+            2.35,
+            3.1,
+            3.975,
+            0.15
+          ],
+          [
+            2,
+            2.6,
+            3.2666666666666666,
+            4.1,
+            0.16
+          ],
+          [
+            2.5,
+            2.85,
+            3.4333333333333336,
+            4.225,
+            0.16999999999999998
+          ],
+          [
+            3,
+            3.1,
+            3.6,
+            4.35,
+            0.18
+          ],
+          [
+            3.5,
+            3.35,
+            3.766666666666667,
+            4.475,
+            0.19
+          ],
+          [
+            4,
+            3.6,
+            3.933333333333333,
+            4.6,
+            0.2
+          ]
+        ],
+        "region": {
+          "headerRow": 0,
+          "unitRow": null,
+          "dataStartRow": 1
+        },
+        "columns": [
+          {
+            "columnId": "x",
+            "index": 0,
+            "name": "X",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "a",
+            "index": 1,
+            "name": "A",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "b",
+            "index": 2,
+            "name": "B",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "c",
+            "index": 3,
+            "name": "C",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "error",
+            "index": 4,
+            "name": "Error",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          }
+        ],
+        "importDiagnostics": []
+      },
+      {
+        "tableId": "m0-table-invalid",
+        "name": "S5-invalid-duplicate-A-missing-C.csv",
+        "source": {
+          "kind": "csv",
+          "name": "S5-invalid-duplicate-A-missing-C.csv"
+        },
+        "rows": [
+          [
+            "X",
+            "A",
+            "A",
+            "B",
+            "Error"
+          ],
+          [
+            0,
+            1,
+            2,
+            3,
+            0.12
+          ],
+          [
+            0.5,
+            1.25,
+            2.1666666666666665,
+            3.125,
+            0.13
+          ],
+          [
+            1,
+            1.5,
+            2.3333333333333335,
+            3.25,
+            0.13999999999999999
+          ],
+          [
+            1.5,
+            1.75,
+            2.5,
+            3.375,
+            0.15
+          ],
+          [
+            2,
+            2,
+            2.6666666666666665,
+            3.5,
+            0.16
+          ],
+          [
+            2.5,
+            2.25,
+            2.8333333333333335,
+            3.625,
+            0.16999999999999998
+          ],
+          [
+            3,
+            2.5,
+            3,
+            3.75,
+            0.18
+          ],
+          [
+            3.5,
+            2.75,
+            3.166666666666667,
+            3.875,
+            0.19
+          ],
+          [
+            4,
+            3,
+            3.333333333333333,
+            4,
+            0.2
+          ]
+        ],
+        "region": {
+          "headerRow": 0,
+          "unitRow": null,
+          "dataStartRow": 1
+        },
+        "columns": [
+          {
+            "columnId": "x",
+            "index": 0,
+            "name": "X",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "a",
+            "index": 1,
+            "name": "A",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "a-1",
+            "index": 2,
+            "name": "A",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "b",
+            "index": 3,
+            "name": "B",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          },
+          {
+            "columnId": "error",
+            "index": 4,
+            "name": "Error",
+            "settings": {
+              "type": "number",
+              "unit": "",
+              "dateFormat": "ymd",
+              "utcOffsetMinutes": 0,
+              "missingTokens": []
+            }
+          }
+        ],
+        "importDiagnostics": []
+      }
+    ],
+    "activeTableId": "m0-table-1",
+    "slotBindings": {
+      "slot-x": {
+        "tableId": "m0-table-1",
+        "columnId": "x"
+      },
+      "slot-a": {
+        "tableId": "m0-table-1",
+        "columnId": "a"
+      },
+      "slot-b": {
+        "tableId": "m0-table-1",
+        "columnId": "b"
+      },
+      "slot-c": {
+        "tableId": "m0-table-1",
+        "columnId": "c"
+      },
+      "slot-error": {
+        "tableId": "m0-table-1",
+        "columnId": "error"
+      }
+    }
+  }
+}

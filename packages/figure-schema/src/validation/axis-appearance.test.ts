@@ -1,10 +1,11 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { describe, expect, it } from 'vitest';
 import { validTemplate } from '../schema/fixtures.js';
 import { validateFigureTemplate } from './validate.js';
 
 function template() {
   const value: any = structuredClone(validTemplate);
-  value.schemaVersion = '1.22.0';
+  value.schemaVersion = CURRENT_SCHEMA_VERSION;
   value.panels[0].axes[1].range = { mode: 'fixed', min: -1, max: 1 };
   return value;
 }

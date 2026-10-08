@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import { validTemplate } from '../../figure-schema/src/schema/fixtures.js';
 import { loadFigurePayload } from './load.js';
@@ -9,7 +10,7 @@ it('1.6 升级至 1.7 不建链、不移动图层、不修改原值', () => {
   expect(loadFigurePayload(old)).toMatchObject({
     ok: true,
     migratedFrom: '1.6.0',
-    value: { ...old, schemaVersion: '1.22.0' },
+    value: { ...old, schemaVersion: CURRENT_SCHEMA_VERSION },
   });
   expect(old).toEqual(before);
 });
@@ -42,8 +43,11 @@ it('1.6 文档的外层和快照同时迁移，并保留绑定', async () => {
     migratedFrom: '1.6.0',
     value: {
       ...old,
-      schemaVersion: '1.22.0',
-      templateSnapshot: { ...old.templateSnapshot, schemaVersion: '1.22.0' },
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      templateSnapshot: {
+        ...old.templateSnapshot,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
     },
   });
   expect(old).toEqual(before);

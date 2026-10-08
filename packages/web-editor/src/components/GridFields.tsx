@@ -225,7 +225,7 @@ export function GridFields({ plot, onChange, section = 'color-scale' }: Props) {
         <PropertySelect
           label="数据区域"
           value={heatmap.dataRegion}
-          options={{ matrix: '规则矩阵', xyz: '不规则 XYZ 三角网' }}
+          options={{ matrix: '矩形网格', xyz: '不规则 XYZ 三角网' }}
           onChange={(dataRegion) =>
             onChange({ ...plot, heatmap: { ...heatmap, dataRegion } })
           }

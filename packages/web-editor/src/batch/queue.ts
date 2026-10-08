@@ -1,22 +1,31 @@
 import type { FigureTemplate } from '@plot-fig/figure-schema';
 import type { BatchItem } from './items.js';
-import type { ExportFormat } from '../browser/export-service-client.js';
+import type { ExportFormat } from '../browser/figure-export.js';
 import { bindWorkspace } from '@plot-fig/data-binding';
 import { renderFigureSvg } from '@plot-fig/svg-renderer';
 
 import { serializeWorkspaceProject } from '../state/workspace-project.js';
 import { applyTemplateStyle } from '../templates/styles.js';
+import type { LayerFormatScope } from '../state/layer-format.js';
+import { applyBatchFormats } from './template-formats.js';
 import { applyFullTemplate } from '../templates/mapping.js';
 import { BATCH_LIMITS } from './items.js';
+import { batchXYTemplate } from './xy-template.js';
+import { synchronizeCurveOneAxisTitles } from '../state/axis-title-bindings.js';
+import {
+  resolveBatchColumns,
+  type BatchColumnMappings,
+} from './column-mapping.js';
 export type BatchOptions = {
-  textToPath?: boolean;
-  flattenTransparency?: boolean;
   formats: ExportFormat[];
   dpi: number;
   includeProject: boolean;
   template?: FigureTemplate;
   mode?: 'style' | 'full';
+  formatScopes?: LayerFormatScope[];
   columnNames?: Record<string, string>;
+  columnMappings?: BatchColumnMappings;
+  autoXY?: boolean;
 };
 export type BatchRecord = {
   id: string;
@@ -45,25 +54,40 @@ export function prepare(item: BatchItem, options: BatchOptions) {
   if (options.mode !== 'full')
     return {
       ...model,
-      template: applyTemplateStyle(model.template, options.template),
+      template:
+        options.formatScopes === undefined
+          ? applyTemplateStyle(model.template, options.template)
+          : applyBatchFormats(
+              model.template,
+              options.template,
+              options.formatScopes,
+            ),
     };
-  const mapping = Object.fromEntries(
-    options.template.dataSlots.flatMap((slot) => {
-      const refs = model.workspace.tables.flatMap((t) =>
-        t.columns
-          .filter((c) => c.name === options.columnNames?.[slot.dataSlotId])
-          .map((c) => ({ tableId: t.tableId, columnId: c.columnId })),
-      );
-      return refs.length === 1 ? [[slot.dataSlotId, refs[0]!]] : [];
-    }),
+  const template = batchXYTemplate(
+    options.template,
+    model.workspace,
+    options.columnNames,
+    options.columnMappings?.[item.id],
+    options.autoXY,
   );
-  return applyFullTemplate(model, options.template, mapping);
+  const mapping = resolveBatchColumns(
+    template,
+    model.workspace,
+    options.columnNames,
+    options.columnMappings?.[item.id],
+    true,
+    options.autoXY,
+  );
+  const prepared = applyFullTemplate(model, template, mapping);
+  return options.autoXY
+    ? synchronizeCurveOneAxisTitles(model, prepared)
+    : prepared;
 }
 const filename = (name: string, index: number) =>
   String(index + 1).padStart(3, '0') +
   '-' +
   (name
-    .replace(/\.[^.]+$/, '')
+    .replace(/(?:\.plotfig)?\.[^.]+$/i, '')
     .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
     .slice(0, 100) || 'Figure');
 function addFile(
@@ -137,6 +161,8 @@ export async function runBatch(
   for (const [index, item] of items.entries()) {
     const record = result.records[index]!;
     if (record.status === 'success') continue;
+    // 让浏览器绘制进度并处理取消，避免快速 SVG 导出占满微任务队列。
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
     if (runtime.signal?.aborted) {
       record.status = 'cancelled';
       continue;

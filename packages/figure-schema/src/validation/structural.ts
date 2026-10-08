@@ -5,6 +5,25 @@ import { FigureDocumentSchema } from '../schema/figure-document.js';
 import type { FigureTemplate } from '../schema/figure-template.js';
 import { FigureTemplateSchema } from '../schema/figure-template.js';
 import type { ValidationIssue, ValidationResult } from './types.js';
+import {
+  templateV1230Schema,
+  documentV1230Schema,
+} from './history/v1230-schema.js';
+
+let v1230:
+  { template: ValidateFunction; document: ValidateFunction } | undefined;
+export function validateV1230Structure(
+  input: unknown,
+  kind: 'figure-template' | 'figure-document',
+): boolean {
+  v1230 ??= {
+    template: ajv.compile(templateV1230Schema),
+    document: ajv.compile(documentV1230Schema),
+  };
+  return Boolean(
+    (kind === 'figure-template' ? v1230.template : v1230.document)(input),
+  );
+}
 
 type Ajv2020Constructor = typeof import('ajv/dist/2020.js').Ajv2020;
 
@@ -369,6 +388,25 @@ export function validateV1130Structure(
   };
   return Boolean(
     (kind === 'figure-template' ? v1130.template : v1130.document)(input),
+  );
+}
+
+import {
+  templateV1220Schema,
+  documentV1220Schema,
+} from './history/v1220-schema.js';
+let v1220:
+  { template: ValidateFunction; document: ValidateFunction } | undefined;
+export function validateV1220Structure(
+  input: unknown,
+  kind: 'figure-template' | 'figure-document',
+): boolean {
+  v1220 ??= {
+    template: ajv.compile(templateV1220Schema),
+    document: ajv.compile(documentV1220Schema),
+  };
+  return Boolean(
+    (kind === 'figure-template' ? v1220.template : v1220.document)(input),
   );
 }
 

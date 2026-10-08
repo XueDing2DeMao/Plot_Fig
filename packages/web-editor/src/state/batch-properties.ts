@@ -21,6 +21,15 @@ import type { DataBindingSet } from '@plot-fig/data-binding';
 import { assertTemplate, synchronizeSharedAxis } from './publication-utils.js';
 import { remapAxisData } from './axis-data-refs.js';
 import { validateF4Property } from './f4-property-validation.js';
+import { applyLayerStack, remapLayerStack } from './origin-layer-stack.js';
+import {
+  applyLayerCurveOffsets,
+  layerOffsetSettings,
+  offsetCurves,
+  readLayerCurveOffsets,
+  setLayerOffsets,
+  type LayerCurveOffsets,
+} from './layer-stack.js';
 import {
   listPropertyObjects,
   propertyObjectKey,
@@ -252,6 +261,58 @@ export function applyBatchProperties(
   for (const target of request.targets) {
     if (!allowedTargets.has(propertyObjectKey(target)))
       throw new Error('请选择存在且类型相同的批量目标');
+    if (
+      target.kind === 'panel' &&
+      request.source.kind === 'panel' &&
+      request.groups?.includes('panel-stack')
+    ) {
+      const sourceId = request.source.panelId;
+      const sourcePanel = template.panels.find((p) => p.panelId === sourceId)!;
+      const targetPanel = next.panels.find(
+        (p) => p.panelId === target.panelId,
+      )!;
+      const settings = layerOffsetSettings(sourcePanel);
+      if (sourcePanel.layerStack) {
+        const names = new Map(
+          sourcePanel.plotSlots.map((plot, index) => [
+            plot.plotSlotId,
+            targetPanel.plotSlots[index]?.plotSlotId,
+          ]),
+        );
+        const applied = applyLayerStack(
+          targetPanel,
+          remapLayerStack(sourcePanel.layerStack, names),
+        );
+        Object.assign(targetPanel, applied);
+      } else if (settings.mode === 'constant' || settings.mode === 'auto') {
+        if (!offsetCurves(targetPanel).length)
+          throw new Error('目标图层没有可设置偏移的 XY 或面积曲线');
+        targetPanel.plotSlots = setLayerOffsets(
+          targetPanel,
+          settings,
+        ).plotSlots;
+      } else {
+        const offsets = readLayerCurveOffsets(sourcePanel),
+          mapped: LayerCurveOffsets = {};
+        sourcePanel.plotSlots.forEach((p, index) => {
+          const offset = offsets[p.plotSlotId];
+          if (!offset || !Object.keys(offset).length) return;
+          const targetPlot = targetPanel.plotSlots[index];
+          if (
+            !targetPlot ||
+            (targetPlot.kind !== 'xy' && targetPlot.kind !== 'area')
+          )
+            throw new Error(
+              '目标图层缺少对应的 XY 或面积曲线，无法复制单独偏移',
+            );
+          mapped[targetPlot.plotSlotId] = offset;
+        });
+        targetPanel.plotSlots = applyLayerCurveOffsets(
+          targetPanel,
+          mapped,
+        ).plotSlots;
+      }
+    }
     const targetGroups = batchGroups(template, target);
     for (const [id, value] of edits) {
       const { group, field } = fieldAt(targetGroups, id);
@@ -294,7 +355,7 @@ export function applyBatchProperties(
       if (
         target.kind === 'panel' &&
         request.source.kind === 'panel' &&
-        ['groups', 'stack'].includes(field.key) &&
+        ['groups', 'stack', 'layerStack'].includes(field.key) &&
         value !== undefined
       ) {
         const sourcePanel = template.panels.find(
@@ -318,17 +379,22 @@ export function applyBatchProperties(
             return mapped;
           });
         applied =
-          field.key === 'groups'
-            ? (value as NonNullable<typeof sourcePanel.groups>).map((g) => ({
-                ...g,
-                members: remap(g.members),
-              }))
-            : {
-                ...(value as NonNullable<typeof sourcePanel.stack>),
-                members: remap(
-                  (value as NonNullable<typeof sourcePanel.stack>).members,
-                ),
-              };
+          field.key === 'layerStack'
+            ? remapLayerStack(
+                value as NonNullable<typeof sourcePanel.layerStack>,
+                ids,
+              )
+            : field.key === 'groups'
+              ? (value as NonNullable<typeof sourcePanel.groups>).map((g) => ({
+                  ...g,
+                  members: remap(g.members),
+                }))
+              : {
+                  ...(value as NonNullable<typeof sourcePanel.stack>),
+                  members: remap(
+                    (value as NonNullable<typeof sourcePanel.stack>).members,
+                  ),
+                };
         if (
           field.key === 'groups' &&
           (applied as NonNullable<typeof targetPanel.groups>).some(

@@ -13,6 +13,9 @@ import type { XyzTriangle } from './irregular-grid.js';
 export type Category = { key: string; label: string };
 export type DataPoint = { x: number; y: number };
 export type BarMark = {
+  bandIndex?: number;
+  bandCount?: number;
+  bandSlice?: { index: number; count: number };
   error?: [number, number];
   category?: string;
   low: number;
@@ -31,6 +34,19 @@ export type DistributionMark = {
   points: Array<{ x: number; y: number }>;
 };
 export type PreparedPlot = {
+  layerStackBarsManaged?: boolean;
+  layerStackBarMarks?: Array<{
+    item: Pick<PreparedPlot, 'plot' | 'bandIndex' | 'bandCount' | 'bars'>;
+    bar: BarMark;
+  }>;
+  layerStackBarTotals?: Array<{
+    bar: BarMark;
+    value: number;
+    text: string;
+    color: string;
+    fontSizePt: number;
+  }>;
+  layerStackBarConnectors?: Array<{ from: BarMark; to: BarMark }>;
   curveGeometry?: CurveRenderGeometry;
   curveFills?: CurveFillGeometry[];
   curveTotals?: CurveTotalLabel[];

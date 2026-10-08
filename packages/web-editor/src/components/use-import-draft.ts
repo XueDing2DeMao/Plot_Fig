@@ -20,7 +20,9 @@ type Draft = {
 };
 type State = {
   open: boolean;
-  file: File | undefined;
+  files: File[];
+  fileErrors: string[];
+  reading: string;
   draft: Draft;
   options: TextInputOptions;
   clipboard: string;
@@ -48,30 +50,37 @@ function draftFor(sheets: ImportSheet[]): Draft {
   };
 }
 function buildTables(draft: Draft) {
-  try {
-    const tables = draft.selected.map((index) => {
+  const tables: DataTable[] = [],
+    errors: string[] = [];
+  for (const index of draft.selected) {
+    const sheet = draft.sheets[index]!;
+    try {
       const table = createDataTable({
         tableId: `table-${index + 1}`,
-        ...draft.sheets[index]!,
+        ...sheet,
         options: draft.regions[index]!,
       });
-      return {
+      tables.push({
         ...table,
         columns: table.columns.map((column) => ({
           ...column,
           settings: { ...column.settings, type: 'number' as const },
         })),
-      };
-    });
-    return { tables, error: '' };
-  } catch (error) {
-    return { tables: [], error: errorText(error) };
+      });
+    } catch (error) {
+      errors.push(
+        `${[sheet.source.name, sheet.source.sheetName].filter(Boolean).join(' · ')}：${errorText(error)}`,
+      );
+    }
   }
+  return { tables, errors };
 }
 function useDraftState() {
   const [value, setValue] = useState<State>(() => ({
     open: false,
-    file: undefined,
+    files: [],
+    fileErrors: [],
+    reading: '',
     draft: initialDraft(),
     options: initialText,
     clipboard: '',
@@ -84,40 +93,69 @@ function useDraftState() {
   const setDraft = (action: SetStateAction<Draft>) =>
     setValue((current) => ({
       ...current,
+      error: '',
       draft: typeof action === 'function' ? action(current.draft) : action,
     }));
   return { value, patch, generation, setDraft };
 }
 type DraftState = ReturnType<typeof useDraftState>;
 function makeReader(state: DraftState) {
-  return async (file: File, options: TextInputOptions) => {
+  return async (files: File[], options: TextInputOptions) => {
     const ticket = ++state.generation.current;
-    state.patch({ loading: true, error: '', draft: initialDraft() });
-    try {
-      const sheets = await readImportFile(file, options);
-      if (ticket === state.generation.current)
-        state.patch({ draft: draftFor(sheets) });
-    } catch (cause) {
-      if (ticket === state.generation.current)
-        state.patch({ error: errorText(cause) });
-    } finally {
-      if (ticket === state.generation.current) state.patch({ loading: false });
+    state.patch({
+      loading: true,
+      error: '',
+      fileErrors: [],
+      draft: initialDraft(),
+    });
+    const sheets: ImportSheet[] = [],
+      selected: number[] = [],
+      fileErrors: string[] = [];
+    // 顺序读取，避免同时解码多个大工作簿；取消后不再读取后续文件。
+    for (const [index, file] of files.entries()) {
+      if (ticket !== state.generation.current) return;
+      state.patch({ reading: `${index + 1}/${files.length} · ${file.name}` });
+      try {
+        const next = await readImportFile(file, options);
+        if (ticket !== state.generation.current) return;
+        if (next.length) selected.push(sheets.length);
+        sheets.push(...next);
+      } catch (cause) {
+        fileErrors.push(`${file.name}：${errorText(cause)}`);
+      }
     }
+    if (ticket === state.generation.current)
+      state.patch({
+        draft: { ...draftFor(sheets), selected },
+        fileErrors,
+        loading: false,
+        reading: '',
+      });
   };
 }
 function fileActions(state: DraftState, read: ReturnType<typeof makeReader>) {
   const close = () => {
     state.generation.current += 1;
-    state.patch({ open: false, draft: initialDraft(), loading: false });
+    state.patch({
+      open: false,
+      files: [],
+      fileErrors: [],
+      error: '',
+      draft: initialDraft(),
+      loading: false,
+      reading: '',
+    });
   };
-  const openFile = (file: File) => {
-    state.patch({ file, options: initialText, open: true });
-    void read(file, initialText);
+  const openFiles = (files: File[]) => {
+    state.patch({ files, options: initialText, open: true });
+    void read(files, initialText);
   };
   const openClipboard = () => {
     state.generation.current += 1;
     state.patch({
-      file: undefined,
+      files: [],
+      fileErrors: [],
+      reading: '',
       clipboard: '',
       options: initialText,
       draft: initialDraft(),
@@ -126,7 +164,7 @@ function fileActions(state: DraftState, read: ReturnType<typeof makeReader>) {
       open: true,
     });
   };
-  return { close, openFile, openClipboard };
+  return { close, openFiles, openClipboard };
 }
 function textActions(state: DraftState, read: ReturnType<typeof makeReader>) {
   const previewText = (options = state.value.options) => {
@@ -146,14 +184,16 @@ function textActions(state: DraftState, read: ReturnType<typeof makeReader>) {
   };
   const changeOptions = (options: TextInputOptions) => {
     state.patch({ options });
-    if (state.value.file) void read(state.value.file, options);
+    if (state.value.files.length) void read(state.value.files, options);
     else if (state.value.clipboard) previewText(options);
   };
   const setClipboard = (clipboard: string) =>
     state.patch({ clipboard, draft: initialDraft(), error: '' });
   return { previewText, changeOptions, setClipboard };
 }
-export function useImportDraft(onImport: (tables: DataTable[]) => void) {
+export function useImportDraft(
+  onImport: (tables: DataTable[]) => boolean | void,
+) {
   const state = useDraftState();
   const built = useMemo(
     () => buildTables(state.value.draft),
@@ -162,8 +202,13 @@ export function useImportDraft(onImport: (tables: DataTable[]) => void) {
   const read = makeReader(state),
     files = fileActions(state, read);
   const apply = () => {
+    if (state.value.loading || state.value.error || !built.tables.length)
+      return;
     try {
-      onImport(built.tables);
+      if (onImport(built.tables) === false) {
+        state.patch({ error: '未能追加数据，请减少所选数据表后重试。' });
+        return;
+      }
       files.close();
     } catch (cause) {
       state.patch({ error: errorText(cause) });
@@ -174,7 +219,7 @@ export function useImportDraft(onImport: (tables: DataTable[]) => void) {
     ...files,
     ...textActions(state, read),
     setDraft: state.setDraft,
-    error: state.value.error || built.error,
+    importErrors: [...state.value.fileErrors, ...built.errors],
     tables: built.tables,
     apply,
   };

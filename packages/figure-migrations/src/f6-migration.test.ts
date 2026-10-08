@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '@plot-fig/figure-schema';
 import { expect, it } from 'vitest';
 import {
   createCurrentDocument,
@@ -35,12 +36,12 @@ it.each(['figure-template', 'figure-document'] as const)(
       ok: true,
       value: {
         ...migrated,
-        schemaVersion: '1.22.0',
+        schemaVersion: CURRENT_SCHEMA_VERSION,
         ...(kind === 'figure-document'
           ? {
               templateSnapshot: {
                 ...migrated.templateSnapshot,
-                schemaVersion: '1.22.0',
+                schemaVersion: CURRENT_SCHEMA_VERSION,
               },
             }
           : {}),

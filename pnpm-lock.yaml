@@ -33,16 +33,6 @@ importers:
         specifier: workspace:*
         version: link:../figure-schema
 
-  packages/export-service:
-    dependencies:
-      saxes:
-        specifier: 6.0.0
-        version: 6.0.0
-    devDependencies:
-      '@types/node':
-        specifier: 24.3.0
-        version: 24.3.0
-
   packages/figure-migrations:
     dependencies:
       '@plot-fig/figure-schema':
