@@ -85,9 +85,7 @@ it('顺序操作保留当前对象与数字草稿，应用时保存顺序', () =
     target: { value: '10.25' },
   });
   fireEvent.click(screen.getByRole('button', { name: '移到最前' }));
-  expect(
-    screen.getByRole('tabpanel', { name: '图层 panel-main属性' }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole('tabpanel', { name: '大小' })).toBeInTheDocument();
   expect(screen.getByLabelText('图层左侧 (%)')).toHaveValue('10.25');
   expect(screen.getByRole('button', { name: '移到最前' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: '应用' }));

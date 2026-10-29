@@ -1,7 +1,7 @@
 .import-panel .import-body {
   display: grid;
   gap: 10px;
-  padding: 14px;
+  padding: 16px;
 }
 .import-panel .import-body[hidden],
 .import-panel .import-file-input[hidden] {
@@ -91,4 +91,150 @@
 .import-sheet-row button {
   max-width: 50%;
   overflow-wrap: anywhere;
+}
+.data-import-dialog,
+.table-import-settings-dialog {
+  background: var(--ui-canvas);
+}
+.import-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  padding: 0;
+  margin: 0 0 20px;
+  list-style: none;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+}
+.import-stepper li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.import-stepper span {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid var(--ui-border);
+  border-radius: 50%;
+  background: var(--ui-surface);
+  font-size: var(--ui-font-caption);
+}
+.import-stepper [aria-current='step'] {
+  color: var(--ui-primary);
+}
+.import-stepper [aria-current='step'] span {
+  color: var(--ui-on-primary);
+  border-color: var(--ui-primary);
+  background: var(--ui-primary);
+}
+.import-preview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 18px;
+  align-items: start;
+}
+.import-preview-main,
+.import-options-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-surface);
+}
+.import-preview-main {
+  display: grid;
+  gap: 14px;
+}
+.import-preview-main > :is(h3, p) {
+  margin: 0;
+}
+.import-preview-main h3,
+.import-options-panel h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.import-options-panel .workspace-fields {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+.import-options-panel > .workspace-hint {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--ui-border);
+}
+.import-preview-main .paste-input {
+  padding: 14px;
+  border: 1px dashed var(--ui-border-strong);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
+}
+.import-preview-main .import-raw {
+  max-height: min(48dvh, 460px);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+}
+.import-preview-main .import-raw caption,
+.table-import-settings-layout caption {
+  padding: 10px 12px;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-caption);
+  background: var(--ui-subtle);
+  text-align: left;
+}
+.import-preview-main .import-raw :is(td, th) {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ui-border);
+  font-size: var(--ui-font-small);
+}
+.import-preview-empty {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: 140px;
+  padding: 20px;
+  background: var(--ui-subtle);
+  border-radius: var(--ui-radius-control);
+  text-align: center;
+}
+.import-preview-empty p {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+}
+.data-import-dialog .workspace-actions {
+  position: sticky;
+  bottom: -22px;
+  z-index: 1;
+  margin: 20px -22px -22px;
+  padding: 16px 22px;
+  background: var(--ui-surface);
+}
+@media (max-width: 760px) {
+  .import-preview-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .import-options-panel .workspace-fields {
+    grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .import-preview-main,
+  .import-options-panel {
+    padding: 14px;
+  }
+  .data-import-dialog .workspace-actions {
+    bottom: -16px;
+    margin: 16px -16px -16px;
+    padding: 14px 16px;
+  }
+  .import-sheet-row {
+    flex-wrap: wrap;
+  }
+  .import-sheet-row button {
+    max-width: 100%;
+  }
 }

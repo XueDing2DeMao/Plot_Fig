@@ -9,10 +9,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 12px;
+  min-height: 56px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--ui-border);
 }
 .plot-settings-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   min-width: 0;
 }
 .plot-settings-heading h2 {
@@ -23,7 +28,7 @@
 }
 .plot-settings-state {
   display: block;
-  margin-top: 2px;
+  margin: 0;
   font-size: var(--ui-font-caption);
   color: var(--ui-muted);
 }
@@ -35,8 +40,8 @@
 }
 .plot-settings-body {
   display: grid;
-  gap: 14px;
-  padding: 12px;
+  gap: 16px;
+  padding: 16px;
 }
 .plot-type-label {
   display: grid;
@@ -48,7 +53,7 @@
 .plot-confirm-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   justify-content: flex-end;
   margin-left: auto;
 }

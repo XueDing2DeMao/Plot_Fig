@@ -22,8 +22,11 @@ function TableHead({
               aria-label={`设置 ${column.name} 列`}
               onClick={() => onSettings(column.columnId)}
             >
-              {column.name}
-              <span>{column.settings.unit} ⚙</span>
+              <span className="column-settings-name">
+                {column.name}
+                <span aria-hidden="true">⌄</span>
+              </span>
+              <span>{column.settings.unit || '无单位'}</span>
             </button>
           </th>
         ))}
@@ -112,7 +115,11 @@ export function TableToolbar({
       <button type="button" onClick={onImportOptions}>
         调整导入参数
       </button>
-      <button type="button" onClick={onRemove}>
+      <button
+        type="button"
+        className="workspace-table-remove"
+        onClick={onRemove}
+      >
         移除数据表
       </button>
     </div>

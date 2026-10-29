@@ -1,7 +1,7 @@
 .property-form {
   display: grid;
-  gap: 16px;
-  padding: 16px;
+  gap: 18px;
+  padding: 18px;
 }
 .property-hint {
   margin: 0;
@@ -14,7 +14,7 @@
   min-width: 0;
   gap: 12px;
   margin: 0;
-  padding: 12px;
+  padding: 14px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-control);
 }
@@ -22,13 +22,13 @@
   padding: 0 6px;
   color: var(--ui-text);
   font-size: var(--ui-font-small);
-  font-weight: 700;
+  font-weight: 600;
 }
 .property-group label {
   display: grid;
   min-width: 0;
   gap: 6px;
-  color: var(--ui-text);
+  color: var(--ui-muted);
   font-size: var(--ui-font-small);
 }
 .property-group input,
@@ -36,8 +36,8 @@
   min-width: 0;
   width: 100%;
   min-height: var(--ui-control-height);
-  padding: 8px;
-  border: 1px solid var(--ui-border-strong);
+  padding: 6px 8px;
+  border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-control);
   color: var(--ui-heading);
   background: var(--ui-surface);
@@ -63,7 +63,7 @@
 .property-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 14px;
 }
 .property-select {
   display: grid;
@@ -81,11 +81,11 @@
 }
 .property-apply {
   min-height: var(--ui-control-height);
-  padding: 10px 16px;
-  border: 1px solid var(--ui-heading);
+  padding: 6px 14px;
+  border: 1px solid var(--ui-primary);
   border-radius: var(--ui-radius-control);
-  color: var(--ui-surface);
-  background: var(--ui-heading);
+  color: var(--ui-on-primary);
+  background: var(--ui-primary);
   font-size: var(--ui-font-small);
 }
 .property-error {
@@ -101,4 +101,9 @@
 #style {
   display: grid;
   gap: 18px;
+}
+@media (max-width: 520px) {
+  .property-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

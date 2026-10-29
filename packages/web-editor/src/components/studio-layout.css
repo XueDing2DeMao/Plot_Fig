@@ -1,0 +1,610 @@
+/* 已确认的画布优先工作台。业务窗口沿用共享 UI tokens。 */
+.app-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+}
+.app-shell [hidden] {
+  display: none !important;
+}
+.app-shell .app-topbar {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 68px;
+  padding: 12px 20px;
+  gap: 24px;
+}
+.app-topbar .brand {
+  gap: 10px;
+  flex-shrink: 0;
+}
+.app-topbar .brand strong {
+  font-size: 17px;
+  font-weight: 650;
+}
+.app-topbar .brand-mark {
+  width: 31px;
+  height: 31px;
+  background: var(--ui-primary);
+  border-color: var(--ui-primary);
+  border-radius: 9px;
+}
+.studio-project-heading {
+  flex: 1;
+  min-width: 0;
+}
+.studio-project-heading h1 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.studio-project-heading > span {
+  display: block;
+  color: var(--ui-muted);
+  font-size: 11px;
+  margin-top: 3px;
+}
+.app-topbar .head-actions {
+  gap: 16px;
+  align-items: start;
+}
+.app-topbar .head-actions .project-controls {
+  display: grid;
+  gap: 4px;
+  width: auto;
+}
+.app-topbar .project-actions {
+  gap: 7px;
+}
+.app-topbar .project-actions :is(button, .project-open-label) {
+  min-height: 32px;
+  padding: 5px 11px;
+  font-weight: 500;
+}
+.app-topbar .project-actions button:not(:disabled) {
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border-color: var(--ui-border);
+}
+.app-topbar .project-status {
+  max-width: 270px;
+  font-size: 11px;
+}
+.app-topbar .recovery-controls {
+  width: auto;
+}
+.app-topbar .recovery-controls-head {
+  min-height: 32px;
+}
+.app-topbar .recovery-controls-head button {
+  min-height: 32px;
+  padding: 5px 10px;
+}
+.app-shell .app-main {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 0;
+  overflow: visible;
+}
+.app-shell .editor-layout {
+  grid-template-columns: 232px minmax(0, 1fr) 260px;
+  grid-template-areas: 'data preview settings';
+  align-items: stretch;
+  gap: 0;
+}
+.app-shell .data-setup-stack {
+  display: grid;
+  align-content: start;
+  gap: 0;
+  background: var(--ui-surface);
+  border-right: 1px solid var(--ui-border);
+}
+.app-shell
+  .data-setup-stack
+  :is(.import-panel, .binding-card, .workspace-files) {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--ui-border);
+}
+.app-shell .data-setup-stack .panel-head {
+  min-height: 48px;
+  padding: 10px 14px;
+  background: var(--ui-subtle);
+}
+.app-shell .data-setup-stack .import-body {
+  padding: 14px;
+}
+.app-shell .data-setup-stack .import-dropzone {
+  min-height: 110px;
+  padding: 16px 10px;
+}
+.app-shell .data-setup-stack .import-paste-button {
+  font-size: 12px;
+}
+.app-shell .data-setup-stack .workspace-files {
+  padding: 14px 10px;
+}
+.app-shell .workspace-files-head {
+  padding: 0 4px 10px;
+  border-bottom: 1px solid var(--ui-border);
+  margin-bottom: 10px;
+}
+.app-shell .workspace-files-head button {
+  font-weight: 600;
+}
+.app-shell .workspace-file-list {
+  margin: 0;
+}
+.app-shell .workspace-file-list button {
+  border: 1px solid var(--ui-border);
+  background: var(--ui-subtle);
+  border-radius: 7px;
+  padding: 11px 10px;
+}
+.app-shell .workspace-files-empty {
+  padding: 0 4px;
+}
+.app-shell .data-setup-stack .binding-panel-heading {
+  padding: 13px 14px;
+  background: var(--ui-subtle);
+  border-bottom: 1px solid var(--ui-border);
+}
+.app-shell .binding-panel-heading .add-series {
+  min-height: 30px;
+  padding: 4px 7px;
+  font-size: 11px;
+}
+.app-shell .data-setup-stack .binding-accordion .series-list {
+  max-height: none;
+  overflow: visible;
+  scrollbar-gutter: auto;
+  gap: 0;
+  padding: 0;
+}
+.app-shell .data-setup-stack .binding-accordion .series-card {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+}
+.app-shell .series-summary {
+  padding: 11px 12px;
+}
+.app-shell .series-summary[aria-expanded='true'] {
+  color: var(--ui-primary);
+}
+.app-shell .series-binding-summary {
+  font-size: 11px;
+}
+.app-shell .binding-accordion .series-editor {
+  padding: 12px;
+  background: var(--ui-subtle);
+}
+.app-shell .binding-accordion .series-name-field {
+  margin-bottom: 10px;
+  gap: 4px;
+}
+.app-shell .binding-accordion .series-editor .slot-list {
+  gap: 8px;
+  margin-top: 10px;
+}
+.app-shell .binding-accordion .series-editor .slot-row {
+  padding: 0;
+}
+.app-shell .binding-accordion .series-editor .series-actions {
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.app-shell .binding-accordion .series-actions button {
+  min-height: 28px;
+  padding: 3px 7px;
+}
+.app-shell .binding-batch-entry {
+  padding: 9px 12px;
+}
+.app-shell .binding-batch-entry button {
+  min-height: 30px;
+  width: 100%;
+}
+.app-shell .editor-layout #preview {
+  min-width: 0;
+  align-self: start;
+}
+.app-shell .preview-card {
+  --preview-gutter: 20px;
+  --preview-paper-height: clamp(260px, calc(100dvh - 426px), 840px);
+  padding: 12px var(--preview-gutter);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--ui-subtle);
+  min-height: 0;
+}
+.app-shell .preview-card .preview-head {
+  margin: -12px calc(-1 * var(--preview-gutter)) 12px;
+  padding: 10px var(--preview-gutter);
+  min-height: 46px;
+  border: 0;
+  border-bottom: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+}
+.app-shell .preview-head h2 {
+  padding-left: 10px;
+  border-left: 3px solid var(--ui-primary);
+  font-size: 14px;
+  font-weight: 650;
+}
+.app-shell .preview-meta {
+  padding: 3px 8px;
+  border: 0;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-success-bg);
+  font-size: 11px;
+  margin-left: auto;
+}
+.app-shell .preview-meta.is-pending {
+  color: var(--ui-warning);
+  background: color-mix(in srgb, var(--ui-warning) 9%, var(--ui-surface));
+}
+.app-shell .studio-focus-toggle {
+  border-color: var(--ui-border);
+  background: var(--ui-surface);
+  padding: 4px 8px;
+  min-height: 30px;
+  font-size: 12px;
+}
+.app-shell .studio-focus-toggle[aria-pressed='true'] {
+  color: var(--ui-primary);
+  background: var(--ui-selected);
+}
+.app-shell .preview-toolbar {
+  align-items: center;
+  padding: 8px;
+  background: var(--ui-surface);
+  border-color: var(--ui-border-strong);
+  border-radius: var(--ui-radius-card);
+  gap: 8px 12px;
+}
+.app-shell .preview-toolbar button:not([role='menuitem']) {
+  min-height: 34px;
+  font-size: 12px;
+  padding: 5px 9px;
+}
+.app-shell .preview-toolbar .origin-menu-popup {
+  border-radius: var(--ui-radius-control);
+}
+.app-shell .preview-group-label {
+  display: block;
+  width: auto;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.app-shell .preview-tool-group {
+  gap: 6px;
+}
+.app-shell .preview-toolbar-settings,
+.app-shell .preview-toolbar-data {
+  flex: 0 1 auto;
+  gap: 8px;
+}
+.app-shell .preview-toolbar-settings .figure-action-toolbar {
+  width: auto;
+  gap: 8px;
+}
+.app-shell .preview-tool-group:not(:last-child) {
+  padding-right: 8px;
+  border-right: 1px solid var(--ui-border);
+}
+.app-shell .figure-zoom-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-left: auto;
+}
+.app-shell .figure-zoom-controls p {
+  margin: 0;
+  font-size: 11px;
+}
+.app-shell .preview-interaction-help {
+  margin: 0;
+}
+.app-shell .preview-stage {
+  min-height: 260px;
+  margin-top: 0;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+  background: color-mix(in srgb, var(--ui-border) 45%, var(--ui-canvas));
+  background-image: none;
+}
+.app-shell .preview-stage > .svg-surface > svg {
+  width: 100%;
+  height: auto;
+  max-height: var(--preview-paper-height);
+  filter: drop-shadow(0 4px 14px rgb(24 43 77 / 7%));
+}
+.app-shell .preview-placeholder {
+  color: var(--ui-muted);
+}
+.app-shell .preview-placeholder .axis-mark {
+  color: var(--ui-primary);
+}
+.app-shell .preview-export-area {
+  border-top: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+  margin: 12px calc(-1 * var(--preview-gutter)) -12px;
+  padding: 10px var(--preview-gutter);
+  gap: 10px;
+}
+.app-shell .preview-export-area .preview-export-button {
+  min-height: 34px;
+  padding: 6px 12px;
+  min-width: 100px;
+  margin-left: auto;
+  order: 2;
+}
+.app-shell .right-stack {
+  grid-area: settings;
+  position: static;
+  padding: 0;
+  gap: 0;
+  border-left: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+  grid-template-columns: minmax(0, 1fr);
+}
+.app-shell .right-stack :is(.plot-settings-card, .diagnostics-panel) {
+  border: 0;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.app-shell .plot-settings-header {
+  padding: 13px 14px;
+  gap: 10px;
+  background: var(--ui-subtle);
+  border-bottom: 1px solid var(--ui-border);
+}
+.app-shell .plot-settings-heading h2 {
+  font-size: 13px;
+}
+.app-shell .plot-confirm-actions {
+  width: 100%;
+}
+.app-shell .plot-confirm-actions .primary-action {
+  flex: 1;
+}
+.app-shell .plot-settings-body {
+  padding: 14px;
+  gap: 16px;
+}
+.app-shell .plot-appearance-choices {
+  gap: 16px;
+}
+.app-shell .visual-choice-group {
+  margin: 0;
+  padding: 0;
+}
+.app-shell .visual-choice-grid {
+  gap: 5px;
+}
+.app-shell .line-choice-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.app-shell .visual-choice-body {
+  min-height: 50px;
+  padding: 5px 3px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+.app-shell .marker-choice-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.app-shell .marker-choice-grid .visual-choice-body {
+  min-height: 55px;
+}
+.app-shell .studio-data-dock {
+  border-top: 2px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+}
+.studio-dock-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 16px;
+  background: var(--ui-subtle);
+}
+.studio-dock-header button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-color: transparent;
+  background: transparent;
+  min-height: 30px;
+  font-weight: 650;
+}
+.studio-dock-header > span {
+  color: var(--ui-muted);
+  font-size: 11px;
+}
+.studio-data-dock .workspace-table {
+  border: 0;
+  border-radius: 0;
+}
+.studio-data-dock > section {
+  max-width: 100%;
+  min-width: 0;
+}
+.app-shell .studio-statusbar {
+  grid-column: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-height: 34px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--ui-border);
+  background: var(--ui-subtle);
+  color: var(--ui-muted);
+  font-size: 11px;
+}
+.studio-statusbar > :last-child {
+  margin-left: auto;
+}
+.app-shell .editor-layout[data-focus='true'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'preview';
+}
+.app-shell .editor-layout[data-focus='true'] .preview-card {
+  --preview-paper-height: clamp(280px, calc(100dvh - 386px), 960px);
+}
+.app-shell .mobile-plot-action {
+  display: none;
+}
+@media (max-width: 1600px) {
+  .app-shell .editor-layout[data-focus='false'] .preview-toolbar-settings {
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 1100px) {
+  .app-shell .preview-card {
+    --preview-gutter: 14px;
+  }
+  .app-shell .app-topbar {
+    gap: 18px;
+  }
+  .app-topbar .head-actions {
+    gap: 10px;
+  }
+  .app-shell .editor-layout[data-focus='false'] .preview-toolbar-settings {
+    flex-basis: 100%;
+  }
+  .app-shell .figure-zoom-controls {
+    margin-left: 0;
+  }
+}
+@media (max-width: 1200px) {
+  .app-shell .preview-card,
+  .app-shell .editor-layout[data-focus='true'] .preview-card {
+    --preview-paper-height: 70dvh;
+  }
+  .app-shell .editor-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-areas: 'data preview' 'data settings';
+  }
+  .app-shell .right-stack {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-left: 0;
+    border-top: 1px solid var(--ui-border);
+  }
+  .app-shell .preview-card {
+    min-height: 0;
+  }
+  .app-shell .preview-stage {
+    min-height: 240px;
+  }
+}
+@media (max-width: 900px) {
+  .app-shell .app-topbar {
+    height: auto;
+    flex-wrap: wrap;
+  }
+  .app-shell .head-actions {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell {
+    display: block;
+  }
+  .app-shell .app-topbar {
+    height: auto;
+    padding: 12px 14px;
+    gap: 16px;
+  }
+  .app-shell .editor-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'data' 'preview' 'settings';
+  }
+  .app-shell .data-setup-stack {
+    border-right: 0;
+  }
+  .app-shell .right-stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .app-shell .head-actions .project-controls {
+    width: 100%;
+  }
+  .app-shell .head-actions .recovery-controls {
+    width: 100%;
+  }
+  .app-shell .preview-card,
+  .app-shell .editor-layout[data-focus='true'] .preview-card {
+    --preview-paper-height: 70dvh;
+    --preview-gutter: 12px;
+  }
+  .app-shell .preview-card .preview-head {
+    flex-direction: row;
+  }
+  .app-shell .preview-stage {
+    padding: 8px;
+    min-height: 200px;
+  }
+  .app-shell .preview-tool-group:not(:last-child) {
+    border-right: 0;
+    padding-right: 0;
+  }
+  .app-shell .preview-export-area {
+    flex-wrap: wrap;
+  }
+  .app-shell .preview-toolbar {
+    gap: 10px;
+  }
+  .app-shell .preview-toolbar button:not([role='menuitem']) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .app-shell .preview-toolbar .figure-zoom-controls > div {
+    position: relative;
+    padding-left: 30px;
+  }
+  .app-shell .figure-zoom-controls .preview-group-label {
+    position: absolute;
+    left: 0;
+    top: 15px;
+  }
+  .app-shell :is(.origin-menu-popup, .layer-format-menu) button {
+    min-height: 44px;
+    padding: 8px 10px;
+  }
+  .app-shell .studio-statusbar {
+    gap: 8px;
+  }
+}
+@media (pointer: coarse) {
+  :root {
+    --ui-control-height: 44px;
+  }
+  .app-shell
+    :is(
+      .preview-toolbar button:not([role='menuitem']),
+      .project-actions button,
+      .project-open-label,
+      .studio-focus-toggle,
+      .studio-dock-header button
+    ) {
+    min-height: 44px;
+  }
+  .app-shell :is(input, select, textarea) {
+    font-size: 16px;
+  }
+}

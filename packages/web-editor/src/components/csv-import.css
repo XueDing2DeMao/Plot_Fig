@@ -1,7 +1,7 @@
 .csv-dialog {
   width: min(920px, calc(100vw - 32px));
   max-height: min(820px, calc(100dvh - 32px));
-  padding: 24px;
+  padding: 22px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-dialog);
   color: var(--ui-heading);
@@ -22,9 +22,14 @@
   margin: 0;
   font-size: 18px;
 }
+.csv-dialog-head {
+  margin: -22px -22px 18px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--ui-border);
+}
 .csv-dialog-head button {
-  width: 40px;
-  height: 40px;
+  width: var(--ui-control-height);
+  height: var(--ui-control-height);
   flex-shrink: 0;
   padding: 0;
   color: var(--ui-heading);
@@ -91,7 +96,7 @@
 .csv-table-wrap th {
   position: sticky;
   top: 0;
-  background: var(--ui-border);
+  background: var(--ui-subtle);
 }
 .csv-dialog-actions {
   justify-content: flex-end;
@@ -106,7 +111,7 @@
   border: 1px solid var(--ui-border-strong);
   border-radius: var(--ui-radius-control);
   color: var(--ui-heading);
-  background: white;
+  background: var(--ui-surface);
   cursor: pointer;
 }
 .csv-dialog-actions .primary {
@@ -126,5 +131,11 @@
 @media (max-width: 700px) {
   .csv-options {
     grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .csv-options,
+  .csv-binding {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -54,7 +54,7 @@ export function OriginGraphManagementDialog({
   const [mode, setMode] = useState(initialMode);
   const [tab, setTab] = useState('membership');
   const [properties, setProperties] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const managerScroll = useRef<HTMLDivElement>(null);
   const tabsId = useId();
   const [appliedPreview, setAppliedPreview] = useState(model);
@@ -330,7 +330,9 @@ export function OriginGraphManagementDialog({
         }}
       >
         {panel && mode === 'layer-management' && (
-          <div className="origin-manager-layout">
+          <div
+            className={`origin-manager-layout${showPreview ? ' has-preview' : ''}`}
+          >
             <aside className="origin-manager-sidebar">
               <div className="origin-manager-list-heading">
                 <h3>图层列表</h3>
@@ -373,36 +375,6 @@ export function OriginGraphManagementDialog({
                 id={`${tabsId}-panel`}
                 aria-labelledby={`${tabsId}-${tab}`}
               >
-                <section
-                  className="origin-manager-preview"
-                  aria-label="图层预览"
-                  hidden={!showPreview}
-                >
-                  <h4>图层预览</h4>
-                  {preview?.ok ? (
-                    <SvgSurface svg={preview.svg} label="图层预览图" />
-                  ) : (
-                    <div className="origin-manager-empty">
-                      <strong>暂无可绘制数据</strong>
-                      <p>
-                        {preview?.ok === false
-                          ? [
-                              ...new Set(
-                                preview.diagnostics.map(
-                                  (diagnostic) => diagnostic.message,
-                                ),
-                              ),
-                            ].join('；')
-                          : '图层设置仍可保存；导入数据并完成绑定后可显示预览。'}
-                      </p>
-                    </div>
-                  )}
-                  <p className="property-hint">
-                    {dirty
-                      ? '此处显示上次更新的结果，当前更改尚未预览。'
-                      : '此处显示已更新的预览，确定后应用到图形。'}
-                  </p>
-                </section>
                 {tab === 'membership' ? (
                   <div className="origin-manager-common">
                     <LayerManagementFields
@@ -445,6 +417,38 @@ export function OriginGraphManagementDialog({
                 )}
               </div>
             </div>
+            <section
+              className="origin-manager-preview"
+              aria-label="图层预览"
+              hidden={!showPreview}
+            >
+              <h4>图层预览</h4>
+              {preview?.ok ? (
+                <div className="origin-manager-preview-paper">
+                  <SvgSurface svg={preview.svg} label="图层预览图" />
+                </div>
+              ) : (
+                <div className="origin-manager-empty">
+                  <strong>暂无可绘制数据</strong>
+                  <p>
+                    {preview?.ok === false
+                      ? [
+                          ...new Set(
+                            preview.diagnostics.map(
+                              (diagnostic) => diagnostic.message,
+                            ),
+                          ),
+                        ].join('；')
+                      : '图层设置仍可保存；导入数据并完成绑定后可显示预览。'}
+                  </p>
+                </div>
+              )}
+              <p className="property-hint">
+                {dirty
+                  ? '此处显示上次更新的结果，当前更改尚未预览。'
+                  : '此处显示已更新的预览，确定后应用到图形。'}
+              </p>
+            </section>
           </div>
         )}
         {panel && mode === 'layer-contents' && (

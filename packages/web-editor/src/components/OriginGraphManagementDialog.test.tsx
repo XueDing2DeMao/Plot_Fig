@@ -150,7 +150,7 @@ it('cancel discards a layer contents removal', () => {
   expect(model.template.panels[0]!.plotSlots).toHaveLength(1);
 });
 
-it('uses readable layer names and collapses advanced settings and unused preview space', () => {
+it('uses readable layer names, keeps advanced settings collapsed and offers a collapsible preview', () => {
   const model = { template: defaultTemplate(), workspace: emptyWorkspace() };
   render(
     <OriginGraphManagementDialog
@@ -170,10 +170,6 @@ it('uses readable layer names and collapses advanced settings and unused preview
   expect(screen.getByLabelText('共享方向')).not.toBeVisible();
   fireEvent.click(screen.getByText('高级设置：图层标签与共享轴'));
   expect(screen.getByLabelText('共享方向')).toBeVisible();
-  expect(
-    screen.queryByRole('region', { name: '图层预览' }),
-  ).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: '显示预览' }));
   expect(screen.getByRole('region', { name: '图层预览' })).toHaveTextContent(
     '暂无可绘制数据',
   );

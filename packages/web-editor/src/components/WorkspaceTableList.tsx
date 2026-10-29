@@ -28,7 +28,10 @@ function TableItem({
         aria-current={active}
         onClick={() => onSelect(table.tableId)}
       >
-        {table.name} · {table.source.kind.toUpperCase()}
+        <strong>{table.name}</strong>
+        <small>
+          {table.source.kind.toUpperCase()} · {table.columns.length} 列
+        </small>
       </button>
       <button
         type="button"
@@ -50,6 +53,9 @@ export function WorkspaceTableList(props: Props) {
   return (
     <>
       <div className="workspace-table-list">
+        <div className="workspace-table-list-heading">
+          数据表 <span>{props.workspace.tables.length}</span>
+        </div>
         {props.workspace.tables.map((table) => (
           <TableItem
             key={table.tableId}

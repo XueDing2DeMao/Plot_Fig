@@ -39,11 +39,11 @@
 }
 .origin-layer-stack label:has(input:disabled),
 .origin-layer-stack fieldset:disabled {
-  color: #8c939e;
+  color: var(--ui-muted);
 }
 .origin-stack-members {
   padding: 10px;
-  border-top: 1px solid #dce1e8;
+  border-top: 1px solid var(--ui-border);
 }
 .origin-stack-member-row {
   display: flex;

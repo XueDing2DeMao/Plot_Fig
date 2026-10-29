@@ -36,9 +36,9 @@ function show() {
     />,
   );
   fireEvent.click(
-    within(screen.getByRole('navigation', { name: '属性对象' })).getByRole(
+    within(screen.getByRole('navigation', { name: '图层列表' })).getByRole(
       'button',
-      { name: /图层 测试图层1/ },
+      { name: '测试图层1' },
     ),
   );
   fireEvent.click(screen.getByRole('tab', { name: '大小/位置' }));
@@ -51,7 +51,7 @@ function change(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 }
 function save() {
-  fireEvent.click(screen.getByRole('button', { name: '应用' }));
+  fireEvent.click(screen.getByRole('button', { name: '更新预览' }));
   fireEvent.click(screen.getByRole('button', { name: '确定' }));
 }
 
@@ -64,7 +64,7 @@ it('打开和修改布局参数不改位置，默认不选隐藏图层，点击�
   change('横向间距 (%)', '10.25');
   change('纵向间距 (%)', '3.5');
   save();
-  expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: '更新预览' })).toBeDisabled();
   expect(apply).not.toHaveBeenCalled();
   expect(model.template).toEqual(template);
   fireEvent.click(screen.getByRole('button', { name: '执行网格排列' }));
@@ -83,7 +83,7 @@ it('小数、负号、指数中间态不会回弹，非法值不执行且不污�
     expect(screen.getByRole('button', { name: '执行网格排列' })).toBeDisabled();
   }
   save();
-  expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: '更新预览' })).toBeDisabled();
   expect(apply).not.toHaveBeenCalled();
   expect(model.template).toEqual(template);
   change('横向间距 (%)', '0.');
@@ -142,7 +142,7 @@ it('间距超过可用区域时提示原因，修改参数后能恢复', () => {
   fireEvent.click(screen.getByRole('button', { name: '执行网格排列' }));
   expect(screen.getByRole('alert')).toHaveTextContent('间距过大');
   save();
-  expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: '更新预览' })).toBeDisabled();
   expect(apply).not.toHaveBeenCalled();
   expect(model.template).toEqual(template);
   change('横向间距 (%)', '5');
@@ -173,7 +173,7 @@ it('切换间距单位保持横纵实际长度，未完成输入时保留单位�
   expect(screen.getByLabelText('间距单位')).toHaveValue('%');
   expect(screen.getByLabelText('横向间距 (%)')).toHaveValue('-');
   save();
-  expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: '更新预览' })).toBeDisabled();
   expect(apply).not.toHaveBeenCalled();
   expect(model.template).toEqual(template);
 });
@@ -203,9 +203,9 @@ it('离开标签或切换对象再回来保留图层选择、基准和未完成�
   expect(screen.getByLabelText('参与排列：测试图层1')).not.toBeChecked();
   expect(screen.getByLabelText('横向间距 (%)')).toHaveValue('1e-');
   fireEvent.click(
-    within(screen.getByRole('navigation', { name: '属性对象' })).getByRole(
+    within(screen.getByRole('navigation', { name: '图层列表' })).getByRole(
       'button',
-      { name: /图层 测试图层2/ },
+      { name: '测试图层2' },
     ),
   );
   layout();

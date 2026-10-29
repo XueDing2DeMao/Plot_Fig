@@ -20,6 +20,7 @@ export function TemplateLibraryDialog({
     { draft, message } = state;
   return (
     <EditorModal
+      className="template-library-dialog"
       title="模板中心"
       onDismiss={onDismiss}
       footer={
@@ -37,15 +38,29 @@ export function TemplateLibraryDialog({
         </>
       }
     >
-      <div className="publication-body">
-        <TemplateNavigation state={state} />
-        <section className="publication-form publication-fields">
-          <TemplateApplyFields state={state} />
-          <TemplateStorageFields state={state} />
-          {message && <p role="status">{message}</p>}
-          {draft.error && <p role="alert">{draft.error}</p>}
+      <div className="publication-body template-library-body">
+        <section className="template-library-main">
+          <TemplateNavigation state={state} />
+          <section className="template-storage-panel" aria-label="模板管理">
+            <TemplateStorageFields state={state} />
+          </section>
         </section>
-        <TemplatePreview state={state} />
+        <aside className="template-library-detail">
+          <TemplatePreview state={state} />
+          <section className="publication-form publication-fields">
+            <TemplateApplyFields state={state} />
+            {message && (
+              <p className="publication-message" role="status">
+                {message}
+              </p>
+            )}
+            {draft.error && (
+              <p className="property-error" role="alert">
+                {draft.error}
+              </p>
+            )}
+          </section>
+        </aside>
       </div>
     </EditorModal>
   );

@@ -1,27 +1,30 @@
 .publication-dialog.origin-tool-dialog {
-  width: min(920px, calc(100vw - 32px));
-  height: min(640px, calc(100dvh - 32px));
-  border-radius: 0;
+  width: min(1080px, calc(100vw - 32px));
+  height: min(760px, calc(100dvh - 32px));
+  border-radius: var(--ui-radius-dialog);
 }
 .origin-tool-dialog > header,
 .origin-tool-dialog > footer {
-  padding: 8px 12px;
+  padding: 18px 20px;
 }
 .origin-tool-dialog > header > button {
-  width: 28px;
-  min-height: 24px;
-  font-size: 18px;
+  width: var(--ui-control-height);
+  min-height: var(--ui-control-height);
+  font-size: 22px;
 }
 .origin-tool-dialog h2 {
-  font-size: 14px;
+  font-size: 18px;
 }
 .origin-manager-layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 184px minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   flex: 1;
   overflow: hidden;
+}
+.origin-manager-layout.has-preview {
+  grid-template-columns: 184px minmax(0, 1fr) 280px;
 }
 .origin-manager-editor {
   display: flex;
@@ -40,11 +43,23 @@
   padding: 0;
 }
 .origin-manager-preview {
-  border: 1px solid var(--ui-border);
-  border-radius: 6px;
+  min-width: 0;
+  overflow: auto;
+  border: 0;
+  border-left: 1px solid var(--ui-border);
   background: var(--ui-canvas);
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 20px;
+  margin: 0;
+}
+.origin-manager-preview[hidden] {
+  display: none;
+}
+.origin-manager-preview-paper {
+  padding: 12px;
+  margin-bottom: 14px;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
 }
 .origin-manager-preview svg {
   width: 100%;
@@ -52,13 +67,13 @@
   max-height: 280px;
 }
 .publication-dialog.origin-layer-manager {
-  width: min(1080px, calc(100vw - 32px));
-  height: min(740px, calc(100dvh - 32px));
-  border-radius: 8px;
+  width: min(1240px, calc(100vw - 32px));
+  height: min(800px, calc(100dvh - 32px));
+  border-radius: var(--ui-radius-dialog);
 }
 .origin-layer-manager > header,
 .origin-layer-manager > footer {
-  padding: 12px 20px;
+  padding: 18px 20px;
 }
 .origin-layer-manager h2 {
   font-size: 18px;
@@ -71,10 +86,10 @@
 .origin-layer-manager > footer button,
 .origin-manager-toolbar button,
 .origin-manager-common button {
-  min-height: 32px;
+  min-height: var(--ui-control-height);
   padding: 6px 10px;
   font-size: 13px;
-  border-radius: 4px;
+  border-radius: var(--ui-radius-control);
   white-space: nowrap;
 }
 .origin-manager-status {
@@ -91,7 +106,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 16px 10px;
-  background: var(--ui-subtle);
+  background: var(--ui-surface);
   border-right: 1px solid var(--ui-border);
 }
 .origin-manager-list-heading {
@@ -129,7 +144,7 @@
 .origin-manager-sidebar .origin-object-nav button {
   align-items: flex-start;
   padding: 10px 8px 10px calc(8px + var(--object-depth) * 12px);
-  border-radius: 4px;
+  border-radius: var(--ui-radius-control);
 }
 .origin-manager-sidebar .origin-object-nav strong {
   white-space: normal;
@@ -155,7 +170,7 @@
 .origin-manager-editor > .origin-tabs {
   flex-wrap: wrap;
   overflow: visible;
-  padding: 0 12px;
+  padding: 8px 12px 0;
 }
 .origin-manager-scroll {
   min-height: 0;
@@ -168,17 +183,17 @@
   gap: 16px;
 }
 .origin-layer-manager .property-group {
-  padding: 12px;
+  padding: 14px;
   margin: 0;
-  border-radius: 4px;
+  border-radius: var(--ui-radius-control);
 }
 .origin-manager-common > .property-group:last-child .property-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .origin-manager-advanced {
   border: 1px solid var(--ui-border);
-  border-radius: 4px;
-  padding: 12px;
+  border-radius: var(--ui-radius-control);
+  padding: 14px;
 }
 .origin-manager-advanced summary {
   cursor: pointer;
@@ -228,7 +243,8 @@
 }
 .origin-datasets button[aria-pressed='true'] {
   background: var(--ui-selected);
-  border-color: var(--ui-border-strong);
+  border-color: transparent;
+  color: var(--ui-primary);
 }
 .origin-transfer-buttons {
   display: flex;
@@ -249,6 +265,7 @@
 .origin-contents-details {
   max-height: 35vh;
   overflow: auto;
+  flex-wrap: wrap;
 }
 .origin-plot-setup {
   overflow: auto;
@@ -257,9 +274,11 @@
 .origin-plot-setup details {
   border: 1px solid var(--ui-border);
   margin: 6px 0;
+  border-radius: var(--ui-radius-control);
+  overflow: hidden;
 }
 .origin-plot-setup summary {
-  padding: 6px;
+  padding: 12px 14px;
   background: var(--ui-subtle);
 }
 .origin-plot-setup .origin-object-nav {
@@ -269,10 +288,31 @@
   padding: 20px;
   overflow: auto;
 }
-@media (max-width: 700px) {
-  .origin-manager-layout {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
+@media (min-width: 801px) and (max-width: 1100px) {
+  .origin-manager-layout.has-preview {
+    grid-template-columns: 150px minmax(0, 1fr) 240px;
+  }
+  .origin-manager-preview {
+    padding: 14px;
+  }
+}
+@media (max-width: 800px) {
+  .origin-manager-layout,
+  .origin-manager-layout.has-preview {
+    display: block;
+    overflow-y: auto;
+  }
+  .origin-manager-editor,
+  .origin-manager-scroll {
+    overflow: visible;
+  }
+  .origin-manager-preview {
+    border-left: 0;
+    border-top: 1px solid var(--ui-border);
+    padding: 14px;
+  }
+  .origin-manager-preview svg {
+    max-height: 180px;
   }
   .origin-manager-sidebar {
     max-height: 160px;
@@ -303,5 +343,14 @@
   .origin-manager-status {
     flex-basis: 100%;
     margin-right: 0;
+  }
+  .origin-contents-layout {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+  .origin-transfer-buttons {
+    flex-direction: row;
+    padding: 8px;
+    border-block: 1px solid var(--ui-border);
   }
 }

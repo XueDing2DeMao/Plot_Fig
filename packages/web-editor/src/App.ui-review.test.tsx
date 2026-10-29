@@ -202,39 +202,39 @@ it('associates property tabs with their current panel and preserves arrow naviga
   expect(panel).toHaveAttribute('aria-labelledby', symbol.id);
 });
 
-it('links project and export navigation to separate action areas', () => {
+it('keeps project actions in the header and export actions with the preview', () => {
   render(<App />);
-  const nav = within(screen.getByRole('navigation', { name: '工作区导航' }));
-  expect(nav.getByRole('link', { name: /项目文件/ })).toHaveAttribute(
-    'href',
-    '#project',
-  );
-  expect(nav.getByRole('link', { name: /导出图形/ })).toHaveAttribute(
-    'href',
-    '#export',
-  );
-  expect(document.getElementById('export')).toContainElement(
+  const project = screen.getByRole('region', { name: '项目文件' });
+  expect(
+    screen.getByRole('heading', { level: 1 }).closest('header'),
+  ).toContainElement(project);
+  expect(
+    within(project).getByRole('button', { name: '保存项目' }),
+  ).toBeInTheDocument();
+  expect(within(project).getByLabelText('打开项目文件')).toBeInTheDocument();
+  expect(screen.getByRole('region', { name: '图形预览' })).toContainElement(
     screen.getByRole('button', { name: '导出图形' }),
   );
 });
 
-it('offers category filters and visible palette previews without removing the current palette', () => {
+it('offers palette previews in the color panel and restores the trigger on Escape', () => {
   render(<App />);
   fireEvent.click(screen.getByRole('button', { name: '图形属性' }));
-  fireEvent.change(screen.getByLabelText('内置配色'), {
-    target: { value: 'sci-nature-1' },
-  });
-  fireEvent.change(screen.getByLabelText('配色类别'), {
-    target: { value: 'accessible' },
-  });
-  const previews = screen.getByRole('group', { name: '配色方案预览' });
+  const trigger = screen.getByRole('button', { name: '打开线条颜色面板' });
+  const originalColor = screen.getByLabelText('线条颜色').getAttribute('value');
+  fireEvent.click(trigger);
+  const panel = screen.getByRole('dialog', { name: '线条颜色面板' });
+  fireEvent.click(within(panel).getByRole('tab', { name: '按点' }));
   expect(
-    within(previews).getByRole('button', { name: 'Colorblind Safe 1 · 7 色' }),
+    within(panel).getByRole('button', { name: '调色板 Viridis（紫绿黄）' }),
   ).toBeInTheDocument();
+  fireEvent.keyDown(panel, { key: 'Escape' });
   expect(
-    within(previews).queryByRole('button', { name: 'Viridis Heatmap · 6 色' }),
+    screen.queryByRole('dialog', { name: '线条颜色面板' }),
   ).not.toBeInTheDocument();
-  expect(screen.getByLabelText('内置配色')).toHaveValue('sci-nature-1');
+  expect(trigger).toHaveFocus();
+  expect(screen.getByLabelText('线条颜色')).toHaveValue(originalColor);
+  expect(screen.getByRole('dialog', { name: /绘图细节/ })).toBeVisible();
 });
 
 it('keeps uncommon markers available through progressive disclosure', () => {

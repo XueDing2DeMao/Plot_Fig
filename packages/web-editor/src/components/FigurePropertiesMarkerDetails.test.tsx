@@ -49,13 +49,13 @@ it('对数尺寸超出定义域给出预览提示，原行不存在则阻止应�
       onDismiss={vi.fn()}
     />,
   );
-  fireEvent.click(screen.getByRole('button', { name: '展开预览' }));
+  expect(screen.getByLabelText('修改后的图形预览')).toBeVisible();
   expect(screen.getByRole('status', { name: '预览提示' })).toHaveTextContent(
     '超出坐标轴定义域',
   );
   expect(screen.getByRole('button', { name: '确定' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '应用' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: /Series 1/ }));
+  fireEvent.click(screen.getByRole('button', { name: '曲线 Y' }));
   openPropertyFeature('符号细节');
   fireEvent.click(screen.getByLabelText('显示映射图例样本'));
   fireEvent.change(screen.getByLabelText('图例原始行号'), {
@@ -77,7 +77,7 @@ it('正式符号细节草稿跨页保留，禁用清除错误，应用及项目�
       onDismiss={vi.fn()}
     />,
   );
-  fireEvent.click(screen.getByRole('button', { name: /Series 1/ }));
+  fireEvent.click(screen.getByRole('button', { name: '曲线 Y' }));
   openPropertyFeature('符号细节');
   fireEvent.click(screen.getByLabelText('按数据单位固定尺寸'));
   for (const value of ['-', '-0.', '0.25']) {

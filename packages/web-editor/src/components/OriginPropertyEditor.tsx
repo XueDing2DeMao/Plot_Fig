@@ -1,4 +1,5 @@
 import { LightAnnotationFields } from './LightAnnotationFields.js';
+import { markerFollowingLineColor } from '../state/marker-line-color.js';
 import { OriginTabs, originAxisTabs, type OriginTab } from './OriginTabs.js';
 import { OriginAxisFields } from './OriginAxisFields.js';
 import { AxisCreationFields } from './AxisCreationFields.js';
@@ -505,6 +506,8 @@ export function OriginPropertyEditor(props: Props) {
                       ]),
                     );
                     for (const [index, curve] of curves.entries()) {
+                      const previousColor =
+                        curve.lineStyle?.color ?? next.theme.line.color;
                       curve.lineStyle = {
                         visible: true,
                         widthPt: next.theme.line.widthPt,
@@ -517,6 +520,16 @@ export function OriginPropertyEditor(props: Props) {
                             )
                           : colors[index % colors.length]!,
                       };
+                      curve.markerStyle = markerFollowingLineColor(
+                        {
+                          visible: true,
+                          ...next.theme.marker,
+                          strokeWidthPt: 1,
+                          ...curve.markerStyle,
+                        },
+                        previousColor,
+                        curve.lineStyle.color,
+                      );
                       delete curve.lineMapping;
                     }
                     for (const group of panel.groups ?? []) {
@@ -759,15 +772,20 @@ export function OriginPropertyEditor(props: Props) {
         }}
       >
         {!props.section && (
-          <OriginTabs
-            id={tabsId}
-            items={visibleTabs}
-            selected={tab}
-            onSelect={(key) =>
-              setSelection((before) => ({ ...before, [selectedKey]: key }))
-            }
-            label="属性分类"
-          />
+          <>
+            <div className="origin-category-heading origin-object-heading">
+              <h3>{current.label}</h3>
+            </div>
+            <OriginTabs
+              id={tabsId}
+              items={visibleTabs}
+              selected={tab}
+              onSelect={(key) =>
+                setSelection((before) => ({ ...before, [selectedKey]: key }))
+              }
+              label="属性分类"
+            />
+          </>
         )}
         <div
           key={selectedKey}
@@ -778,7 +796,9 @@ export function OriginPropertyEditor(props: Props) {
           aria-label={current.label + '属性'}
         >
           {features.map((feature) => (
-            <div key={feature}>{renderFeature(feature)}</div>
+            <div className="origin-feature-section" key={feature}>
+              {renderFeature(feature)}
+            </div>
           ))}
         </div>
       </section>

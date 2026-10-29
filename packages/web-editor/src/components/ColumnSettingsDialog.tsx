@@ -88,8 +88,14 @@ export function ColumnSettingsDialog({
 }: Props) {
   const draft = useColumnDraft(table, column);
   return (
-    <WorkspaceDialog title="列设置" onClose={onClose}>
+    <WorkspaceDialog
+      title="列设置"
+      description={`${table.name} / ${column.name}`}
+      className="column-settings-dialog"
+      onClose={onClose}
+    >
       <form
+        className="column-settings-form"
         onSubmit={(event) => {
           event.preventDefault();
           if (!draft.invalid) {
@@ -103,7 +109,9 @@ export function ColumnSettingsDialog({
         {['date', 'datetime'].includes(draft.value.settings.type) && (
           <DateFields value={draft.value} onChange={draft.onChange} />
         )}
-        <ColumnConversionPreview column={draft.organized} />
+        <div className="column-conversion-summary">
+          <ColumnConversionPreview column={draft.organized} />
+        </div>
         {draft.invalid && (
           <p className="workspace-error" role="alert">
             请填写列名、有效时区偏移和最多 100 个缺失标记（每个不超过 256

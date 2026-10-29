@@ -54,19 +54,19 @@ export function ProjectRecoveryDialog({
         if (!busy) onClose();
       }}
     >
-      <p>
+      <p className="recovery-introduction">
         草稿保存在此浏览器中，只包含已应用的图形和数据。清除浏览器数据会移除草稿，请仍用“保存项目”下载项目文件。
       </p>
       {error && <p role="alert">{error}</p>}
       {confirmation ? (
         <>
           {confirmation.kind === 'restore' ? (
-            <p>
+            <p className="recovery-confirmation">
               当前有未保存修改或待绘图设置。恢复“{confirmation.draft.name}
               ”会替换当前工作区。
             </p>
           ) : (
-            <p>
+            <p className="recovery-confirmation">
               删除恢复草稿“{confirmation.draft.name}”（
               {recoveryTime(confirmation.draft.updatedAt)}
               ）？此操作不会删除已下载的项目文件。
@@ -101,12 +101,17 @@ export function ProjectRecoveryDialog({
       ) : (
         <>
           {drafts.length === 0 ? (
-            <p>尚无恢复草稿。应用修改后会自动保留。</p>
+            <p className="recovery-empty">
+              尚无恢复草稿。应用修改后会自动保留。
+            </p>
           ) : (
             <ul className="recovery-list">
               {drafts.map((draft) => (
-                <li key={draft.draftId}>
+                <li key={draft.draftId} data-recoverable={draft.recoverable}>
                   <div>
+                    <span className="recovery-draft-status">
+                      {draft.recoverable ? '可恢复' : '无法读取'}
+                    </span>
                     <strong>{draft.name}</strong>
                     <small>
                       {recoveryTime(draft.updatedAt)} ·{' '}
@@ -114,11 +119,14 @@ export function ProjectRecoveryDialog({
                         ? '大小未知'
                         : `${(draft.payloadBytes / 1024 / 1024).toFixed(2)} MiB`}
                     </small>
-                    {draft.error && <p>{draft.error}</p>}
+                    {draft.error && (
+                      <p className="recovery-draft-error">{draft.error}</p>
+                    )}
                   </div>
                   <div className="workspace-actions">
                     <button
                       type="button"
+                      className="primary-action"
                       disabled={busy || !draft.recoverable}
                       aria-label={`恢复“${draft.name}”`}
                       onClick={() => {

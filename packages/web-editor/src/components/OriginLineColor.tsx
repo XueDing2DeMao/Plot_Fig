@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { FigureSettings } from '../state/figure-settings.js';
+import { markerFollowingLineColor } from '../state/marker-line-color.js';
 import {
   colorShades,
   lineColorLists,
@@ -59,7 +60,15 @@ export function OriginLineColor({
   const solid = (color: string) => {
     const plot = { ...value.plot };
     if (plot.kind === 'xy') delete plot.lineMapping;
-    onChange({ ...value, plot, line: { ...value.line, color } });
+    onChange({
+      ...value,
+      plot,
+      line: { ...value.line, color },
+      marker:
+        plot.kind === 'xy'
+          ? markerFollowingLineColor(value.marker, value.line.color, color)
+          : value.marker,
+    });
   };
   const choosePalette = (
     next: readonly string[],

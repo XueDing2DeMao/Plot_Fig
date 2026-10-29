@@ -27,9 +27,14 @@ export function RemoveTableDialog({
         : [],
     );
   return (
-    <WorkspaceDialog title="移除数据表" onClose={onClose}>
+    <WorkspaceDialog
+      title="移除数据表"
+      className="workspace-confirm-dialog"
+      description="移除前请确认关联曲线的影响。"
+      onClose={onClose}
+    >
       <p>移除“{table.name}”及其列绑定？</p>
-      <p>
+      <p className="workspace-removal-impact">
         {affected.length
           ? `受影响：${affected.join('、')}。其他曲线保持不变。`
           : '没有曲线使用此表。'}

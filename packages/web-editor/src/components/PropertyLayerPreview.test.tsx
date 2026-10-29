@@ -136,7 +136,7 @@ it('follows the selected layer or curve and restores the full page preview when 
       onDismiss={vi.fn()}
     />,
   );
-  fireEvent.click(screen.getByRole('button', { name: '展开预览' }));
+  expect(screen.getByLabelText('修改后的图形预览')).toBeVisible();
   expectOnlyLayer(template.panels[0]!);
 
   const objects = within(screen.getByRole('navigation', { name: '属性对象' }));

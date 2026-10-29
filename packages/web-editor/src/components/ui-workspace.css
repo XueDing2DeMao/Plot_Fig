@@ -9,9 +9,9 @@
   padding: 20px 24px 32px;
 }
 .page-head {
-  margin-bottom: 18px;
-  gap: 12px;
-  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px 24px;
+  align-items: start;
 }
 .page-head h1 {
   font-size: 24px;
@@ -22,10 +22,37 @@
 .page-head p:not(.eyebrow) {
   max-width: 540px;
 }
+.head-actions {
+  gap: 16px;
+}
+.head-actions .recovery-controls {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.head-actions .recovery-controls-head {
+  min-height: var(--ui-control-height);
+  gap: 8px;
+}
+.page-head .head-actions .project-status {
+  margin: 0;
+  font-size: var(--ui-font-caption);
+  line-height: 1.5;
+}
 .editor-layout {
   grid-template-columns: minmax(0, 1fr) 280px;
   grid-template-areas: 'data data' 'preview settings';
   align-items: start;
+  gap: 16px;
+}
+.primary-column,
+.right-stack,
+.data-setup-stack {
+  gap: 16px;
 }
 .editor-layout > .primary-column {
   display: contents;
@@ -45,10 +72,22 @@
 .import-panel .panel-head {
   flex-wrap: wrap;
   gap: 8px;
+  min-height: 56px;
   padding: 12px 16px;
 }
+.import-panel .panel-head h2,
+.preview-head h2,
+.plot-settings-heading h2,
+.binding-panel-heading h2,
+.diagnostics-panel .diagnostics-header h2 {
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.5;
+}
 .import-panel .panel-head button {
+  min-height: 32px;
   margin-left: auto;
+  padding: 5px 10px;
 }
 .import-body[hidden] {
   display: none;
@@ -222,12 +261,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--ui-border);
 }
 .binding-panel-heading h2 {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
 }
 .binding-panel-heading h2 span {
   margin-left: 4px;
@@ -247,7 +286,7 @@
   font-size: 12px;
 }
 .binding-accordion > label {
-  margin: 12px 14px;
+  margin: 12px 16px;
   display: grid;
   gap: 6px;
 }
@@ -421,8 +460,12 @@
   font-size: 11px;
 }
 .preview-card .preview-head {
+  min-height: 56px;
+  flex-direction: row;
   align-items: center;
-  margin-bottom: 12px;
+  margin: -16px -16px 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ui-border);
   gap: 8px;
 }
 .preview-head .preview-meta {
@@ -432,8 +475,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: 8px 12px;
-  padding: 10px;
+  gap: 8px;
+  padding: 8px;
   margin-bottom: 6px;
   border: 1px solid var(--ui-border);
   border-radius: 8px;
@@ -445,7 +488,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 8px;
   min-width: 0;
 }
 .preview-toolbar-settings {
@@ -464,19 +507,19 @@
   white-space: nowrap;
 }
 .preview-toolbar-data {
-  gap: 8px 12px;
+  gap: 8px;
 }
 .preview-tool-group {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   max-width: 100%;
 }
 .preview-group-label {
   flex: 0 0 auto;
-  margin-right: 3px;
+  width: 24px;
   color: var(--ui-muted);
   font-size: 11px;
   line-height: 32px;
@@ -493,7 +536,10 @@
   border-color: var(--ui-border-strong);
 }
 .preview-toolbar .layer-format-buttons {
-  gap: 4px;
+  gap: 6px;
+}
+.preview-toolbar .figure-zoom-controls > div {
+  gap: 6px;
 }
 .preview-toolbar .editor-history-status,
 .preview-toolbar .dataset-batch-pending {
@@ -526,4 +572,27 @@
 }
 .annotation-drag-status:empty {
   display: none;
+}
+@media (max-width: 780px) {
+  .head-actions .recovery-controls {
+    width: 100%;
+  }
+  .head-actions .recovery-controls-head {
+    justify-content: space-between;
+  }
+}
+@media (max-width: 600px), (pointer: coarse) {
+  .import-panel .panel-head button,
+  .preview-toolbar button:not([role='menuitem']) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .preview-toolbar .preview-tool-group,
+  .preview-toolbar .layer-format-buttons,
+  .preview-toolbar .figure-zoom-controls > div {
+    gap: 8px;
+  }
+  .preview-group-label {
+    line-height: 44px;
+  }
 }

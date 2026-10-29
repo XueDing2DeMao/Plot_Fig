@@ -350,7 +350,7 @@ export function AxisPropertiesDialog({
         aria-expanded={showPreview}
         onClick={() => setShowPreview((value) => !value)}
       >
-        {showPreview ? '<<' : '>>'}
+        {showPreview ? '收起预览' : '展开预览'}
       </button>
       <footer className="axis-properties-dialog__footer">
         {!batch.session && selection && (

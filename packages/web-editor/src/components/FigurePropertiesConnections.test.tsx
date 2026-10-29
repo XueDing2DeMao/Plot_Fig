@@ -40,7 +40,7 @@ function show(lineConnection?: XyPlot['lineConnection']) {
     ),
   );
   openPropertyFeature('线条');
-  fireEvent.click(screen.getByRole('button', { name: '展开预览' }));
+  expect(screen.getByLabelText('修改后的图形预览')).toBeVisible();
   return { template, apply, dismiss, container };
 }
 const changeWidth = () =>

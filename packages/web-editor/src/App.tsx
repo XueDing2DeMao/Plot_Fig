@@ -17,6 +17,7 @@ import { DataImportPanel } from './components/DataImportPanel.js';
 import { WorkspaceTablePanel } from './components/WorkspaceTablePanel.js';
 import { WorkspaceTableList } from './components/WorkspaceTableList.js';
 import { WorkspaceFiles } from './components/WorkspaceFiles.js';
+import { StudioDataDock } from './components/StudioDataDock.js';
 import { WorkspaceDialog } from './components/WorkspaceDialog.js';
 import { WorkspaceBindingPanel } from './components/WorkspaceBindingPanel.js';
 import {
@@ -47,55 +48,6 @@ import './components/origin-menu-bar.css';
 
 type Editor = ReturnType<typeof useWorkspaceEditor>;
 type PlotSetup = ReturnType<typeof usePlotSetup>;
-const workspaceSections = [
-  { id: 'import', label: '导入数据' },
-  { id: 'binding', label: '数据绑定' },
-  { id: 'style', label: '图形设置' },
-  { id: 'preview', label: '图形预览' },
-  { id: 'export', label: '导出图形' },
-  { id: 'project', label: '项目文件' },
-];
-
-function currentWorkspaceSection() {
-  return (
-    workspaceSections.find(({ id }) => window.location.hash === `#${id}`)?.id ??
-    'import'
-  );
-}
-
-function Sidebar({
-  workspace,
-  onPreview,
-}: {
-  workspace: PlotSetup['workspace'];
-  onPreview: (id: string) => void;
-}) {
-  const [activeSection, setActiveSection] = useState(currentWorkspaceSection);
-  useEffect(() => {
-    const updateSection = () => setActiveSection(currentWorkspaceSection());
-    window.addEventListener('hashchange', updateSection);
-    return () => window.removeEventListener('hashchange', updateSection);
-  }, []);
-  return (
-    <aside className="app-sidebar">
-      <p className="side-label">工作区</p>
-      <nav className="workspace-nav" aria-label="工作区导航">
-        {workspaceSections.map(({ id, label }, index) => (
-          <a
-            key={id}
-            className={activeSection === id ? 'active' : undefined}
-            aria-current={activeSection === id ? 'location' : undefined}
-            href={`#${id}`}
-          >
-            <b>0{index + 1}</b>
-            {label}
-          </a>
-        ))}
-      </nav>
-      <WorkspaceFiles workspace={workspace} onPreview={onPreview} />
-    </aside>
-  );
-}
 function WorkspaceContent({
   editor,
   setup,
@@ -111,6 +63,8 @@ function WorkspaceContent({
   onExport,
   onConfirm,
   bindingReveal,
+  focused,
+  setFocused,
 }: {
   editor: Editor;
   setup: PlotSetup;
@@ -126,7 +80,20 @@ function WorkspaceContent({
   onExport: () => void;
   onConfirm: PlotSetup['confirm'];
   bindingReveal: SeriesRevealRequest | undefined;
+  focused: boolean;
+  setFocused: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  useEffect(() => {
+    if (bindingReveal || setup.error) setFocused(false);
+  }, [bindingReveal, setup.error, setFocused]);
+  useEffect(() => {
+    const revealPanel = () => {
+      if (['#import', '#binding', '#style'].includes(window.location.hash))
+        setFocused(false);
+    };
+    window.addEventListener('hashchange', revealPanel);
+    return () => window.removeEventListener('hashchange', revealPanel);
+  }, [setFocused]);
   const previewWorkspace = {
     ...setup.workspace,
     activeTableId: setup.workspace.tables.some(
@@ -137,11 +104,12 @@ function WorkspaceContent({
   };
   return (
     <>
-      <div className="editor-layout">
+      <div className="editor-layout" data-focus={focused}>
         <div className="primary-column">
           <div
             data-testid="origin-worksheet-window"
             className="data-setup-stack"
+            hidden={focused}
             id="import"
             onMouseDown={() => onActivate('worksheet')}
             onFocusCapture={() => onActivate('worksheet')}
@@ -149,6 +117,10 @@ function WorkspaceContent({
             <DataImportPanel
               onImport={setup.onImport}
               hasData={setup.workspace.tables.length > 0}
+            />
+            <WorkspaceFiles
+              workspace={setup.workspace}
+              onPreview={onPreviewTable}
             />
             <section id="binding" tabIndex={-1}>
               <WorkspaceBindingPanel
@@ -176,132 +148,159 @@ function WorkspaceContent({
               />
             </section>
           </div>
-          <div
-            id="preview"
-            onMouseDown={() => onActivate('graph')}
-            onFocusCapture={() => onActivate('graph')}
-          >
-            <FigurePreview
-              key={editor.openedVersion}
-              restoreVersion={editor.historyVersion}
-              template={editor.template}
-              layers={setup.template.panels}
-              activePanelId={setup.activePanel.panelId}
-              onSelectLayer={onSelectLayer}
-              combinedPreview={editor.combinedPreview}
-              pending={setup.pending}
-              onExport={onExport}
-              exportDisabled={
-                editor.workspace.tables.length === 0 ||
-                (!setup.pending &&
-                  !editor.exportSvg &&
-                  editor.template.panels.length < 2)
-              }
-              onSelectObject={onSelect}
-              onOpenObject={onOpen}
-              onInlineTextChange={editor.onInlineText}
-              onAnnotationMove={editor.onAnnotationMove}
-              svg={editor.svg}
-              zoom={editor.zoom}
-              layerActions={
-                <>
-                  <div className="preview-tool-group">
-                    <span className="preview-group-label" aria-hidden="true">
-                      格式
-                    </span>
-                    <LayerFormatControls
-                      key={editor.openedVersion}
-                      template={setup.template}
-                      activePanelId={setup.activePanel.panelId}
-                      onApply={(_template, snapshot, scope) =>
-                        setup.onLayerFormat(
-                          snapshot,
-                          setup.activePanel.panelId,
-                          scope,
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="preview-tool-group">
-                    <span className="preview-group-label" aria-hidden="true">
-                      图层
-                    </span>
-                    <LayerCreateControls
-                      model={{
-                        template: setup.template,
-                        workspace: setup.workspace,
-                        activePanelId: setup.activePanel.panelId,
-                      }}
-                      onApply={onApplyLayers}
-                    />
-                    <LayerDeleteControls
-                      model={{
-                        template: setup.template,
-                        workspace: setup.workspace,
-                        activePanelId: setup.activePanel.panelId,
-                      }}
-                      onApply={onApplyLayers}
-                    />
-                  </div>
-                </>
-              }
-              actions={
-                <div
-                  className="figure-action-toolbar"
-                  role="group"
-                  aria-label="绘图功能菜单"
-                >
-                  <div className="preview-tool-group preview-tool-history">
-                    <span className="preview-group-label" aria-hidden="true">
-                      编辑
-                    </span>
-                    {historyControls}
-                  </div>
-                  <div
-                    className="preview-tool-group preview-tool-figure"
-                    role="group"
-                    aria-label="图形设置工具"
+          <div id="preview">
+            <div
+              onMouseDown={() => onActivate('graph')}
+              onFocusCapture={() => onActivate('graph')}
+            >
+              <FigurePreview
+                key={editor.openedVersion}
+                restoreVersion={editor.historyVersion}
+                template={editor.template}
+                layers={setup.template.panels}
+                activePanelId={setup.activePanel.panelId}
+                onSelectLayer={onSelectLayer}
+                combinedPreview={editor.combinedPreview}
+                pending={setup.pending}
+                onExport={onExport}
+                exportDisabled={
+                  editor.workspace.tables.length === 0 ||
+                  (!setup.pending &&
+                    !editor.exportSvg &&
+                    editor.template.panels.length < 2)
+                }
+                onSelectObject={onSelect}
+                onOpenObject={onOpen}
+                onInlineTextChange={editor.onInlineText}
+                onAnnotationMove={editor.onAnnotationMove}
+                svg={editor.svg}
+                viewActions={
+                  <button
+                    type="button"
+                    className="studio-focus-toggle"
+                    aria-pressed={focused}
+                    onClick={() => setFocused((value) => !value)}
                   >
-                    <span className="preview-group-label" aria-hidden="true">
-                      图形
-                    </span>
-                    <FigurePropertiesPanel
-                      workspace={editor.workspace}
-                      onApplyModel={editor.onModel}
-                      activePanelId={editor.activePanel.panelId}
-                      template={editor.template}
-                      data={editor.data}
-                      onApply={editor.onTemplate}
-                    />
-                    {menus}
-                  </div>
+                    专注画布
+                  </button>
+                }
+                zoom={editor.zoom}
+                layerActions={
+                  <>
+                    <div className="preview-tool-group">
+                      <span className="preview-group-label" aria-hidden="true">
+                        格式
+                      </span>
+                      <LayerFormatControls
+                        key={editor.openedVersion}
+                        template={setup.template}
+                        activePanelId={setup.activePanel.panelId}
+                        onApply={(_template, snapshot, scope) =>
+                          setup.onLayerFormat(
+                            snapshot,
+                            setup.activePanel.panelId,
+                            scope,
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="preview-tool-group">
+                      <span className="preview-group-label" aria-hidden="true">
+                        图层
+                      </span>
+                      <LayerCreateControls
+                        model={{
+                          template: setup.template,
+                          workspace: setup.workspace,
+                          activePanelId: setup.activePanel.panelId,
+                        }}
+                        onApply={onApplyLayers}
+                      />
+                      <LayerDeleteControls
+                        model={{
+                          template: setup.template,
+                          workspace: setup.workspace,
+                          activePanelId: setup.activePanel.panelId,
+                        }}
+                        onApply={onApplyLayers}
+                      />
+                    </div>
+                  </>
+                }
+                actions={
                   <div
-                    className="preview-tool-group"
+                    className="figure-action-toolbar"
                     role="group"
-                    aria-label="模板与批量绘图"
+                    aria-label="绘图功能菜单"
                   >
-                    <span className="preview-group-label" aria-hidden="true">
-                      模板
-                    </span>
-                    <TemplateLibraryControls
-                      model={{
-                        template: setup.template,
-                        workspace: setup.workspace,
-                        activePanelId: setup.activePanel.panelId,
-                      }}
-                      onApply={setup.applyBatch}
-                    />
-                    <DatasetBatchControls
-                      model={editor.model}
-                      pending={setup.pending}
-                    />
+                    <div className="preview-tool-group preview-tool-history">
+                      <span className="preview-group-label" aria-hidden="true">
+                        编辑
+                      </span>
+                      {historyControls}
+                    </div>
+                    <div
+                      className="preview-tool-group preview-tool-figure"
+                      role="group"
+                      aria-label="图形设置工具"
+                    >
+                      <span className="preview-group-label" aria-hidden="true">
+                        图形
+                      </span>
+                      <FigurePropertiesPanel
+                        workspace={editor.workspace}
+                        onApplyModel={editor.onModel}
+                        activePanelId={editor.activePanel.panelId}
+                        template={editor.template}
+                        data={editor.data}
+                        onApply={editor.onTemplate}
+                      />
+                      {menus}
+                    </div>
+                    <div
+                      className="preview-tool-group"
+                      role="group"
+                      aria-label="模板与批量绘图"
+                    >
+                      <span className="preview-group-label" aria-hidden="true">
+                        模板
+                      </span>
+                      <TemplateLibraryControls
+                        model={{
+                          template: setup.template,
+                          workspace: setup.workspace,
+                          activePanelId: setup.activePanel.panelId,
+                        }}
+                        onApply={setup.applyBatch}
+                      />
+                      <DatasetBatchControls
+                        model={editor.model}
+                        pending={setup.pending}
+                      />
+                    </div>
                   </div>
-                </div>
-              }
-            />
+                }
+              />
+            </div>
+            <div
+              onMouseDown={() => onActivate('worksheet')}
+              onFocusCapture={() => onActivate('worksheet')}
+            >
+              <StudioDataDock
+                workspace={setup.workspace}
+                template={setup.template}
+                onTableChange={setup.onTableChange}
+                onImportOptions={setup.onImportOptions}
+                onRemove={setup.onRemove}
+              />
+            </div>
           </div>
         </div>
-        <aside className="right-stack">
+        <aside
+          className="right-stack"
+          hidden={focused}
+          aria-label="绘图属性与诊断"
+        >
           <section
             id="style"
             onMouseDown={() => onActivate('graph')}
@@ -362,6 +361,7 @@ function WorkspaceContent({
   );
 }
 export default function App() {
+  const [focused, setFocused] = useState(false);
   const editor = useWorkspaceEditor();
   const setup = usePlotSetup(
     editor.model,
@@ -660,52 +660,50 @@ export default function App() {
       </a>
       <header className="app-topbar">
         <div className="brand">
-          <span className="brand-mark">P</span>
+          <span className="brand-mark" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 19h16M6 15l4-5 4 2 5-7M6 19v-1m4 1v-5m4 5v-3m5 3v-9" />
+            </svg>
+          </span>
           <span>
             <strong>Plot Fig</strong>
-            <small>数据绘图工作台</small>
           </span>
         </div>
-        <div className="top-actions">
-          <span className="status">
-            <i />
-            本地工作区
-          </span>
-          <a className="icon-button" href="#style" aria-label="图形设置">
-            ⚙
-          </a>
+        <div className="studio-project-heading">
+          <h1>{editor.template.metadata.name || '数据绘图工作台'}</h1>
+          <span>本地项目 · {setup.workspace.tables.length} 张数据表</span>
+        </div>
+        <div className="head-actions" id="project">
+          <ProjectControls
+            canSave={setup.workspace.tables.length > 0}
+            hasUnsavedChanges={hasUnsavedChanges}
+            pendingChanges={setup.pending}
+            status={editor.status}
+            statusMessage={editor.message}
+            onSave={saveProject}
+            onOpenFile={openProject}
+          />
+          <ProjectRecoveryControls
+            recovery={recovery}
+            hasUnsavedChanges={hasUnsavedChanges}
+            projectVersion={editor.openedVersion}
+            onRestore={recoverProject}
+          />
         </div>
       </header>
-      <Sidebar workspace={setup.workspace} onPreview={setPreviewTableId} />
       <main className="app-main" id="main-content" tabIndex={-1}>
-        <div className="page-head">
-          <div>
-            <p className="eyebrow">PLOT FIG / WORKSPACE</p>
-            <h1>数据绘图工作台</h1>
-            <p>
-              导入数据，为每组选择 X/Y
-              数据列，设置当前图层的图表类型；通过「新建图层」添加图层，完成后导出图形。
-            </p>
-          </div>
-          <div className="head-actions" id="project">
-            <ProjectControls
-              canSave={setup.workspace.tables.length > 0}
-              hasUnsavedChanges={hasUnsavedChanges}
-              pendingChanges={setup.pending}
-              status={editor.status}
-              statusMessage={editor.message}
-              onSave={saveProject}
-              onOpenFile={openProject}
-            />
-            <ProjectRecoveryControls
-              recovery={recovery}
-              hasUnsavedChanges={hasUnsavedChanges}
-              projectVersion={editor.openedVersion}
-              onRestore={recoverProject}
-            />
-          </div>
-        </div>
         <WorkspaceContent
+          focused={focused}
+          setFocused={setFocused}
           editor={editor}
           setup={setup}
           historyControls={
@@ -758,6 +756,24 @@ export default function App() {
           }
         />
       </main>
+      <footer className="studio-statusbar">
+        <span>
+          {setup.pending
+            ? '有待应用设置'
+            : editor.svg
+              ? '画布已更新'
+              : '准备绘图'}
+        </span>
+        <span>
+          {setup.template.panels.length} 个图层 ·{' '}
+          {setup.template.panels.reduce(
+            (count, panel) => count + panel.plotSlots.length,
+            0,
+          )}{' '}
+          条曲线
+        </span>
+        <span>数据在本地处理</span>
+      </footer>
       <div className="mobile-plot-action">
         <span>
           {setup.pending

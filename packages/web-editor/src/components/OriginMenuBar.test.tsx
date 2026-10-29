@@ -11,7 +11,73 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OriginMenuBar } from './OriginMenuBar.js';
 
 describe('OriginMenuBar', () => {
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it.each([
+    { clientWidth: 375, clientHeight: 785, left: 151, top: 521 },
+    { clientWidth: 0, clientHeight: 0, left: 166, top: 536 },
+  ])(
+    'keeps menus inside the layout viewport ($clientWidth × $clientHeight), falling back when unavailable',
+    ({ clientWidth, clientHeight, left, top }) => {
+      vi.stubGlobal('innerWidth', 390);
+      vi.stubGlobal('innerHeight', 800);
+      vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(
+        clientWidth,
+      );
+      vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(
+        clientHeight,
+      );
+      vi.spyOn(
+        HTMLElement.prototype,
+        'getBoundingClientRect',
+      ).mockImplementation(function (this: HTMLElement) {
+        return this.getAttribute('role') === 'menu'
+          ? new DOMRect(0, 0, 220, 260)
+          : new DOMRect(340, 700, 40, 34);
+      });
+      render(<OriginMenuBar context="graph" onCommand={vi.fn()} />);
+      fireEvent.click(screen.getByRole('button', { name: '格式' }));
+      expect(screen.getByRole('menu', { name: '格式' })).toHaveStyle({
+        left: `${left}px`,
+        top: `${top}px`,
+      });
+    },
+  );
+
+  it.each([
+    { clientWidth: 375, left: 4 },
+    { clientWidth: 390, left: 200 },
+  ])(
+    'opens submenus toward available layout space ($clientWidth px)',
+    ({ clientWidth, left }) => {
+      vi.stubGlobal('innerWidth', 390);
+      vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(
+        clientWidth,
+      );
+      vi.spyOn(
+        HTMLElement.prototype,
+        'getBoundingClientRect',
+      ).mockImplementation(function (this: HTMLElement) {
+        if (this.getAttribute('role') === 'menu')
+          return new DOMRect(20, 64, 180, 180);
+        if (this.getAttribute('role') === 'menuitem')
+          return new DOMRect(24, 100, 176, 34);
+        return new DOMRect(20, 30, 40, 34);
+      });
+      render(<OriginMenuBar context="graph" onCommand={vi.fn()} />);
+      fireEvent.click(screen.getByRole('button', { name: '格式' }));
+      const axes = screen.getByRole('menuitem', { name: /^轴\(/ });
+      fireEvent.click(axes);
+      expect(screen.getByRole('menu', { name: /^轴\(/ })).toHaveStyle({
+        left: `${left}px`,
+        top: '100px',
+      });
+    },
+  );
   it('Alt+O from inside File opens Format without executing Open', () => {
     const onCommand = vi.fn();
     render(<OriginMenuBar context="graph" onCommand={onCommand} />);

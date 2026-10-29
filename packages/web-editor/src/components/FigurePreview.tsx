@@ -26,6 +26,7 @@ type InlineEditor = {
 export function FigurePreview({
   svg,
   actions,
+  viewActions,
   template,
   layers,
   onSelectLayer,
@@ -44,6 +45,7 @@ export function FigurePreview({
 }: {
   svg: string | undefined;
   actions?: ReactNode;
+  viewActions?: ReactNode;
   template?: FigureTemplate | undefined;
   layers?: FigureTemplate['panels'];
   onSelectLayer?: (panelId: string) => void;
@@ -223,6 +225,7 @@ export function FigurePreview({
         >
           {pending ? '有未应用修改' : svg ? '预览已更新' : '等待生成图形'}
         </span>
+        {viewActions}
       </div>
       {(actions || layerActions || zoomInteraction.controls) && (
         <div className="preview-toolbar" role="group" aria-label="预览工具栏">

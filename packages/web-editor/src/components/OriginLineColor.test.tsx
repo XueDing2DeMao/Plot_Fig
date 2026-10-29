@@ -12,6 +12,75 @@ import { FigurePropertiesDialog } from './FigurePropertiesDialog.js';
 import { openPropertyFeature } from '../test-utils/property-navigation.js';
 
 afterEach(cleanup);
+
+it.each(['solid', 'palette'] as const)(
+  'keeps default marker colors with the curve when choosing a %s color',
+  (mode) => {
+    const { apply, template } = show((template) => {
+      for (const plot of template.panels[0]!.plotSlots as XyPlot[]) {
+        plot.lineStyle!.color = '#21918C';
+        plot.markerStyle!.fill = '#21918c';
+        plot.markerStyle!.stroke = '#21918c';
+      }
+    });
+    if (mode === 'solid') {
+      fireEvent.click(screen.getByRole('button', { name: '颜色 #ed3b3b' }));
+      openPropertyFeature('符号');
+      expect(screen.getByLabelText('符号边框颜色')).toHaveValue('#ed3b3b');
+    } else {
+      fireEvent.click(screen.getByRole('tab', { name: '按曲线' }));
+      fireEvent.click(
+        screen.getByRole('button', { name: '应用色列到当前图层' }),
+      );
+    }
+    fireEvent.click(screen.getByRole('button', { name: '应用' }));
+    const result = apply.mock.lastCall![0];
+    const plots = result.panels[0]!.plotSlots as XyPlot[];
+    for (const plot of mode === 'solid' ? plots.slice(0, 1) : plots) {
+      expect(plot.markerStyle).toMatchObject({
+        fill: plot.lineStyle!.color,
+        stroke: plot.lineStyle!.color,
+      });
+    }
+    if (mode === 'solid')
+      expect(plots[1]).toEqual(template.panels[0]!.plotSlots[1]);
+    expect(result.panels[1]).toEqual(template.panels[1]);
+  },
+);
+
+it.each(['none', '#ff00ff'])(
+  'preserves independent marker fill %s and mappings when changing line color',
+  (fill) => {
+    const { apply, template } = show((template) => {
+      const plot = template.panels[0]!.plotSlots[0] as XyPlot;
+      plot.markerStyle!.fill = fill;
+      plot.markerStyle!.stroke = plot.lineStyle!.color;
+      template.dataSlots.push({
+        dataSlotId: 'slot-color',
+        name: 'Color',
+        role: 'color',
+        valueType: 'number',
+        required: false,
+      });
+      plot.bindings.color = 'slot-color';
+      plot.markerMapping = {
+        color: {
+          mode: 'continuous',
+          target: 'fill',
+          colors: ['#123456', '#abcdef'],
+        },
+      };
+    });
+    fireEvent.click(screen.getByRole('button', { name: '颜色 #ed3b3b' }));
+    fireEvent.click(screen.getByRole('button', { name: '应用' }));
+    const result = apply.mock.lastCall![0].panels[0]!.plotSlots[0] as XyPlot;
+    expect(result.markerStyle).toMatchObject({ fill, stroke: '#ed3b3b' });
+    expect(result.markerMapping).toEqual(
+      (template.panels[0]!.plotSlots[0] as XyPlot).markerMapping,
+    );
+  },
+);
+
 function show(configure?: (template: FigureTemplate) => void) {
   const template = chartTemplate('xy');
   const panel = template.panels[0]!;

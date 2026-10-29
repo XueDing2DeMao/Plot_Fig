@@ -4,7 +4,7 @@ import {
   selectAxisObject,
 } from '../test-utils/property-navigation.js';
 import '@testing-library/jest-dom/vitest';
-import { confirmDataImport } from '../test-utils/import-data.js';
+import { confirmDataImport, confirmPlot } from '../test-utils/import-data.js';
 import {
   cleanup,
   fireEvent,
@@ -43,6 +43,7 @@ async function loadData() {
     target: { files: [file] },
   });
   await confirmDataImport();
+  confirmPlot();
   await screen.findByRole('img', { name: '图形预览' });
 }
 
@@ -81,9 +82,8 @@ describe('figure property workflow', () => {
     fireEvent.change(screen.getByLabelText('曲线 1 X 数据列'), {
       target: { value: 'time' },
     });
-    fireEvent.change(screen.getByLabelText('绘制方式'), {
-      target: { value: 'line' },
-    });
+    fireEvent.click(screen.getByRole('radio', { name: '标记符号：无标记' }));
+    confirmPlot();
     openXAxis();
     category('下 X 轴', '标题');
     fireEvent.change(screen.getByLabelText('X 轴标题'), {
@@ -109,7 +109,9 @@ describe('figure property workflow', () => {
       expect(screen.getByTestId('svg-preview')).toHaveTextContent('Time (s)'),
     );
     expect(screen.getByLabelText('曲线 1 X 数据列')).toHaveValue('time');
-    expect(screen.getByLabelText('绘制方式')).toHaveValue('line');
+    expect(
+      screen.getByRole('radio', { name: '标记符号：无标记' }),
+    ).toBeChecked();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(
       screen.getByTestId('svg-preview').querySelector('path'),

@@ -33,7 +33,7 @@
   font-size: var(--ui-font-small);
 }
 .batch-target input {
-  accent-color: var(--ui-heading);
+  accent-color: var(--ui-primary);
   flex-shrink: 0;
 }
 .batch-target span {

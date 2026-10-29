@@ -433,6 +433,28 @@ it('edits exact axes in separate layer windows without overwriting saved page ed
   expect(screen.getByLabelText('X 轴最大值')).toHaveValue('0.75');
 });
 
+it('shows the selected-object preview by default and can collapse it without losing edits', () => {
+  render(
+    <FigurePropertiesDialog
+      template={twoPanels(true)}
+      data={chartData({ x: [-1, 0, 1], y: [0, 1, 0] })}
+      activePanelId="panel-second"
+      onApply={vi.fn()}
+      onDismiss={vi.fn()}
+    />,
+  );
+  const preview = screen.getByLabelText('修改后的图形预览');
+  expect(preview).toBeVisible();
+  fireEvent.change(screen.getByLabelText('图层宽度 (%)'), {
+    target: { value: '30' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: '收起预览' }));
+  expect(preview).not.toBeVisible();
+  expect(screen.getByLabelText('图层宽度 (%)')).toHaveValue('30');
+  fireEvent.click(screen.getByRole('button', { name: '展开预览' }));
+  expect(preview).toBeVisible();
+});
+
 it('opens the active empty layer then edits its axis independently, retaining the populated layer', () => {
   const template = twoPanels(true);
   const first = structuredClone(template.panels[0]);
@@ -447,10 +469,7 @@ it('opens the active empty layer then edits its axis independently, retaining th
     />,
   );
   expect(screen.getByLabelText('图层宽度 (%)')).toHaveValue('40');
-  expect(
-    screen.getByLabelText('修改后的图形预览').querySelector('svg'),
-  ).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: '展开预览' }));
+  expect(screen.getByLabelText('修改后的图形预览')).toBeVisible();
   expect(
     screen
       .getByLabelText('修改后的图形预览')

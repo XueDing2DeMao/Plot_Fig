@@ -62,9 +62,9 @@
   font-weight: 600;
 }
 .export-actions .export-download-primary {
-  border-color: var(--ui-heading);
-  background: var(--ui-heading);
-  color: var(--ui-surface);
+  border-color: var(--ui-primary);
+  background: var(--ui-primary);
+  color: var(--ui-on-primary);
 }
 .export-actions button:disabled,
 .export-actions select:disabled {
@@ -78,8 +78,7 @@
   outline-offset: 2px;
 }
 .export-actions button:not(:disabled):hover {
-  border-color: var(--ui-heading);
-  box-shadow: 0 0 0 1px var(--ui-heading);
+  border-color: var(--ui-primary);
 }
 .export-secondary,
 .export-more-actions {

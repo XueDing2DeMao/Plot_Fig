@@ -21,7 +21,7 @@
 .layer-preview-tabs button[aria-selected='true'] {
   background: var(--ui-selected);
   border-color: var(--ui-primary);
-  color: var(--ui-heading);
+  color: var(--ui-primary);
 }
 .layer-export-list {
   display: flex;

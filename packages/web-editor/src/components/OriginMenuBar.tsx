@@ -47,20 +47,21 @@ function Popup({
   useLayoutEffect(() => {
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
+    const viewportWidth =
+      document.documentElement.clientWidth || window.innerWidth;
+    const viewportHeight =
+      document.documentElement.clientHeight || window.innerHeight;
     setPosition({
       ...anchor,
       left: Math.max(
         4,
-        anchor.left + rect.width > window.innerWidth
+        anchor.left + rect.width > viewportWidth
           ? submenu
             ? anchor.right - rect.width
-            : window.innerWidth - rect.width - 4
+            : viewportWidth - rect.width - 4
           : anchor.left,
       ),
-      top: Math.max(
-        4,
-        Math.min(anchor.top, window.innerHeight - rect.height - 4),
-      ),
+      top: Math.max(4, Math.min(anchor.top, viewportHeight - rect.height - 4)),
     });
   }, [anchor, submenu]);
   return (

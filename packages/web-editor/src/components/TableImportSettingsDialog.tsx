@@ -25,24 +25,37 @@ export function TableImportSettingsDialog({
     }
   }, [region, table]);
   return (
-    <WorkspaceDialog title="调整导入参数" onClose={onClose}>
-      <RegionOptions value={region} onChange={setRegion} />
-      <div className="table-wrap import-raw">
-        <table>
-          <caption>原始数据前 {PREVIEW_ROWS} 行 · 行号从 1 开始</caption>
-          <tbody>
-            {table.rows.slice(0, PREVIEW_ROWS).map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                <th scope="row">{rowIndex + 1}</th>
-                {row.map((cell, columnIndex) => (
-                  <td key={columnIndex}>
-                    {cell === null ? '—' : String(cell)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <WorkspaceDialog
+      title="调整导入参数"
+      description={`${table.name} · 检查原始数据和字段起始位置`}
+      className="table-import-settings-dialog"
+      onClose={onClose}
+    >
+      <div className="table-import-settings-layout">
+        <aside className="import-options-panel" aria-label="数据行设置">
+          <h3>数据行设置</h3>
+          <RegionOptions value={region} onChange={setRegion} />
+          <p className="workspace-hint">
+            行号从 1 开始，0 表示不使用表头或单位行。
+          </p>
+        </aside>
+        <div className="table-wrap import-raw">
+          <table>
+            <caption>原始数据前 {PREVIEW_ROWS} 行 · 行号从 1 开始</caption>
+            <tbody>
+              {table.rows.slice(0, PREVIEW_ROWS).map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  <th scope="row">{rowIndex + 1}</th>
+                  {row.map((cell, columnIndex) => (
+                    <td key={columnIndex}>
+                      {cell === null ? '—' : String(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <p className="workspace-hint">
         调整后会重新识别列名和单位，并按原列位置保留已有曲线绑定。

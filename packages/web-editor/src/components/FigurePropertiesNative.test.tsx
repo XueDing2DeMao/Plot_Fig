@@ -39,8 +39,9 @@ it('shows native page and layer categories and keeps background/geometry editabl
   fireEvent.click(screen.getByRole('button', { name: /^图层 / }));
   expect(categories()).toEqual(['组', '背景', '大小', '显示/速度', '堆叠']);
   expect(
-    screen.queryByRole('region', { name: '修改后的图形预览' }),
-  ).not.toBeInTheDocument();
+    screen.getByRole('region', { name: '修改后的图形预览' }),
+  ).toBeVisible();
+  expect(screen.getByText('导入数据后显示预览')).toBeInTheDocument();
 });
 it('uses the point-line categories and adds Pattern only after enabling fill', () => {
   render(

@@ -49,6 +49,9 @@ function DialogHeader({
                 ? '坐标轴属性'
                 : '绘图属性'}
         </h2>
+        <p className="property-dialog-description">
+          按对象编辑外观，预览后应用到当前图形。
+        </p>
       </div>
       <button
         type="button"
@@ -134,7 +137,7 @@ export function FigurePropertiesDialog(props: Props) {
 }
 
 function PlotDetailsDialog(props: Props) {
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [repairRequest, setRepairRequest] = useState<{
     key: string;
     version: number;

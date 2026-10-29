@@ -1,17 +1,37 @@
 .origin-image-export {
-  width: min(1040px, calc(100vw - 48px));
+  width: min(1100px, calc(100vw - 32px));
   height: min(800px, calc(100dvh - 32px));
+}
+.origin-image-export > header {
+  border-bottom-color: var(--ui-border-strong);
+  padding: 18px 20px;
+}
+.origin-image-export > header h2 {
+  border-left: 3px solid var(--ui-primary);
+  padding-left: 10px;
+}
+.origin-image-export > header > button {
+  border-color: var(--ui-border);
+  background: var(--ui-surface);
+}
+.origin-image-export > footer {
+  border-top-color: var(--ui-border-strong);
+  background: var(--ui-surface);
+  padding: 14px 20px;
 }
 .origin-export-mode {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
+  flex-shrink: 0;
   border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-subtle);
 }
 .origin-export-mode button {
-  padding: 8px 16px;
-  font-weight: 600;
+  padding: 7px 14px;
+  font-weight: 500;
+  border-color: transparent;
 }
 .origin-export-mode > span {
   margin-left: 8px;
@@ -20,30 +40,47 @@
 }
 .origin-export-content {
   display: grid;
-  grid-template-columns: minmax(310px, 0.9fr) minmax(360px, 1.1fr);
+  grid-template-columns: minmax(310px, 1fr) minmax(320px, 0.9fr);
+  gap: 18px;
+  align-items: start;
+  padding: 20px;
   flex: 1;
   min-height: 0;
   overflow: auto;
+  background: var(--ui-canvas);
 }
 .origin-export-settings,
 .origin-export-output {
-  padding: 20px 24px;
+  padding: 18px;
   min-width: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-surface);
 }
 .origin-export-settings {
-  border-right: 1px solid var(--ui-border);
+  display: grid;
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 .origin-export-fields {
   display: grid;
-  gap: 12px;
-  border: 0;
-  padding: 0;
+  gap: 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+  padding: 18px;
+  background: var(--ui-surface);
   margin: 0;
   min-width: 0;
 }
 .origin-export-fields > legend {
-  padding: 0 0 16px;
-  font-weight: 700;
+  padding: 4px 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  background: var(--ui-subtle);
+  font-weight: 650;
+  color: var(--ui-heading);
 }
 .origin-export-fields label {
   display: grid;
@@ -51,18 +88,18 @@
   font-size: var(--ui-font-small);
 }
 .origin-export-fields > label:not(.origin-export-checkbox) {
-  grid-template-columns: 70px minmax(0, 1fr);
-  align-items: center;
+  color: var(--ui-muted);
 }
 .origin-export-fields input:not([type='checkbox']),
 .origin-export-fields select {
   width: 100%;
-  min-height: 38px;
+  min-height: var(--ui-control-height);
+  color: var(--ui-text);
 }
 .origin-export-name {
   display: flex;
   align-items: center;
-  border: 1px solid var(--ui-border-strong);
+  border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-control);
   overflow: hidden;
 }
@@ -84,6 +121,10 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
   font-size: var(--ui-font-small);
 }
 .origin-export-row output {
@@ -106,10 +147,6 @@
   margin: -8px 0 0;
   line-height: 1.5;
 }
-.origin-export-divider {
-  height: 1px;
-  background: var(--ui-border);
-}
 .origin-export-pixels {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -123,7 +160,7 @@
 .origin-export-save {
   display: grid;
   gap: 8px;
-  margin-top: 22px;
+  margin-top: 0;
   padding: 14px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-control);
@@ -146,11 +183,12 @@
   margin: 0;
 }
 .origin-export-output {
-  background: var(--ui-subtle);
+  background: var(--ui-surface);
 }
 .origin-export-layer-picker {
   border: 0;
-  padding: 0;
+  border-bottom: 1px solid var(--ui-border-strong);
+  padding: 0 0 18px;
   margin: 0 0 18px;
   min-width: 0;
 }
@@ -222,6 +260,8 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ui-border-strong);
 }
 .origin-export-preview-head h3 {
   margin: 0;
@@ -241,19 +281,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 260px;
+  height: clamp(200px, 32dvh, 340px);
   min-height: 200px;
-  background: var(--ui-surface);
+  padding: 12px;
+  background: color-mix(in srgb, var(--ui-border) 45%, var(--ui-canvas));
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-control);
   overflow: hidden;
 }
 .origin-export-preview.is-transparent {
-  background-color: white;
+  background-color: var(--ui-surface);
   background-image: conic-gradient(
-    #e9ebef 25%,
+    var(--ui-border) 25%,
     transparent 0 50%,
-    #e9ebef 0 75%,
+    var(--ui-border) 0 75%,
     transparent 0
   );
   background-size: 16px 16px;
@@ -277,15 +318,23 @@
   width: 100%;
   height: 100%;
 }
+.origin-export-preview:not(.is-transparent) .svg-surface > svg {
+  filter: drop-shadow(0 3px 8px rgb(24 43 77 / 10%));
+}
 .origin-export-preview-caption {
   color: var(--ui-muted);
   font-size: var(--ui-font-caption);
   overflow-wrap: anywhere;
+  margin: 12px 0 0;
+  line-height: 1.6;
 }
 .origin-export-feedback {
+  flex-shrink: 0;
   padding: 10px 20px;
   border-top: 1px solid var(--ui-border);
   font-size: var(--ui-font-caption);
+  background: var(--ui-subtle);
+  color: var(--ui-muted);
 }
 .origin-export-feedback p {
   margin: 0;
@@ -306,4 +355,67 @@
 .origin-image-export button:focus-visible {
   outline: 2px solid var(--ui-focus);
   outline-offset: 2px;
+}
+@media (max-width: 900px) {
+  .origin-export-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .publication-dialog.origin-image-export {
+    width: calc(100vw - 16px);
+    height: calc(100dvh - 16px);
+  }
+  .origin-image-export > header,
+  .origin-image-export > footer,
+  .origin-export-mode {
+    padding: 12px 16px;
+  }
+  .origin-export-mode,
+  .origin-export-preview-head,
+  .origin-image-export > footer {
+    flex-wrap: wrap;
+  }
+  .origin-export-mode > span,
+  .origin-export-footer-note {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .origin-export-content {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+    gap: 12px;
+  }
+  .origin-export-settings,
+  .origin-export-output {
+    padding: 16px;
+  }
+  .origin-export-settings {
+    padding: 0;
+  }
+  .origin-export-fields {
+    padding: 14px;
+  }
+  .origin-export-preview-head label {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .origin-export-preview-head select {
+    max-width: 100%;
+  }
+  .origin-image-export > footer button {
+    flex: 1 1 auto;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .origin-image-export {
+    --ui-control-height: 44px;
+  }
+  .origin-image-export :is(button, select, input:not([type='checkbox'])) {
+    min-height: 44px;
+  }
+  .origin-image-export > header > button {
+    width: 44px;
+  }
 }

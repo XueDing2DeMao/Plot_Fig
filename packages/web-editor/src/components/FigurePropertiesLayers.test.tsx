@@ -51,7 +51,7 @@ it('图层属性保存回读、复制保留样式与身份分离', () => {
   change('图层名称', '测量 A');
   fireEvent.click(screen.getByLabelText('显示图层'));
   expect(
-    screen.getByRole('tabpanel', { name: '图层 测量 A属性' }),
+    screen.getByRole('tabpanel', { name: '显示/速度' }),
   ).toBeInTheDocument();
   expect(screen.getByText(/图层 · panel-main · 已隐藏/)).toBeInTheDocument();
   tab('背景与边框');

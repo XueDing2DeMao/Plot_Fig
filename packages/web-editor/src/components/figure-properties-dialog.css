@@ -9,8 +9,8 @@
 .property-cancel,
 .property-close {
   min-height: var(--ui-control-height);
-  padding: 8px 14px;
-  border: 1px solid var(--ui-border-strong);
+  padding: 6px 12px;
+  border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-control);
   color: var(--ui-heading);
   background: var(--ui-surface);
@@ -21,7 +21,7 @@
 }
 .property-close {
   padding: 0;
-  width: 40px;
+  width: var(--ui-control-height);
   font-size: 24px;
 }
 .property-dialog {
@@ -51,14 +51,22 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 16px 20px;
+  padding: 18px 20px;
 }
 .property-dialog-head {
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: 1px solid var(--ui-border-strong);
 }
 .property-dialog-head h2 {
   margin: 0 0 4px;
   font-size: 18px;
+  padding-left: 10px;
+  border-left: 3px solid var(--ui-primary);
+}
+.property-dialog-description {
+  margin: 5px 0 0;
+  padding-left: 13px;
+  font-size: var(--ui-font-small);
+  color: var(--ui-muted);
 }
 .property-dialog-body {
   flex: 1;
@@ -78,23 +86,27 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  gap: 16px;
-  padding: 24px;
-  background: var(--ui-canvas);
+  gap: 14px;
+  padding: 20px;
+  background: color-mix(in srgb, var(--ui-border) 45%, var(--ui-canvas));
   overflow: auto;
 }
 .property-dialog-preview h3 {
   margin: 0 0 6px;
   font-size: 14px;
 }
+.property-dialog-preview > div:first-child {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ui-border-strong);
+}
 .property-draft-stage {
-  flex: 1;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: 220px;
   display: grid;
   place-items: center;
   padding: 12px;
   border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-control);
+  border-radius: var(--ui-radius-card);
   background: var(--ui-surface);
 }
 .svg-surface {
@@ -111,7 +123,8 @@
 }
 .property-dialog-footer {
   justify-content: flex-end;
-  border-top: 1px solid var(--ui-border);
+  border-top: 1px solid var(--ui-border-strong);
+  background: var(--ui-subtle);
 }
 .property-dialog-footer button:disabled {
   opacity: 0.45;
@@ -144,6 +157,9 @@
   }
   .property-dialog-preview .svg-surface > svg {
     max-height: 170px;
+  }
+  .property-dialog-preview .property-draft-stage {
+    min-height: 0;
   }
   .property-dialog-fields {
     flex: 1;

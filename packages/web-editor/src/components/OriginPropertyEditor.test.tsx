@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { confirmDataImport } from '../test-utils/import-data.js';
+import { confirmDataImport, confirmPlot } from '../test-utils/import-data.js';
 import {
   cleanup,
   fireEvent,
@@ -22,6 +22,7 @@ describe('Origin category workflow', () => {
       target: { files: [file] },
     });
     await confirmDataImport();
+    confirmPlot();
     await screen.findByRole('img', { name: '图形预览' });
     fireEvent.click(screen.getByRole('button', { name: '图形属性' }));
     const ui = within(screen.getByRole('dialog', { name: /绘图细节/ }));
@@ -70,6 +71,7 @@ describe('Origin category workflow', () => {
       target: { files: [file] },
     });
     await confirmDataImport();
+    confirmPlot();
     await screen.findByRole('img', { name: '图形预览' });
     fireEvent.click(screen.getByRole('button', { name: '图形属性' }));
     const dialog = screen.getByRole('dialog', { name: /绘图细节/ });
@@ -121,8 +123,10 @@ describe('Origin category workflow', () => {
       target: { files: [file] },
     });
     await confirmDataImport();
+    confirmPlot();
     await screen.findByRole('img', { name: '图形预览' });
     fireEvent.click(screen.getByRole('button', { name: '新增曲线' }));
+    confirmPlot();
     fireEvent.click(screen.getByRole('button', { name: '图形属性' }));
     const dialog = screen.getByRole('dialog', { name: /绘图细节/ });
     const ui = within(dialog);

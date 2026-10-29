@@ -1,53 +1,68 @@
 .origin-dialog,
 .axis-properties-dialog,
 .origin-tool-dialog {
-  --ui-control-height: 24px;
-  --ui-radius-control: 0;
-  --ui-font-size: 12px;
+  --ui-control-height: 34px;
+  --ui-radius-control: 7px;
+  --ui-font-size: 13px;
   --ui-font-small: 12px;
   --ui-font-caption: 11px;
 }
 :is(.origin-dialog, .axis-properties-dialog, .origin-tool-dialog)
   :is(button, input, select) {
-  min-height: 24px;
-  padding: 3px 7px;
-  border-radius: 0;
-  font-size: 12px;
+  min-height: var(--ui-control-height);
+  padding: 6px 9px;
+  border-radius: var(--ui-radius-control);
+  font-size: var(--ui-font-size);
 }
 :is(.origin-dialog, .axis-properties-dialog, .origin-tool-dialog)
-  input[type='checkbox'] {
-  min-height: 14px;
+  :is(input[type='checkbox'], input[type='radio']) {
+  min-height: 16px;
+  height: 16px;
+  width: 16px;
+  padding: 0;
+  accent-color: var(--ui-primary);
 }
 :is(.origin-dialog, .axis-properties-dialog, .origin-tool-dialog)
   .property-group {
-  padding: 8px;
-  gap: 6px;
-  border-radius: 0;
+  padding: 14px;
+  gap: 12px;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-surface);
+  border-color: var(--ui-border-strong);
+}
+:is(.origin-dialog, .axis-properties-dialog) .property-group > legend {
+  padding: 4px 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  background: var(--ui-subtle);
+  color: var(--ui-heading);
+  font-weight: 650;
 }
 :is(.origin-dialog, .axis-properties-dialog, .origin-tool-dialog)
   .origin-object-nav
   button {
-  padding: 5px 6px 5px calc(6px + var(--object-depth) * 8px);
+  padding: 9px 8px 9px calc(8px + var(--object-depth) * 8px);
 }
 :is(.origin-dialog, .axis-properties-dialog, .origin-tool-dialog)
   .origin-tabs
   button {
-  padding: 4px 8px;
-  border: 1px solid transparent;
+  padding: 7px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
 }
 :is(.origin-dialog, .axis-properties-dialog, .origin-tool-dialog)
   .origin-tabs
   button[aria-selected='true'] {
-  border-color: var(--ui-border-strong);
-  border-bottom-color: transparent;
+  border-bottom-color: var(--ui-primary);
 }
 .property-dialog.origin-dialog {
-  width: min(880px, calc(100vw - 32px));
-  height: min(660px, calc(100dvh - 32px));
-  border-radius: 0;
+  width: min(980px, calc(100vw - 32px));
+  height: min(800px, calc(100dvh - 32px));
+  border-radius: var(--ui-radius-dialog);
 }
 .origin-dialog .property-dialog-body {
-  grid-template-columns: 190px minmax(0, 1fr);
+  grid-template-columns: 184px minmax(0, 1fr);
 }
 .layer-stack-modes,
 .layer-stack-directions {
@@ -60,24 +75,26 @@
   width: auto;
 }
 .origin-dialog.has-preview {
-  width: min(1280px, calc(100vw - 32px));
+  width: min(1240px, calc(100vw - 32px));
 }
 .origin-dialog .property-dialog-preview[hidden] {
   display: none;
 }
 .origin-dialog.has-preview .property-dialog-body {
-  grid-template-columns: 190px minmax(380px, 1fr) minmax(260px, 1fr);
+  grid-template-columns: 184px minmax(0, 1fr) 300px;
 }
 .origin-preview-toggle {
-  margin: 2px 18px 0 auto;
-  min-width: 40px;
-  padding: 1px 8px;
+  margin: 8px 20px 8px auto;
+  padding: 6px 10px;
+  color: var(--ui-muted);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
 }
 .origin-object-nav {
   min-width: 0;
   padding: 18px 10px;
   background: var(--ui-subtle);
-  border-right: 1px solid var(--ui-border);
+  border-right: 1px solid var(--ui-border-strong);
   overflow: auto;
 }
 .origin-tree-heading {
@@ -107,10 +124,10 @@
   background: transparent;
 }
 .origin-object-nav button[aria-current='true'] {
-  color: var(--ui-heading);
-  background: var(--ui-surface);
+  color: var(--ui-primary);
+  background: var(--ui-selected);
   border-color: var(--ui-border-strong);
-  box-shadow: inset 3px 0 var(--ui-heading);
+  box-shadow: inset 3px 0 var(--ui-primary);
 }
 .origin-object-nav button > span:last-child {
   min-width: 0;
@@ -120,7 +137,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: calc(14px - var(--object-depth) * 1px);
+  font-size: var(--ui-font-small);
+  font-weight: 500;
 }
 .origin-object-nav small {
   display: block;
@@ -161,13 +179,16 @@
   min-height: 0;
   border-right: 1px solid var(--ui-border);
   background: var(--ui-surface);
+  container: property-editor / inline-size;
 }
 .origin-category-heading {
-  padding: 18px 16px 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--ui-border);
 }
 .origin-category-heading h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
 }
 .origin-category-heading p {
   margin: 5px 0 0;
@@ -178,8 +199,9 @@
   display: flex;
   overflow-x: auto;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--ui-border);
-  padding: 0 10px;
+  border-bottom: 1px solid var(--ui-border-strong);
+  padding: 4px 10px 0;
+  background: var(--ui-subtle);
 }
 .origin-tabs button {
   flex-shrink: 0;
@@ -189,14 +211,15 @@
   border: 0;
   border-radius: 0;
   border-bottom: 2px solid transparent;
-  background: var(--ui-surface);
+  background: transparent;
   font-size: var(--ui-font-small);
   white-space: nowrap;
 }
 .origin-tabs button[aria-selected='true'] {
-  color: var(--ui-heading);
-  border-bottom-color: var(--ui-heading);
-  font-weight: 700;
+  color: var(--ui-primary);
+  border-bottom-color: var(--ui-primary);
+  font-weight: 600;
+  background: var(--ui-surface);
 }
 .origin-tab-content {
   flex: 1;
@@ -204,6 +227,20 @@
   overflow-y: auto;
   align-content: start;
   overscroll-behavior: contain;
+  background: var(--ui-canvas);
+}
+.origin-feature-section {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.origin-feature-section:empty {
+  display: none;
+}
+@container property-editor (max-width: 440px) {
+  .origin-category-editor .property-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .property-group .property-check {
   display: flex;
@@ -217,7 +254,7 @@
   min-height: 16px;
   height: 16px;
   margin: 0;
-  accent-color: var(--ui-heading);
+  accent-color: var(--ui-primary);
 }
 .origin-dialog .property-dialog-preview {
   padding: 20px;
@@ -228,6 +265,12 @@
 .origin-dialog .property-dialog-footer {
   background: var(--ui-subtle);
 }
+.origin-dialog .property-dialog-footer button {
+  min-height: var(--ui-control-height);
+  padding: 5px 12px;
+  line-height: 20px;
+  white-space: nowrap;
+}
 .origin-dialog .property-dialog-footer .property-apply:last-child {
   color: var(--ui-heading);
   background: var(--ui-surface);
@@ -235,7 +278,10 @@
 }
 @media (min-width: 801px) and (max-width: 1100px) {
   .origin-dialog .property-dialog-body {
-    grid-template-columns: 140px 310px minmax(0, 1fr);
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
+  .origin-dialog.has-preview .property-dialog-body {
+    grid-template-columns: 150px minmax(0, 1fr) 250px;
   }
   .origin-dialog .property-dialog-preview {
     padding: 12px;
@@ -294,8 +340,8 @@
     min-height: 0;
     border-right: 0;
   }
-  .origin-category-heading {
-    padding: 10px 16px 8px;
+  .origin-object-heading {
+    display: none;
   }
   .origin-category-heading p {
     display: none;
@@ -304,11 +350,20 @@
     padding: 12px;
   }
 }
+@media (max-width: 800px), (pointer: coarse) {
+  .origin-dialog,
+  .axis-properties-dialog {
+    --ui-control-height: 44px;
+  }
+  .origin-dialog .property-dialog-footer button {
+    min-height: 44px;
+  }
+}
 .mapping-section {
   display: grid;
   gap: 12px;
   padding: 14px 0;
-  border-bottom: 1px solid var(--border, #e1e5ea);
+  border-bottom: 1px solid var(--ui-border);
 }
 .property-grid.f5-object {
   grid-template-columns: minmax(0, 1fr);
@@ -347,7 +402,8 @@
     overscroll-behavior: contain;
   }
   .origin-dialog .property-dialog-preview {
-    height: 160px;
+    height: auto;
+    overflow: visible;
   }
   .origin-dialog .property-dialog-preview .svg-surface > svg {
     max-height: 90px;

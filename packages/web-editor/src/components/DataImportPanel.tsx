@@ -52,21 +52,9 @@ function SheetSelection({ state }: { state: ImportState }) {
 function RawPreview({ state }: { state: ImportState }) {
   const sheet = state.draft.sheets[state.draft.active];
   if (!sheet) return null;
-  const region = state.draft.regions[state.draft.active]!;
   return (
     <>
       <h3>{sheetName(state, state.draft.active)}</h3>
-      <RegionOptions
-        value={region}
-        onChange={(value) =>
-          state.setDraft((current) => ({
-            ...current,
-            regions: current.regions.map((r, i) =>
-              i === current.active ? value : r,
-            ),
-          }))
-        }
-      />
       <div className="table-wrap import-raw">
         <table>
           <caption>原始数据前 {IMPORT_PREVIEW_ROWS} 行 · 行号从 1 开始</caption>
@@ -90,55 +78,100 @@ function RawPreview({ state }: { state: ImportState }) {
 }
 function ImportDialog({ state }: { state: ImportState }) {
   return (
-    <WorkspaceDialog title="导入数据" onClose={state.close}>
-      {!state.files.length && (
-        <div className="paste-input">
-          <label>
-            粘贴表格文本
-            <textarea
-              rows={5}
-              value={state.clipboard}
-              onChange={(e) => state.setClipboard(e.target.value)}
-              placeholder="从 Excel 复制单元格，在此粘贴"
-            />
-          </label>
-          <button type="button" onClick={() => state.previewText()}>
-            预览文本
-          </button>
-        </div>
-      )}
-      {(!state.files.length ||
-        state.files.some((file) => !/\.xlsx$/i.test(file.name))) && (
-        <TextOptions value={state.options} onChange={state.changeOptions} />
-      )}
-      {state.files.length > 1 && (
-        <p className="workspace-hint">
-          已选择 {state.files.length}{' '}
-          个文件。默认勾选每个文件的第一张表，可切换预览并分别调整表头与数据行。
-          编码和分隔符应用于本批所有文本文件；更改后重新读取并重置表选择及行设置。
-        </p>
-      )}
-      {state.loading && <p role="status">正在读取文件… {state.reading}</p>}
-      {state.draft.sheets.length > 1 && <SheetSelection state={state} />}
-      <RawPreview state={state} />
-      {(state.error || state.importErrors.length > 0) && (
-        <div role="alert" className="workspace-error">
-          {state.error && <p>{state.error}</p>}
-          {state.importErrors.length > 0 && (
-            <>
-              <p>以下文件或工作表无法导入，其余有效数据仍可确认：</p>
-              <ul>
-                {state.importErrors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            </>
+    <WorkspaceDialog
+      title="导入数据"
+      description="先确认解析方式，再将数据加入项目。文件在本地处理。"
+      className="data-import-dialog"
+      onClose={state.close}
+    >
+      <ol className="import-stepper" aria-label="导入步骤">
+        <li>
+          <span>1</span>选择文件
+        </li>
+        <li aria-current="step">
+          <span>2</span>预览与解析
+        </li>
+        <li>
+          <span>3</span>加入项目
+        </li>
+      </ol>
+      <div className="import-preview-layout">
+        <section className="import-preview-main" aria-label="文件与数据预览">
+          {!state.files.length && (
+            <div className="paste-input">
+              <label>
+                粘贴表格文本
+                <textarea
+                  rows={5}
+                  value={state.clipboard}
+                  onChange={(e) => state.setClipboard(e.target.value)}
+                  placeholder="从 Excel 复制单元格，在此粘贴"
+                />
+              </label>
+              <button type="button" onClick={() => state.previewText()}>
+                预览文本
+              </button>
+            </div>
           )}
-        </div>
-      )}
-      {!state.loading && state.files.length > 1 && (
-        <p role="status">将导入 {state.tables.length} 张数据表</p>
-      )}
+          {state.files.length > 1 && (
+            <p className="workspace-hint">
+              已选择 {state.files.length}{' '}
+              个文件。默认勾选每个文件的第一张表，可切换预览并分别调整表头与数据行。
+              编码和分隔符应用于本批所有文本文件；更改后重新读取并重置表选择及行设置。
+            </p>
+          )}
+          {state.loading && <p role="status">正在读取文件… {state.reading}</p>}
+          {state.draft.sheets.length > 1 && <SheetSelection state={state} />}
+          <RawPreview state={state} />
+          {!state.loading && !state.draft.sheets.length && (
+            <div className="import-preview-empty">
+              <strong>数据预览</strong>
+              <p>完成文件读取或粘贴文本后，在这里检查数据内容。</p>
+            </div>
+          )}
+          {(state.error || state.importErrors.length > 0) && (
+            <div role="alert" className="workspace-error">
+              {state.error && <p>{state.error}</p>}
+              {state.importErrors.length > 0 && (
+                <>
+                  <p>以下文件或工作表无法导入，其余有效数据仍可确认：</p>
+                  <ul>
+                    {state.importErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
+          {!state.loading && state.files.length > 1 && (
+            <p role="status">将导入 {state.tables.length} 张数据表</p>
+          )}
+        </section>
+        <aside className="import-options-panel" aria-label="解析设置">
+          <h3>解析设置</h3>
+          {(!state.files.length ||
+            state.files.some((file) => !/\.xlsx$/i.test(file.name))) && (
+            <TextOptions value={state.options} onChange={state.changeOptions} />
+          )}
+          {state.draft.sheets[state.draft.active] && (
+            <RegionOptions
+              value={state.draft.regions[state.draft.active]!}
+              onChange={(value) =>
+                state.setDraft((current) => ({
+                  ...current,
+                  regions: current.regions.map((region, index) =>
+                    index === current.active ? value : region,
+                  ),
+                }))
+              }
+            />
+          )}
+          <p className="workspace-hint">
+            更改参数后预览会重新解析；确认导入前不会修改当前项目。
+          </p>
+        </aside>
+      </div>
       <footer className="workspace-actions">
         <button type="button" onClick={state.close}>
           取消导入

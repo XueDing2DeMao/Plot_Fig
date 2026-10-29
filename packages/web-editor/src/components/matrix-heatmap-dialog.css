@@ -1,7 +1,7 @@
 .matrix-heatmap-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 .matrix-heatmap-fields select,
 .matrix-heatmap-fields input {
@@ -13,6 +13,12 @@
 }
 .matrix-heatmap-colors .property-group {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.matrix-heatmap-colors {
+  padding: 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-subtle);
 }
 .matrix-heatmap-colors :is(.color-map-preset, .color-map-custom) {
   grid-column: 1 / -1;

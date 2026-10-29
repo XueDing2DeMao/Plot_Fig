@@ -1,7 +1,7 @@
 .workspace-dialog {
-  width: min(920px, calc(100vw - 32px));
+  width: min(1080px, calc(100vw - 32px));
   max-height: calc(100dvh - 32px);
-  padding: 24px;
+  padding: 22px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-dialog);
   color: var(--ui-text);
@@ -111,7 +111,11 @@
 }
 .workspace-dialog-head {
   justify-content: space-between;
-  margin-bottom: 20px;
+  align-items: flex-start;
+  margin: -22px -22px 20px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-surface);
 }
 .workspace-dialog-head h2 {
   margin: 0;
@@ -119,11 +123,21 @@
   font-size: 18px;
 }
 .workspace-dialog-head button {
-  width: 40px;
+  width: var(--ui-control-height);
   min-height: var(--ui-control-height);
   flex-shrink: 0;
   padding: 0;
-  font-size: 24px;
+  font-size: 22px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--ui-muted);
+}
+.workspace-dialog-description {
+  margin: 6px 0 0;
+  max-width: 70ch;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+  line-height: 1.6;
 }
 .workspace-fields {
   display: grid;
@@ -171,7 +185,9 @@
 }
 .workspace-actions {
   justify-content: flex-end;
-  padding-top: 20px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-border);
 }
 .workspace-hint {
   color: var(--ui-muted);
@@ -219,14 +235,14 @@
   padding: 0 20px 16px;
 }
 .workspace-table-tools {
-  padding: 16px 20px;
+  padding: 16px 18px;
   align-items: end;
 }
 .workspace-table-tools label {
   flex: 1 1 160px;
 }
 .workspace-pagination {
-  padding: 14px 20px;
+  padding: 14px 18px;
   justify-content: flex-end;
   font-size: var(--ui-font-small);
   color: var(--ui-muted);
@@ -258,6 +274,18 @@
   color: var(--ui-muted);
   margin-top: 4px;
 }
+.column-settings-trigger .column-settings-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--ui-heading);
+  font-size: var(--ui-font-small);
+  font-weight: 500;
+}
+.column-settings-name > span {
+  margin: 0;
+}
 .binding-card .series-card > label {
   display: grid;
   gap: 6px;
@@ -268,6 +296,27 @@
 .workspace-table-list {
   display: grid;
   gap: 8px;
+}
+.workspace-table-list-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 8px;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-small);
+}
+.workspace-table-list strong,
+.workspace-table-list small {
+  display: block;
+}
+.workspace-table-list strong {
+  font-size: var(--ui-font-small);
+  font-weight: 500;
+}
+.workspace-table-list small {
+  margin-top: 5px;
+  color: var(--ui-muted);
+  font-size: var(--ui-font-caption);
 }
 .workspace-table-item {
   display: grid;
@@ -289,7 +338,7 @@
 .workspace-table-list button[aria-current='true'] {
   background: var(--ui-selected);
   border-color: var(--ui-primary);
-  color: var(--ui-heading);
+  color: var(--ui-primary);
 }
 .workspace-table-list .workspace-table-delete {
   width: 32px;
@@ -303,8 +352,120 @@
   background: var(--ui-danger-bg);
   border-color: var(--ui-danger-border);
 }
+.data-preview-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-surface);
+}
+.data-preview-panel .panel-head {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.data-preview-panel .panel-head h2 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.data-preview-panel .file-bar {
+  padding: 14px 18px;
+  background: var(--ui-subtle);
+  border-block: 1px solid var(--ui-border);
+}
+.data-preview-panel .table-selector {
+  padding: 14px 18px;
+}
+.data-preview-panel .workspace-table-tools {
+  border-bottom: 1px solid var(--ui-border);
+}
+.data-preview-panel .table-wrap {
+  max-height: min(52dvh, 580px);
+}
+.data-preview-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ui-font-small);
+}
+.data-preview-panel :is(th, td) {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ui-border);
+  font-variant-numeric: tabular-nums;
+}
+.data-preview-panel thead th {
+  background: var(--ui-subtle);
+  vertical-align: top;
+}
+.data-preview-panel td {
+  text-align: right;
+}
+.data-preview-panel tbody th {
+  color: var(--ui-muted);
+  font-weight: 400;
+  background: var(--ui-surface);
+}
+.data-preview-panel tbody tr:hover :is(th, td) {
+  background: var(--ui-subtle);
+}
+.workspace-table-remove {
+  color: var(--ui-danger);
+}
+.column-settings-dialog,
+.workspace-confirm-dialog {
+  width: min(600px, calc(100vw - 32px));
+}
+.column-settings-form {
+  display: grid;
+  gap: 14px;
+}
+.column-settings-form .workspace-fields {
+  margin: 0;
+}
+.column-settings-form .workspace-hint,
+.column-conversion-summary p {
+  margin: 0;
+}
+.column-settings-form > button {
+  justify-self: start;
+}
+.column-conversion-summary {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
+  font-size: var(--ui-font-small);
+  overflow-wrap: anywhere;
+}
+.workspace-removal-impact {
+  padding: 14px;
+  border-left: 3px solid var(--ui-warning);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
+  color: var(--ui-muted);
+  line-height: 1.7;
+}
+.table-import-settings-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+.table-import-settings-layout .import-raw {
+  min-width: 0;
+  max-height: 460px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
+}
+.table-import-settings-layout .workspace-fields {
+  grid-template-columns: minmax(0, 1fr);
+}
 @media (max-width: 600px) {
   .workspace-dialog {
+    padding: 16px;
+  }
+  .workspace-dialog-head {
+    margin: -16px -16px 16px;
     padding: 16px;
   }
   .workspace-fields {
@@ -318,6 +479,12 @@
     flex-basis: 100%;
   }
   .workspace-table-list {
-    display: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .workspace-table-list-heading {
+    grid-column: 1 / -1;
+  }
+  .table-import-settings-layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

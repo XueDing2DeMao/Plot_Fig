@@ -42,6 +42,8 @@
   gap: 24px;
   border: 1px solid var(--ui-border);
   padding: 8px;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
 }
 .origin-group-mode label {
   display: flex;
@@ -79,6 +81,7 @@
   padding: 10px;
   margin: 12px 0;
   min-width: 0;
+  border-radius: var(--ui-radius-control);
 }
 .origin-group-colormap > label {
   display: grid;
@@ -254,8 +257,9 @@
   text-align: left;
 }
 .origin-group-members li button[aria-pressed='true'] {
-  background: var(--ui-subtle);
-  border-color: var(--ui-border-strong);
+  background: var(--ui-selected);
+  border-color: transparent;
+  color: var(--ui-primary);
 }
 .origin-group-members li button > span:first-child {
   width: 27px;
@@ -282,6 +286,7 @@
   margin-top: 14px;
   border: 1px solid var(--ui-border);
   padding: 8px;
+  border-radius: var(--ui-radius-control);
 }
 .origin-group-parent label {
   display: flex;

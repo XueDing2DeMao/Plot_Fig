@@ -66,8 +66,8 @@ it.each([false, true])(
     fireEvent.change(screen.getByLabelText('线条颜色'), {
       target: { value: '#c0392b' },
     });
-    if (visible)
-      fireEvent.click(screen.getByRole('button', { name: '展开预览' }));
+    if (!visible)
+      fireEvent.click(screen.getByRole('button', { name: '收起预览' }));
     fireEvent.click(screen.getByRole('button', { name: '应用' }));
     expect(screen.queryAllByRole('alert')).toHaveLength(0);
     expect(onApplyModel).toHaveBeenCalledOnce();

@@ -1,6 +1,6 @@
 .batch-y-body {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   padding: 18px;
 }
 .batch-y-field {
@@ -24,10 +24,13 @@
 }
 .batch-y-submit {
   justify-content: flex-end;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-border);
 }
 .batch-y-columns {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   margin: 0;
   padding: 8px;
   min-width: 0;
@@ -35,13 +38,21 @@
   overflow-y: auto;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-control);
+  background: var(--ui-subtle);
 }
 .batch-y-body .batch-y-column {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  padding: 6px;
+  min-height: 36px;
+  padding: 8px;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-surface);
   cursor: pointer;
+}
+.batch-y-body .batch-y-column:has(input:checked) {
+  background: var(--ui-selected);
+  color: var(--ui-primary);
 }
 .batch-y-body .batch-y-column input {
   width: auto;

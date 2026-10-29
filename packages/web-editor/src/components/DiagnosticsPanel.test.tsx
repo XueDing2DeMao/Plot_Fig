@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
 import type { DataDiagnostic } from '@plot-fig/data-binding';
 import { DiagnosticsPanel } from './DiagnosticsPanel.js';
@@ -76,4 +82,32 @@ it('keeps the 100 item display limit while counting all diagnostics', () => {
   expect(screen.getByText('第 100 项诊断')).toBeVisible();
   expect(screen.queryByText('第 101 项诊断')).not.toBeInTheDocument();
   expect(screen.getByText(/共 101 项诊断，展示前 100 项/)).toBeVisible();
+});
+
+it('filters visible diagnostics by severity while retaining the complete counts', () => {
+  render(
+    <DiagnosticsPanel
+      diagnostics={[
+        {
+          code: 'TABLE_VALUE_INVALID',
+          severity: 'warning',
+          sourcePath: '/rows/0',
+          message: '检查此数值',
+        },
+        {
+          code: 'TABLE_IMPORT_WARNING',
+          severity: 'info',
+          sourcePath: '/tables/0',
+          message: '数据已读取',
+        },
+      ]}
+    />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: '警告 1' }));
+  expect(screen.getAllByRole('listitem')).toHaveLength(1);
+  expect(screen.getByText('检查此数值')).toBeVisible();
+  expect(screen.queryByText('数据已读取')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '提示 1' })).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: '全部 2' }));
+  expect(screen.getAllByRole('listitem')).toHaveLength(2);
 });

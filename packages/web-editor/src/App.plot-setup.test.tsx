@@ -41,7 +41,7 @@ it('opens the data table from the workspace and restores focus when closed', asy
     screen.queryByRole('region', { name: '数据表预览' }),
   ).not.toBeInTheDocument();
   const preview = screen.getByRole('button', { name: '数据表预览' });
-  expect(preview.closest('.app-sidebar')).not.toBeNull();
+  expect(preview.closest('.data-setup-stack')).not.toBeNull();
   expect(screen.getByRole('region', { name: '导入数据' })).not.toContainElement(
     preview,
   );

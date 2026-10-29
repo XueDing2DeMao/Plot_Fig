@@ -10,7 +10,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px 12px;
-  padding: 11px 14px;
+  min-height: 48px;
+  padding: 12px 16px;
 }
 .diagnostics-panel .diagnostics-header h2 {
   margin: 0;
@@ -19,7 +20,7 @@
   font-weight: 600;
 }
 .diagnostics-panel .diagnostics-empty {
-  color: var(--ui-muted);
+  color: var(--ui-success);
   font-size: var(--ui-font-small);
   white-space: nowrap;
 }
@@ -27,6 +28,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
+  width: 100%;
 }
 .diagnostics-panel [data-severity='error'] {
   --diagnostic-color: var(--ui-danger);
@@ -35,8 +37,9 @@
   --diagnostic-color: var(--ui-warning);
 }
 .diagnostics-panel .diagnostics-count {
-  padding: 2px 7px;
-  border: 1px solid var(--ui-border);
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
   border-radius: 5px;
   background: var(--ui-subtle);
   color: var(--diagnostic-color);
@@ -44,33 +47,42 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+.diagnostics-panel .diagnostics-count[aria-pressed='true'] {
+  border-color: var(--ui-primary);
+  color: var(--ui-primary);
+  background: var(--ui-selected);
+}
 .diagnostics-panel .diagnostics-list {
   display: grid;
-  gap: 8px;
+  gap: 0;
   margin: 0;
-  padding: 10px 12px 12px;
+  padding: 0 16px;
   border-top: 1px solid var(--ui-border);
   list-style: none;
 }
 .diagnostics-panel .diagnostics-list li {
   min-width: 0;
-  padding: 8px 10px;
-  border-left: 2px solid var(--diagnostic-color);
-  border-radius: 4px;
-  background: var(--ui-subtle);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ui-border);
   overflow-wrap: anywhere;
+}
+.diagnostics-panel .diagnostics-list li:last-child {
+  border-bottom: 0;
 }
 .diagnostics-panel .diagnostics-item-heading {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   gap: 4px 8px;
   margin-bottom: 4px;
 }
 .diagnostics-panel .diagnostics-severity {
   color: var(--diagnostic-color);
-  font-size: var(--ui-font-small);
-  font-weight: 600;
+  font-size: var(--ui-font-caption);
+  font-weight: 500;
+  padding: 2px 6px;
+  background: var(--ui-subtle);
+  border-radius: 4px;
 }
 .diagnostics-panel .diagnostics-item-heading code {
   min-width: 0;
