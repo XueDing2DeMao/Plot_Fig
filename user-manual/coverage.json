@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-08",
+  "date": "2026-10-29",
   "schema": "1.24.0",
   "projectFormat": "2.0.0",
   "majorChapters": [
@@ -154,7 +154,9 @@
         "packages/web-editor/src/App.tsx",
         "packages/web-editor/src/components/FigurePreview.tsx",
         "packages/web-editor/src/components/PlotSettingsPanel.tsx",
-        "packages/web-editor/src/components/FigurePropertiesDialog.tsx"
+        "packages/web-editor/src/components/FigurePropertiesDialog.tsx",
+        "packages/web-editor/src/components/StudioDataDock.tsx",
+        "packages/web-editor/src/components/DiagnosticsPanel.tsx"
       ]
     },
     {
@@ -193,7 +195,9 @@
         "packages/web-editor/src/state/use-figure-zoom.ts",
         "packages/web-editor/src/state/editor-history.ts",
         "packages/web-editor/src/components/EditorHistoryControls.tsx",
-        "packages/web-editor/src/state/origin-menu-model.ts"
+        "packages/web-editor/src/state/origin-menu-model.ts",
+        "packages/web-editor/src/App.tsx",
+        "packages/web-editor/src/components/StudioDataDock.tsx"
       ]
     },
     {
@@ -979,7 +983,8 @@
         "packages/web-editor/src/components/ProjectRecoveryControls.tsx",
         "packages/web-editor/src/components/TemplateLibraryDialog.tsx",
         "packages/web-editor/src/components/DatasetBatchDialog.tsx",
-        "packages/web-editor/src/components/OriginExportDialog.tsx"
+        "packages/web-editor/src/components/OriginExportDialog.tsx",
+        "packages/web-editor/src/components/StudioDataDock.tsx"
       ]
     },
     {
@@ -1254,7 +1259,7 @@
       "name": "线宽与基本颜色",
       "entry": "图形属性 → 选中 XY 曲线",
       "operation": "线条页设置 pt 线宽、固定颜色。",
-      "check": "导出后细线可见。",
+      "check": "原本同线色的符号填充/边框随新线色更新；空心和独立颜色保留。",
       "chapter": 6,
       "legacyChapter": 54,
       "section": "6.6"
@@ -1354,7 +1359,7 @@
       "name": "整层连续配色",
       "entry": "图形属性 → 选中 XY 曲线",
       "operation": "按曲线使用连续色带，使首尾曲线对应色带两端。",
-      "check": "已有组映射会改为全图层曲线顺序；隐藏曲线保留颜色位置。",
+      "check": "已有组映射会改为全图层曲线顺序；隐藏曲线保留颜色位置，原本同线色的符号跟随更新。",
       "chapter": 6,
       "legacyChapter": 54,
       "section": "6.6"
@@ -3083,7 +3088,7 @@
       "id": "F208",
       "name": "文本编码与分隔符",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "导入对话框选择编码、逗号/制表符等分隔方式。",
+      "operation": "在导入窗口右侧“解析设置”选择编码、逗号/制表符等分隔方式。",
       "check": "预览应形成多列且中文正常。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3093,7 +3098,7 @@
       "id": "F209",
       "name": "表头/单位/数据起始行",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "分别设置行号，单位行 0 表示不用。",
+      "operation": "在“解析设置”分别设置行号，单位行 0 表示不用。",
       "check": "重新解析后检查每张表选择状态。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3103,7 +3108,7 @@
       "id": "F210",
       "name": "工作区表浏览",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "打开数据工作区，选择表并查看列概要及数据预览。",
+      "operation": "展开画布下方“数据表”，或点击左侧文件名打开“数据表预览”，选择表并查看数据。",
       "check": "预览只显示部分数据时不代表数据被截断。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3183,7 +3188,7 @@
       "id": "F218",
       "name": "属性草稿",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "属性窗口先预览，应用保留窗口、确定提交并关闭、取消放弃未提交内容。",
+      "operation": "图形与坐标轴属性默认显示预览，可收起或恢复；应用保留窗口，确定提交并关闭，取消放弃未提交内容。",
       "check": "批量属性编辑先选对象，再只勾要修改的字段。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3203,7 +3208,7 @@
       "id": "F220",
       "name": "视图缩放",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "用放大、缩小、框选和恢复缩放控件改变可见数据范围。",
+      "operation": "用放大、缩小、框选和恢复缩放控件改变可见数据范围；“专注画布”仅收起或恢复两侧面板。",
       "check": "范围会影响图像输出，导出前核对；不改变页面物理尺寸。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3213,7 +3218,7 @@
       "id": "F221",
       "name": "诊断信息",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "打开诊断查看对象、字段及错误信息，修复后重新应用。",
+      "operation": "点击“全部、错误、警告、提示”筛选诊断，查看对象和字段，修复后重新应用。",
       "check": "有预览不等于所有绑定均正确。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3233,7 +3238,7 @@
       "id": "F223",
       "name": "自动恢复开关",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "开启自动保留；恢复窗口选择副本或本次跳过。",
+      "operation": "顶部开启自动保留；恢复窗口选择标为“可恢复”的副本，或本次跳过。",
       "check": "只保留已应用内容，同站点有容量上限。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3253,7 +3258,7 @@
       "id": "F225",
       "name": "模板保存/管理",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "保存当前预览为个人模板；搜索、改名、删除或导出 JSON。",
+      "operation": "保存当前预览为个人模板；按名称/标签搜索模板卡片，改名、删除或导出 JSON。",
       "check": "模板与完整项目用途不同。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3263,7 +3268,7 @@
       "id": "F226",
       "name": "模板套用",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "选择仅样式或完整模板，映射必需槽，检查预览后应用。",
+      "operation": "选择仅样式或完整模板，映射必需槽，生成当前数据预览并检查后应用。",
       "check": "完整结构可能改变现有图层。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3303,7 +3308,7 @@
       "id": "F230",
       "name": "单图/逐层导出",
       "entry": "主界面工具栏、数据工作区及模板中心",
-      "operation": "导出图形中选择当前图形或批量导出图层，配置 SVG/PNG、DPI 和像素。",
+      "operation": "导出图形中选择当前图形或批量导出图层，在“文件与图像”和“输出尺寸”配置格式及尺寸。",
       "check": "SVG/PNG 不能替代可编辑项目。",
       "chapter": 9,
       "legacyChapter": 64,
@@ -3319,5 +3324,6 @@
       "legacyChapter": 64,
       "section": "9.3"
     }
-  ]
+  ],
+  "baselineTeachingVerificationDate": "2026-10-08"
 }

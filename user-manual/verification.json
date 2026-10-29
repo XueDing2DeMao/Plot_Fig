@@ -2,14 +2,14 @@
   "chapters": 10,
   "sections": 65,
   "features": 231,
-  "screenshots": 18,
+  "screenshots": 20,
   "chartImages": 22,
   "projects": 22,
   "examples": 8,
   "missingLinks": [],
-  "htmlBytes": 254365,
-  "sourceFiles": 134,
-  "preservedContentImages": 39,
+  "htmlBytes": 262112,
+  "sourceFiles": 135,
+  "preservedContentImages": 41,
   "headingLevels": "ok",
   "uniqueAnchors": true,
   "chartRoundTrips": [
@@ -274,5 +274,55 @@
       "reopen": "ok",
       "render": "ok"
     }
-  ]
+  ],
+  "date": "2026-10-29",
+  "baselineTeachingVerificationDate": "2026-10-08",
+  "currentUpdate": {
+    "date": "2026-10-29",
+    "sourceCommit": "54b77d9",
+    "replacedScreenshots": 12,
+    "addedScreenshots": 2,
+    "capturedScreenshots": [
+      "images/01-workspace.jpg",
+      "images/02-import.jpg",
+      "images/03-batch-y.jpg",
+      "images/04-preview.jpg",
+      "images/05-properties.jpg",
+      "images/08-axis.jpg",
+      "images/09-templates.jpg",
+      "images/10-batch.jpg",
+      "images/11-export.jpg",
+      "images/12-column.jpg",
+      "images/13-layers.jpg",
+      "images/14-recovery.jpg",
+      "images/19-focus-canvas.jpg",
+      "images/20-data-dock.jpg"
+    ],
+    "historicalScreenshots": [
+      "images/15-matrix.png",
+      "images/07-groups.png",
+      "images/06-stack.png",
+      "images/16-batch-missing.png",
+      "images/17-batch-mapped.png",
+      "images/18-batch-success.png"
+    ],
+    "manualChecks": [
+      "双曲线教程：粘贴 01-xy.csv、批量选择 Sample_A/Sample_B 并生成图形",
+      "专注画布切换与画布数据表展开/收起",
+      "导入、列设置、图形属性、坐标轴、模板卡片、图层管理与恢复窗口",
+      "当前图形 PNG 导出预览与数据表批绘预检窗口",
+      "手册章节、锚点、图片、相对链接及功能索引一致性"
+    ],
+    "tests": {
+      "command": "pnpm exec vitest run packages/web-editor/src/App.studio-layout.test.tsx packages/web-editor/src/components/DiagnosticsPanel.test.tsx packages/web-editor/src/components/OriginLineColor.test.tsx",
+      "filesPassed": 3,
+      "testsPassed": 24,
+      "exitCode": 0
+    },
+    "browserErrorsObserved": [],
+    "offlineHtmlBrowserRender": "未执行：内置浏览器不允许 file: 协议；本次采用结构、资源、相对链接及离线包字节一致性检查。",
+    "teachingRoundTripsRerun": false,
+    "threeTableBatchRerun": false,
+    "scope": "本次核对界面变动及对应说明。chartRoundTrips、batchManifest、batchProjectReopen 为 2026-10-08 历史验收记录。"
+  }
 }
